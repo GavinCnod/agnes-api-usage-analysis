@@ -1,0 +1,128 @@
+# Agnes AI Usage Analytics Dashboard — Full Content
+
+> A browser-side analytics dashboard for Agnes AI usage. Upload a single usage CSV and get cost, token, request, per-key, and trend analytics without sending any data to a server. Built by Gavin Chen & the Mindrose team. Version `0.1.0`.
+
+---
+
+## Features
+
+- **Single CSV workflow** — One Agnes usage CSV per analysis session.
+- **Success-only counting** — Only rows with `Consumption Status=success` are included.
+- **Dashboard views** — `Overview`, `By Project`, `By Key`, `Trends`.
+- **Project grouping** — Group secret keys into custom local projects.
+- **Model filter** — Filter all views when multiple models exist.
+- **Share cards** — Export 1200x630 dashboard share images.
+- **Privacy-first** — All parsing and rendering happen in the browser.
+- **Bilingual UI** — English and Chinese are available across UI and docs.
+- **Apple-minimalist design** — Thin dividers, large hero metrics, and theme-aware charts.
+
+---
+
+## How It Works
+
+### English
+
+1. Export a usage CSV from Agnes AI.
+2. Upload that CSV into the app.
+3. The app parses amount, quantity, model, key name, time, and status fields.
+4. It shows analytics for Overview, By Project, By Key, and Trends.
+5. All data stays in the browser.
+
+### 中文
+
+1. 从 Agnes AI 导出 usage CSV。
+2. 将该 CSV 上传到应用中。
+3. 应用会解析金额、数量、模型、Key 名称、时间和状态字段。
+4. 然后展示总览、按项目、按 Key 和趋势四类分析。
+5. 所有数据都保留在浏览器本地。
+
+---
+
+## FAQ
+
+### English
+
+**Q1: Is my data uploaded to any server?**  
+No. All parsing and rendering happen locally in your browser.
+
+**Q2: What file do I need?**  
+You need one Agnes usage CSV file.
+
+**Q3: Can I analyze multiple months at once?**  
+Not in the current version. The current workflow focuses on one CSV at a time.
+
+**Q4: What models are supported?**  
+Any model present in the Agnes usage export.
+
+**Q5: Why is cost 0?**  
+If `Consumption Amount(cents)` is `0` in the export, the dashboard will also show `0`.
+
+**Q6: What does "Incomplete Upload" mean now?**  
+It usually means the file is empty, malformed, or missing required columns.
+
+**Q7: Can I group API keys by project?**  
+Yes. Use the `By Project` tab and configure custom project groups locally in the browser.
+
+### 中文
+
+**Q1：我的数据会上传到服务器吗？**  
+不会。所有解析和渲染都在浏览器本地完成。
+
+**Q2：需要上传什么文件？**  
+需要一个 Agnes usage CSV 文件。
+
+**Q3：可以同时分析多个月份吗？**  
+当前版本还不支持，现阶段聚焦单个 CSV 的稳定分析。
+
+**Q4：支持哪些模型？**  
+支持 Agnes usage 导出中出现的所有模型。
+
+**Q5：为什么费用显示为 0？**  
+如果导出文件里的 `Consumption Amount(cents)` 本身就是 `0`，仪表盘也会显示 `0`。
+
+**Q6："上传不完整" 现在是什么意思？**  
+通常表示文件为空、格式错误，或者缺少必要列。
+
+**Q7：可以按项目分组 API Key 吗？**  
+可以，通过 `按项目` 标签页在浏览器本地配置自定义项目分组。
+
+---
+
+## Privacy
+
+### English
+
+The app is fully client-side. Uploaded CSV data is parsed only in the browser. No backend or database is used for analytics processing. Optional Google Analytics tracks page usage only when configured and never includes CSV content.
+
+### 中文
+
+本应用完全在客户端运行。上传的 CSV 数据仅在浏览器中解析，不使用后端或数据库处理分析结果。可选的 Google Analytics 仅在配置后追踪页面使用情况，不会包含任何 CSV 内容。
+
+---
+
+## Terms
+
+### English
+
+This is an independent open-source project by Gavin Chen and the Mindrose team. It is provided as-is, without warranty, and is not affiliated with Agnes AI.
+
+### 中文
+
+本项目由 Gavin Chen 和 Mindrose 团队独立开发并开源，按现状提供，不附带任何担保，且与 Agnes AI 官方无隶属关系。
+
+---
+
+## Public Links
+
+- Main App: https://deepseek-usage.xyz
+- User Guide: https://deepseek-usage.xyz/guideline
+- Changelog: https://deepseek-usage.xyz/changelog
+- Privacy Policy: https://deepseek-usage.xyz/privacy
+- Terms of Use: https://deepseek-usage.xyz/terms
+- GitHub Repository: https://github.com/GavinCnod/deepseek-api-usage-analysis
+
+## Migration Notes
+
+- Current migration version: `0.1.0`
+- Default public domain fallback remains `https://deepseek-usage.xyz`
+- Existing external links are intentionally preserved for now

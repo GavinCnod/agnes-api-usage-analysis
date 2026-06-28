@@ -1,0 +1,33 @@
+# Agnes AI Usage Analytics Dashboard
+
+> Visualize Agnes AI usage from a single CSV export. The app runs entirely in the browser and shows cost, token, request, per-key, per-project, and trend analytics. Open source, bilingual, and privacy-first.
+
+## Core Capabilities
+
+- Upload one Agnes usage CSV
+- Parse `Consumption Quantity` into input/output tokens
+- Count only `Consumption Status=success`
+- View `Overview`, `By Project`, `By Key`, and `Trends`
+- Filter by model when multiple models exist
+- Generate social share cards
+- Process everything locally in the browser
+
+## Public Pages
+
+- [Main App](https://deepseek-usage.xyz)
+- [User Guide](https://deepseek-usage.xyz/guideline)
+- [Changelog](https://deepseek-usage.xyz/changelog)
+- [Privacy Policy](https://deepseek-usage.xyz/privacy)
+- [Terms of Use](https://deepseek-usage.xyz/terms)
+- [Full LLM Content](https://deepseek-usage.xyz/llms-full.txt)
+
+## External Links
+
+- [GitHub Repository](https://github.com/GavinCnod/deepseek-api-usage-analysis)
+- [MindRose](https://www.mindrose.xyz)
+
+## Notes
+
+- Current app version: `0.1.0`
+- Default public domain fallback is still `https://deepseek-usage.xyz`
+- External links are intentionally preserved during this migration pass
