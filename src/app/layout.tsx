@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 /** 站点公开 URL（构建时从 .env 注入） */
 const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://deepseek-usage.xyz";
+  process.env.NEXT_PUBLIC_SITE_URL || "https://agnes-usage.xyz";
 
 /** Google Analytics 测量 ID（构建时从 .env 注入） */
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
@@ -63,7 +63,7 @@ export function generateMetadata(): Metadata {
           type: "image/png",
         },
         {
-          url: `${SITE_URL}/ds-usage-logo.png`,
+          url: `${SITE_URL}/agnes-usage-logo.png`,
           width: 512,
           height: 512,
           alt: "Agnes AI Usage Analytics Dashboard logo",
@@ -90,7 +90,7 @@ export function generateMetadata(): Metadata {
     ],
     authors: [{ name: "Gavin & Mindrose Team" }],
     icons: {
-      icon: "/ds-usage-logo.ico",
+      icon: "/agnes-usage-logo.ico",
     },
     robots: {
       index: true,

@@ -1,12 +1,12 @@
-# Contributing to DeepSeek API Usage Analytics Dashboard
+# Contributing to Agnes API Usage Analytics Dashboard
 
 Thank you for your interest in contributing! This document will help you get started.
 
 ## Development Setup
 
 ```bash
-git clone https://github.com/GavinCnod/ds-usage-analysis.git
-cd ds-usage-analysis
+git clone https://github.com/GavinCnod/agnes-usage-analysis.git
+cd agnes-usage-analysis
 npm install
 npm run dev
 ```
@@ -83,6 +83,6 @@ const { t } = useTranslation();
 
 ## Need Help?
 
-- Check the [User Guide](https://deepseek-usage.xyz/guideline)
-- Open a [GitHub Discussion](https://github.com/GavinCnod/ds-usage-analysis/discussions)
-- File an [issue](https://github.com/GavinCnod/ds-usage-analysis/issues)
+- Check the [User Guide](https://agnes-usage.xyz/guideline)
+- Open a [GitHub Discussion](https://github.com/GavinCnod/agnes-api-usage-analysis/discussions)
+- File an [issue](https://github.com/GavinCnod/agnes-api-usage-analysis/issues)

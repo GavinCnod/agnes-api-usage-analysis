@@ -46,7 +46,7 @@ export default function TitleBar() {
       >
         <div className="flex items-center gap-3">
           <Image
-            src="/ds-usage-logo.png"
+            src="/agnes-usage-logo.png"
             alt="Agnes AI Usage Logo"
             width={32}
             height={32}
@@ -63,7 +63,7 @@ export default function TitleBar() {
         </div>
         <div className="flex items-center gap-3">
           <a
-            href="https://github.com/GavinCnod/deepseek-api-usage-analysis"
+            href="https://github.com/GavinCnod/agnes-api-usage-analysis"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200 hover:bg-[var(--border)]"

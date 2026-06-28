@@ -982,7 +982,7 @@ export function GuidelinePage() {
             <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>
               {t.guideline.footerNote.split("{githubLink}")[0]}
               <a
-                href="https://github.com/GavinCnod/deepseek-api-usage-analysis/issues"
+                href="https://github.com/GavinCnod/agnes-api-usage-analysis/issues"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline underline-offset-2 transition-colors duration-200"

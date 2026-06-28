@@ -1,7 +1,7 @@
 # Agnes AI 用量分析仪表盘 by Gavin & Mindrose Team
 
 <p align="center">
-  <img src="public/ds-usage-logo.png" alt="Logo" width="128" />
+  <img src="public/agnes-usage-logo.png" alt="Logo" width="128" />
 </p>
 
 一款纯浏览器端的 Agnes AI 用量分析仪表盘。上传单个 Agnes usage CSV，即可在本地浏览器中即时查看费用、Token、请求量和按 Key 的统计。无需服务器、无需上传、无需注册。
@@ -74,6 +74,6 @@ npm run build
 ## 项目说明
 
 - 当前应用版本为 `0.1.0`。
-- 站点默认 URL fallback 仍为 `https://deepseek-usage.xyz`。
-- 对外 GitHub 链接当前仍保留为 `https://github.com/GavinCnod/deepseek-api-usage-analysis`。
+- 站点默认 URL fallback 已经改为 `https://agnes-usage.xyz`。
+- 对外 GitHub 链接已经改为 `https://github.com/GavinCnod/agnes-api-usage-analysis`。 
 - 这些外部地址是当前阶段刻意保留的边界，不在本轮 Agnes 迁移里替换。

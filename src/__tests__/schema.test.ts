@@ -8,10 +8,10 @@ describe("buildOrganizationJsonLd", () => {
     expect(result["@context"]).toBe("https://schema.org");
     expect(result["@type"]).toBe("Organization");
     expect(result.name).toContain("Agnes");
-    expect(result.url).toContain("deepseek-usage.xyz");
-    expect(result.logo).toContain("ds-usage-logo.png");
+    expect(result.url).toContain("agnes-usage.xyz");
+    expect(result.logo).toContain("agnes-usage-logo.png");
     expect(result.sameAs).toEqual([
-      "https://github.com/GavinCnod/deepseek-api-usage-analysis",
+      "https://github.com/GavinCnod/agnes-api-usage-analysis",
     ]);
   });
 

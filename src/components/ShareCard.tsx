@@ -434,12 +434,12 @@ export default function ShareCard({
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           {/* 水印文字 */}
           <span style={{ fontSize: 9, color: c.textTertiary, opacity: 0.4, textAlign: "right", lineHeight: 1.4 }}>
-            {s.generatedBy}<br />deepseek-usage.xyz
+            {s.generatedBy}<br />agnes-usage.xyz
           </span>
 
           {/* 应用 Logo */}
           <img
-            src="/ds-usage-logo.png"
+            src="/agnes-usage-logo.png"
             alt="Logo"
             width={44}
             height={44}

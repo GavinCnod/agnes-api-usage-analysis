@@ -114,15 +114,15 @@ This is an independent open-source project by Gavin Chen and the Mindrose team. 
 
 ## Public Links
 
-- Main App: https://deepseek-usage.xyz
-- User Guide: https://deepseek-usage.xyz/guideline
-- Changelog: https://deepseek-usage.xyz/changelog
-- Privacy Policy: https://deepseek-usage.xyz/privacy
-- Terms of Use: https://deepseek-usage.xyz/terms
-- GitHub Repository: https://github.com/GavinCnod/deepseek-api-usage-analysis
+- Main App: https://agnes-usage.xyz
+- User Guide: https://agnes-usage.xyz/guideline
+- Changelog: https://agnes-usage.xyz/changelog
+- Privacy Policy: https://agnes-usage.xyz/privacy
+- Terms of Use: https://agnes-usage.xyz/terms
+- GitHub Repository: https://github.com/GavinCnod/agnes-api-usage-analysis
 
 ## Migration Notes
 
 - Current migration version: `0.1.0`
-- Default public domain fallback remains `https://deepseek-usage.xyz`
+- Default public domain fallback remains `https://agnes-usage.xyz`
 - Existing external links are intentionally preserved for now

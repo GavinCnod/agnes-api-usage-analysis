@@ -18,7 +18,7 @@ body:
     attributes:
       label: Steps to reproduce
       description: What steps should someone follow to see the same bug?
-      placeholder: "1. Open deepseek-usage.xyz\n2. Drop file X\n3. Click Y"
+      placeholder: "1. Open agnes-usage.xyz\n2. Drop file X\n3. Click Y"
     validations:
       required: true
   - type: textarea

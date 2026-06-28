@@ -1,7 +1,7 @@
 # Agnes AI Usage Analytics Dashboard by Gavin & Mindrose Team
 
 <p align="center">
-  <img src="public/ds-usage-logo.png" alt="Logo" width="128" />
+  <img src="public/agnes-usage-logo.png" alt="Logo" width="128" />
 </p>
 
 A browser-side analytics dashboard for Agnes AI usage. Upload a single Agnes usage CSV and get instant cost, token, request, and per-key analytics in your browser. No server, no upload, no signup.
@@ -74,6 +74,6 @@ npm run build
 ## Project Notes
 
 - App version is `0.1.0`.
-- Default site URL fallback is still `https://deepseek-usage.xyz`.
-- The public GitHub link is still `https://github.com/GavinCnod/deepseek-api-usage-analysis`.
+- Default site URL fallback changed to `https://agnes-usage.xyz`.
+- The public GitHub link changed to `https://github.com/GavinCnod/agnes-api-usage-analysis`.
 - These external addresses are intentionally kept for now and are not part of this migration pass.

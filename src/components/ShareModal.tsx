@@ -79,7 +79,7 @@ export default function ShareModal({ tab, onClose }: ShareModalProps) {
   // 二维码生成：当前按既定产品边界继续沿用已发布域名
   useEffect(() => {
     let cancelled = false;
-    QRCode.toDataURL("https://deepseek-usage.xyz", {
+    QRCode.toDataURL("https://agnes-usage.xyz", {
       width: 160,
       margin: 1,
       color: { dark: theme === "dark" ? "#F5F5F7" : "#1D1D1F", light: "#00000000" },

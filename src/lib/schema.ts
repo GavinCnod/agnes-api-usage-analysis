@@ -15,7 +15,7 @@ const APP_VERSION = "0.1.0";
 
 /** 站点公开 URL */
 const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://deepseek-usage.xyz";
+  process.env.NEXT_PUBLIC_SITE_URL || "https://agnes-usage.xyz";
 
 /** SoftwareApplication Schema 翻译 */
 const softwareAppSchema: Record<
@@ -255,8 +255,8 @@ export function buildOrganizationJsonLd(locale: Locale): Record<string, unknown>
     "@type": "Organization",
     name: t.name,
     url: SITE_URL,
-    logo: `${SITE_URL}/ds-usage-logo.png`,
+    logo: `${SITE_URL}/agnes-usage-logo.png`,
     description: t.description,
-    sameAs: ["https://github.com/GavinCnod/deepseek-api-usage-analysis"],
+    sameAs: ["https://github.com/GavinCnod/agnes-api-usage-analysis"],
   };
 }

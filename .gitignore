@@ -46,7 +46,7 @@ next-env.d.ts
 # gstack session data
 /.gstack/
 
-# sample data (real DeepSeek CSVs with API key fragments)
+# sample data (real Agnes CSVs with API key fragments)
 /sampleData/
 
 # local dev data

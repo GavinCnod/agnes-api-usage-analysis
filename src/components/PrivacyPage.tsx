@@ -54,7 +54,7 @@ export function PrivacyPage() {
       isPartOf: {
         "@type": "WebSite",
         name: "Agnes AI Usage Analysis",
-        url: "https://deepseek-usage.xyz",
+        url: "https://agnes-usage.xyz",
       },
     };
   }, [locale]);
@@ -191,7 +191,7 @@ export function PrivacyPage() {
             {/* 源码审查链接 */}
             {section.reviewLink && (
               <a
-                href="https://github.com/GavinCnod/deepseek-api-usage-analysis"
+                href="https://github.com/GavinCnod/agnes-api-usage-analysis"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 text-xs mt-2 underline underline-offset-2 transition-colors duration-200"
@@ -230,7 +230,7 @@ export function PrivacyPage() {
           style={{ color: "var(--text-tertiary)" }}
         >
           <a
-            href="https://github.com/GavinCnod/deepseek-api-usage-analysis"
+            href="https://github.com/GavinCnod/agnes-api-usage-analysis"
             target="_blank"
             rel="noopener noreferrer"
             className="underline underline-offset-2 transition-colors duration-200"

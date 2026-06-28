@@ -24,8 +24,8 @@ Strictly follows an Apple-minimalist design language: cold gray paper-texture ba
   - `trends`
 - Cache analytics are removed because the Agnes CSV does not expose cache fields.
 - Existing public external links and default site URL fallback remain:
-  - GitHub: `https://github.com/GavinCnod/deepseek-api-usage-analysis`
-  - Site URL fallback: `https://deepseek-usage.xyz`
+  - GitHub: `https://github.com/GavinCnod/agnes-api-usage-analysis`
+  - Site URL fallback: `https://agnes-usage.xyz`
 
 ## Architecture
 

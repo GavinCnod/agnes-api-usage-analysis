@@ -133,7 +133,7 @@ export default function LandingContent() {
         </div>
 
         <p>
-          <a href="https://github.com/GavinCnod/deepseek-api-usage-analysis">
+          <a href="https://github.com/GavinCnod/agnes-api-usage-analysis">
             {en.landing.aboutGitHubLabel}
           </a>
         </p>
@@ -169,7 +169,7 @@ export default function LandingContent() {
         </div>
 
         <p>
-          <a href="https://github.com/GavinCnod/deepseek-api-usage-analysis">
+          <a href="https://github.com/GavinCnod/agnes-api-usage-analysis">
             {zh.landing.aboutGitHubLabel}
           </a>
         </p>

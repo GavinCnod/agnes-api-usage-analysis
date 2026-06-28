@@ -14,20 +14,20 @@
 
 ## Public Pages
 
-- [Main App](https://deepseek-usage.xyz)
-- [User Guide](https://deepseek-usage.xyz/guideline)
-- [Changelog](https://deepseek-usage.xyz/changelog)
-- [Privacy Policy](https://deepseek-usage.xyz/privacy)
-- [Terms of Use](https://deepseek-usage.xyz/terms)
-- [Full LLM Content](https://deepseek-usage.xyz/llms-full.txt)
+- [Main App](https://agnes-usage.xyz)
+- [User Guide](https://agnes-usage.xyz/guideline)
+- [Changelog](https://agnes-usage.xyz/changelog)
+- [Privacy Policy](https://agnes-usage.xyz/privacy)
+- [Terms of Use](https://agnes-usage.xyz/terms)
+- [Full LLM Content](https://agnes-usage.xyz/llms-full.txt)
 
 ## External Links
 
-- [GitHub Repository](https://github.com/GavinCnod/deepseek-api-usage-analysis)
+- [GitHub Repository](https://github.com/GavinCnod/agnes-api-usage-analysis)
 - [MindRose](https://www.mindrose.xyz)
 
 ## Notes
 
 - Current app version: `0.1.0`
-- Default public domain fallback is still `https://deepseek-usage.xyz`
+- Default public domain fallback is still `https://agnes-usage.xyz`
 - External links are intentionally preserved during this migration pass

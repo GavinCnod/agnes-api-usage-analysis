@@ -503,7 +503,7 @@ export default function LandingPage() {
             <div className="flex flex-wrap items-center justify-center gap-4">
               {/* GitHub */}
               <a
-                href="https://github.com/GavinCnod/deepseek-api-usage-analysis"
+                href="https://github.com/GavinCnod/agnes-api-usage-analysis"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-sm transition-colors duration-200

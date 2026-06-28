@@ -44,8 +44,8 @@ const CHANGELOG_DATA: VersionEntry[] = [
     date: "2026-06-28",
     added: [
       {
-        zh: "将输入模型正式切换为 Agnes usage 单 CSV，并基于 Secret Key、Model、Amount、Quantity、Time、Status 字段完成浏览器端聚合分析。",
-        en: "Switched the input model to a single Agnes usage CSV and completed in-browser aggregation around Secret Key, Model, Amount, Quantity, Time, and Status fields.",
+        zh: "基于前期本团队开源项目 deepseek-api-usage-analysis，构建此工程，将输入切换为 Agnes usage CSV。",
+        en: "Switched the input to a single Agnes usage CSV base on our existing open-source project deepseek-api-usage-analysis.",
       },
       {
         zh: "保留 Overview、By Project、By Key、Trends 四个标签页，并适配 Agnes 的 Cost、Tokens、Requests 统计口径。",
@@ -62,15 +62,11 @@ const CHANGELOG_DATA: VersionEntry[] = [
         en: "Streamlined uploads to a single CSV flow with explicit handling for multiple files, non-CSV files, and oversized files.",
       },
       {
-        zh: "分享卡、SEO 文案、法律页和 README 说明全面切换到 Agnes 语义，同时保留现有站点域名与外链作为迁移期占位。",
-        en: "Updated share-card copy, SEO text, legal pages, and README content to Agnes wording while keeping the existing domain and outbound links as temporary migration placeholders.",
+        zh: "分享卡、SEO 文案、法律页和 README 说明全面切换到 Agnes 语义。",
+        en: "Updated share-card copy, SEO text, legal pages, and README content to Agnes wording.",
       },
     ],
     fixed: [
-      {
-        zh: "移除了旧的 Cache 视图、ZIP / 双文件配对叙事和 DeepSeek 绑定说明，避免用户按照过期流程操作。",
-        en: "Removed the legacy Cache view, ZIP / dual-file pairing narrative, and DeepSeek-specific guidance so users are no longer led into outdated workflows.",
-      },
       {
         zh: "解析器只统计 success 状态，并对异常 Quantity 字符串给出 warning，而不是直接导致页面失败。",
         en: "The parser now counts only success rows and emits warnings for malformed quantity strings instead of failing the whole page.",
@@ -117,7 +113,7 @@ export function ChangelogPage() {
       isPartOf: {
         "@type": "WebSite",
         name: "Agnes AI Usage Analysis",
-        url: "https://deepseek-usage.xyz",
+        url: "https://agnes-usage.xyz",
       },
     };
   }, [isZh]);
@@ -252,7 +248,7 @@ export function ChangelogPage() {
 
         <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>
           <a
-            href="https://github.com/GavinCnod/deepseek-api-usage-analysis"
+            href="https://github.com/GavinCnod/agnes-api-usage-analysis"
             target="_blank"
             rel="noopener noreferrer"
             className="underline underline-offset-2 transition-colors duration-200"

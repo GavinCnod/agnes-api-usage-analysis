@@ -159,13 +159,13 @@
 
 * `src/components/ShareModal.tsx`
 
-  * 注释仍写“二维码指向 deepseek-usage.xyz”。
+  * 注释仍写“二维码指向 agnes-usage.xyz”。
 
   * `STORAGE_SHARE_NAME = "ds-share-name"`。
 
 * `src/components/ShareCard.tsx`
 
-  * 底部仍展示 `deepseek-usage.xyz`。
+  * 底部仍展示 `agnes-usage.xyz`。
 
 #### 5. SEO / 静态资源仍有需要校准的点
 
@@ -181,7 +181,7 @@
 
 * `src/app/layout.tsx` / `src/app/guideline/page.tsx` / `src/app/privacy/page.tsx` / `src/app/terms/page.tsx` / `src/app/changelog/page.tsx` / `src/app/sitemap.ts` / `src/app/robots.ts` / `src/lib/schema.ts`
 
-  * 默认域名 fallback 仍为 `https://deepseek-usage.xyz`。
+  * 默认域名 fallback 仍为 `https://agnes-usage.xyz`。
 
   * 这是当前已确认“暂时保留”的产品决策，不改域名语义，只做一致性校对。
 
@@ -285,7 +285,7 @@
 
   * 更新文件注释与用户可见说明为 Agnes 语义。
 
-  * 保留二维码目标域名 `https://deepseek-usage.xyz`。
+  * 保留二维码目标域名 `https://agnes-usage.xyz`。
 
   * 保留 `STORAGE_SHARE_NAME = "ds-share-name"` 以兼容已有 localStorage。
 
@@ -297,7 +297,7 @@
 
 * 处理：
 
-  * 保留底部展示的域名为 `deepseek-usage.xyz`。
+  * 保留底部展示的域名为 `agnes-usage.xyz`。
 
   * 校对同页其它 Agnes 文案、注释与标签，避免出现旧产品名。
 
@@ -375,7 +375,7 @@
 
   * 校验标题、描述、canonical、OpenGraph、Twitter 文案，确保与 Agnes 页面正文一致。
 
-  * 保留默认域名 fallback `https://deepseek-usage.xyz`。
+  * 保留默认域名 fallback `https://agnes-usage.xyz`。
 
 * 原因：这些页面是独立 SEO 入口，必须与正文和 schema 同步。
 
@@ -443,7 +443,7 @@
 
   * 移除 `CacheView.tsx` / `concatFiles.ts` / ZIP / 双文件说明。
 
-  * 保留“默认域名 fallback 暂时为 deepseek-usage.xyz”的当前事实。
+  * 保留“默认域名 fallback 暂时为 agnes-usage.xyz”的当前事实。
 
 * 原因：
 
@@ -511,7 +511,7 @@
 
   * 断言 breadcrumb 首页名称为 Agnes 标题。
 
-  * 保留对默认域名 fallback `deepseek-usage.xyz` 的断言。
+  * 保留对默认域名 fallback `agnes-usage.xyz` 的断言。
 
 * 原因：这是当前已确认的真实行为。
 

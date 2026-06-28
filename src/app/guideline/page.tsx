@@ -3,7 +3,7 @@ import { GuidelinePage } from "@/components/GuidelinePage";
 
 /** 站点公开 URL（构建时从 .env 注入） */
 const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://deepseek-usage.xyz";
+  process.env.NEXT_PUBLIC_SITE_URL || "https://agnes-usage.xyz";
 
 /**
  * 动态生成指南页元数据（SEO）
@@ -32,7 +32,7 @@ export function generateMetadata(): Metadata {
       alternateLocale: ["zh_CN"],
       images: [
         {
-          url: `${SITE_URL}/ds-usage-logo.png`,
+          url: `${SITE_URL}/agnes-usage-logo.png`,
           width: 512,
           height: 512,
           alt: "Agnes AI Usage Analytics Dashboard logo",
@@ -46,7 +46,7 @@ export function generateMetadata(): Metadata {
       creator: "@GavinCnod",
       title,
       description,
-      images: [`${SITE_URL}/ds-usage-logo.png`],
+      images: [`${SITE_URL}/agnes-usage-logo.png`],
     },
     keywords: [
       "Agnes AI usage guide",

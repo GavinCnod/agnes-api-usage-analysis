@@ -110,11 +110,11 @@
 
 * `src/components/ShareCard.tsx`
 
-  * 底部生成标记仍写 `deepseek-usage.xyz`。
+  * 底部生成标记仍写 `agnes-usage.xyz`。
 
 * `src/components/ShareModal.tsx`
 
-  * 注释与二维码目标地址仍是 `https://deepseek-usage.xyz`。
+  * 注释与二维码目标地址仍是 `https://agnes-usage.xyz`。
 
 * `src/components/PrivacyPage.tsx`、`src/components/TermsPage.tsx`、`src/components/ChangelogPage.tsx`
 
@@ -182,7 +182,7 @@
 
 说明：
 
-* 这些文件中的默认 URL 仍为 `https://deepseek-usage.xyz`。
+* 这些文件中的默认 URL 仍为 `https://agnes-usage.xyz`。
 
 * 按本轮决策，这些链接和默认域名先保留，不作为本轮改造目标。
 
