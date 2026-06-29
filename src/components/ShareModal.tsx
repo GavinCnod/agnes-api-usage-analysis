@@ -20,8 +20,8 @@ import { useData } from "@/lib/DataContext";
 import { useTranslation } from "@/i18n";
 import { useTheme } from "@/lib/ThemeContext";
 import { useProjectConfig } from "@/lib/ProjectConfigContext";
-import { extractShareCardData } from "@/lib/shareCardData";
-import type { ShareTab, ShareCardData } from "@/lib/shareCardData";
+import { extractShareCardData, getShareMetricKey } from "@/lib/shareCardData";
+import type { ShareTab, ShareCardData, ShareMetricKey } from "@/lib/shareCardData";
 import ShareCard, { CARD_W, CARD_H, type ShareCardStrings } from "./ShareCard";
 import { trackEvent } from "@/lib/analytics";
 
@@ -37,6 +37,20 @@ function loadShareName(): string {
 }
 function saveShareName(name: string): void {
   try { localStorage.setItem(STORAGE_SHARE_NAME, name.trim()); } catch { /* ignore */ }
+}
+
+/**
+ * 将分享指标键转换为当前语言下的可读文案。
+ */
+function getShareMetricLabel(metric: ShareMetricKey, strings: ShareCardStrings): string {
+  switch (metric) {
+    case "cost":
+      return strings.kpiTotalCost;
+    case "tokens":
+      return strings.kpiTotalTokens;
+    case "requests":
+      return strings.kpiTotalRequests;
+  }
 }
 
 // ============================================================================
@@ -93,7 +107,6 @@ export default function ShareModal({ tab, onClose }: ShareModalProps) {
     return extractShareCardData({
       tab, result, projectConfig,
       uncategorizedLabel: t.projects.uncategorized,
-      trendMetricLabel: t.trends.dailyCost,
     });
   }, [tab, result, projectConfig, t]);
 
@@ -121,6 +134,12 @@ export default function ShareModal({ tab, onClose }: ShareModalProps) {
     costHeader: t.keys.cost,
     tokensHeader: t.keys.tokens,
   }), [tab, t]);
+  const shareMetric = useMemo<ShareMetricKey | null>(() => {
+    return shareData ? getShareMetricKey(shareData) : null;
+  }, [shareData]);
+  const shareMetricLabel = useMemo(() => {
+    return shareMetric ? getShareMetricLabel(shareMetric, cardStrings) : "";
+  }, [shareMetric, cardStrings]);
 
   // 图表就绪回调（带超时兜底）
   const handleChartsReady = useCallback(() => {
@@ -145,6 +164,23 @@ export default function ShareModal({ tab, onClose }: ShareModalProps) {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, []);
+
+  /**
+   * 当分享数据或二维码变化时，重置图表就绪状态并启动超时兜底。
+   */
+  useEffect(() => {
+    chartsReadyRef.current = false;
+    setChartsReady(false);
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+
+    if (shareData && qrDataUrl) {
+      startChartTimeout();
+    }
+  }, [shareData, qrDataUrl, startChartTimeout]);
 
   // 捕获图片
   const captureImage = useCallback(async (): Promise<Blob | null> => {
@@ -253,6 +289,19 @@ export default function ShareModal({ tab, onClose }: ShareModalProps) {
             </div>
           </div>
 
+          {shareMetric && shareMetric !== "cost" && (
+            <div
+              className="rounded-subtle px-3 py-2 text-xs"
+              style={{
+                color: "var(--text-secondary)",
+                background: "var(--bg)",
+                border: "1px solid var(--border)",
+              }}
+            >
+              {t.share.metricFallbackHint.replace("{metric}", shareMetricLabel)}
+            </div>
+          )}
+
           {/* 输入表单 */}
           <div className="space-y-4">
             <div>
@@ -323,7 +372,7 @@ export default function ShareModal({ tab, onClose }: ShareModalProps) {
         {qrDataUrl && (
           <ShareCard result={result} data={shareData} fromName={fromName}
             customMessage={customMessage} theme={theme} locale={locale}
-            qrDataUrl={qrDataUrl} s={cardStrings} onChartsReady={() => { handleChartsReady(); startChartTimeout(); }} />
+            qrDataUrl={qrDataUrl} s={cardStrings} onChartsReady={handleChartsReady} />
         )}
       </div>
     </div>

@@ -10,31 +10,24 @@ import { formatCost, formatTokens } from "@/lib/format";
 type MetricKey = "cost" | "tokens" | "requests";
 
 /**
+ * 文件说明：
+ * 趋势视图模块，负责展示 Agnes usage 的日维度趋势图。
+ */
+
+/**
  * 趋势视图：多指标可切换折线图
  *
  * Apple 极简风格 — 指标切换为纯文字标签 + 选中下划线。
  * 图表面积使用极淡弥散渐变，几乎不可见。
  * 配色跟随 light/dark 主题。
- * 顶部 Hero 大数字动态展示当前选中指标的汇总值。
+ * 顶部 Hero 大数字动态展示当前选中指标的汇总值，默认优先展示 Token。
  */
 export default function TrendsView() {
   const { filteredResult: result } = useData();
   const { locale, t } = useTranslation();
   const { theme } = useTheme();
-  const [metric, setMetric] = useState<MetricKey>("cost");
-  if (!result) return null;
-
-  const { daily } = result;
-
-  if (daily.length === 0) {
-    return (
-      <div className="py-16 text-center">
-        <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-          {t.empty?.trends ?? "Not enough data to show trends. Upload more months of CSVs."}
-        </p>
-      </div>
-    );
-  }
+  const [metric, setMetric] = useState<MetricKey>("tokens");
+  const daily = result?.daily ?? [];
 
   const dates = [...new Set(daily.map((d) => d.date))].sort();
   const isDark = theme === "dark";
@@ -44,9 +37,9 @@ export default function TrendsView() {
   const lineColor = isDark ? "#F5F5F7" : "#1D1D1F";
 
   const METRICS: { key: MetricKey; label: string; format: (v: number) => string }[] = [
-    { key: "cost", label: t.trends.dailyCost, format: (v) => `¥${v.toFixed(2)}` },
     { key: "tokens", label: t.trends.dailyTokens, format: (v) => (v >= 1_000_000 ? `${(v / 1_000_000).toFixed(1)}M` : v >= 1000 ? `${(v / 1000).toFixed(0)}K` : String(v)) },
     { key: "requests", label: t.trends.requestCount, format: (v) => String(v) },
+    { key: "cost", label: t.trends.dailyCost, format: (v) => `¥${v.toFixed(2)}` },
   ];
 
   // 计算当前指标的汇总值（用于 Hero）
@@ -144,6 +137,18 @@ export default function TrendsView() {
       ],
     };
   }, [daily, metric, textColor, gridColor, lineColor, isDark, dates, activeMetric]);
+
+  if (!result) return null;
+
+  if (daily.length === 0) {
+    return (
+      <div className="py-16 text-center">
+        <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+          {t.empty?.trends ?? "Not enough data to show trends. Upload more months of CSVs."}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div>

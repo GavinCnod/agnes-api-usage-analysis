@@ -1,0 +1,23 @@
+# Checklist
+
+- [x] 首页 Hero 默认展示总 Token，而不是总费用
+- [x] 首页第一张主图默认展示每日 Token，而不是每日费用
+- [x] 首页仍能看到总费用或费用相关图表，费用未被删除
+- [x] `TrendsView.tsx` 默认指标为 `tokens`
+- [x] 趋势页保留“费用 / Token / 请求”切换，切回费用后展示正常
+- [x] `KeyView.tsx` 默认按 `totalTokens` 降序排序
+- [x] Key 页进度条宽度默认基于 `totalTokens`
+- [x] Key 页仍保留费用列和复制费用能力
+- [x] `ProjectView.tsx` 默认按 `totalTokens` 降序排序
+- [x] Project 页进度条宽度默认基于 `totalTokens`
+- [x] Project 页仍保留费用列和复制费用能力
+- [x] Key / Project 页面至少有一种清晰可见的指标基准切换方案，覆盖费用、Token、请求三类口径
+- [x] 当当前结果集中全部 `totalCost === 0` 时，Overview 分享卡自动回退到 Token 或请求口径
+- [x] 当当前结果集中全部 `totalCost === 0` 时，Trends 分享卡自动回退到 Token 或请求口径
+- [x] 当当前结果集中全部 `totalCost === 0` 时，Projects / Keys 分享卡不再因费用为 0 而被过滤为空图
+- [x] `shareCardData.ts` 与 `ShareCard.tsx` 的回退逻辑不会影响正常有费用数据的分享卡
+- [x] `translations.ts` 中首页、趋势、Key、分享、FAQ 的中英文文案已从“费用优先”调整为“用量优先”
+- [x] `layout.tsx` 的 metadata 文案不再把 cost 作为唯一核心卖点
+- [x] `schema.ts` 的 JSON-LD 描述已同步调整为“用量分析优先，费用辅助”
+- [x] `npm test` 通过
+- [x] `npm run build` 通过

@@ -1,13 +1,20 @@
 "use client";
 
 /**
+ * 文件说明：项目维度分析视图
+ *
+ * 提供自定义项目分组的统计表格与配置浮窗。
+ * 当前固定按 Token 数排序，同时保留费用复制能力。
+ */
+
+/**
  * Project 详情表格视图
  *
  * 按自定义项目分组展示用量数据。用户通过拖拽浮窗将解析出的 API Key
  * 分配到项目中，持久化到 localStorage。未分配的 Key 归入"未分类"。
  *
  * 布局与 KeyView 一致，使用完整数字显示（无 K/M/万 后缀）。
- * 花费数字可通过 CopyButton 一键复制。
+ * 当前固定按 Token 数降序展示，费用数字可通过 CopyButton 一键复制。
  */
 
 import { useMemo, useState, useRef, useCallback, type DragEvent } from "react";
@@ -94,14 +101,29 @@ export default function ProjectView() {
     }
 
     return Array.from(map.values())
-      .filter((p) => !p.isUncategorized || p.totalTokens > 0)
-      .sort((a, b) => {
-        if (a.isUncategorized !== b.isUncategorized) return a.isUncategorized ? 1 : -1;
-        return b.totalCost - a.totalCost;
-      });
+      .filter((p) => !p.isUncategorized || p.totalTokens > 0);
   }, [daily, config, matchProject, t.projects.uncategorized]);
 
-  const maxCost = Math.max(...projects.map((p) => p.totalCost), 1);
+  /**
+   * 固定按 Token 数排序，并保持未分类项目始终位于末尾。
+   */
+  const sortedProjects = useMemo(
+    () =>
+      [...projects].sort((a, b) => {
+        if (a.isUncategorized !== b.isUncategorized) return a.isUncategorized ? 1 : -1;
+
+        const tokenDiff = b.totalTokens - a.totalTokens;
+        if (tokenDiff !== 0) return tokenDiff;
+
+        const costDiff = b.totalCost - a.totalCost;
+        if (costDiff !== 0) return costDiff;
+
+        return b.requestCount - a.requestCount;
+      }),
+    [projects]
+  );
+
+  const maxMetricValue = Math.max(...sortedProjects.map((p) => p.totalTokens), 1);
   const activeCount = projects.filter((p) => !p.isUncategorized).length;
   const modelCount = result.summary.models.length;
 
@@ -142,8 +164,8 @@ export default function ProjectView() {
           onClick={() => setShowConfig(true)}
           className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider transition-colors duration-200"
           style={{ color: "var(--text-tertiary)" }}
-          onMouseEnter={(e) => { (e.target as HTMLElement).style.color = "var(--text-primary)"; }}
-          onMouseLeave={(e) => { (e.target as HTMLElement).style.color = "var(--text-tertiary)"; }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = "var(--text-primary)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-tertiary)"; }}
         >
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
             strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -171,7 +193,7 @@ export default function ProjectView() {
             </tr>
           </thead>
           <tbody>
-            {projects.map((p) => (
+            {sortedProjects.map((p) => (
               <tr key={p.name} className="group transition-colors duration-150"
                 style={{ borderBottom: `1px solid var(--border)` }}>
                 <td className="px-3 py-3 font-semibold"
@@ -197,7 +219,7 @@ export default function ProjectView() {
                   <div className="w-24 h-1 rounded-full overflow-hidden"
                     style={{ background: "var(--border)" }}>
                     <div className="h-full rounded-full transition-all" style={{
-                      width: `${(p.totalCost / maxCost) * 100}%`,
+                      width: `${(p.totalTokens / maxMetricValue) * 100}%`,
                       background: isDark ? "var(--text-primary)" : "var(--accent)",
                       opacity: p.isUncategorized ? 0.3 : 0.6,
                     }} />

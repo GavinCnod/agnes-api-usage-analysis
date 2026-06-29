@@ -34,7 +34,7 @@ describe("buildBreadcrumbJsonLd", () => {
     expect(result["@type"]).toBe("BreadcrumbList");
     expect(items).toHaveLength(5);
     expect(items[0].position).toBe(1);
-    expect(items[0].name).toBe("Agnes AI Usage Analytics Dashboard");
+    expect(items[0].name).toBe("Agnes AI Usage Analysis Dashboard");
     expect(items[1].name).toBe("User Guide");
     expect(items[2].name).toBe("Privacy Policy");
     expect(items[3].name).toBe("Terms of Use");

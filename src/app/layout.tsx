@@ -32,9 +32,9 @@ const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
  * alternates.languages 指向同一 URL 以告知搜索引擎双语内容存在。
  */
 export function generateMetadata(): Metadata {
-  const title = "Agnes AI Usage Analytics Dashboard by Gavin & Mindrose Team";
+  const title = "Agnes AI Usage Analysis Dashboard by Gavin & Mindrose Team";
   const description =
-    "Visualize your Agnes AI usage — upload a usage CSV and get instant cost analytics, request trends, and per-key breakdowns. Free, open source, browser-side.";
+    "Analyze Agnes AI usage first — upload a usage CSV and get instant token analytics, request trends, per-key breakdowns, and supporting cost insights. Free, open source, browser-side.";
 
   return {
     title,
@@ -51,7 +51,7 @@ export function generateMetadata(): Metadata {
       description,
       url: SITE_URL,
       type: "website",
-      siteName: "Agnes AI Usage Analytics Dashboard by Gavin & Mindrose Team",
+      siteName: "Agnes AI Usage Analysis Dashboard by Gavin & Mindrose Team",
       locale: "en_US",
       alternateLocale: ["zh_CN"],
       images: [
@@ -59,14 +59,14 @@ export function generateMetadata(): Metadata {
           url: `${SITE_URL}/og_image.png`,
           width: 1200,
           height: 630,
-          alt: "Agnes AI Usage Analytics Dashboard — free, private, open source",
+          alt: "Agnes AI Usage Analysis Dashboard — usage-first insights with supporting cost data",
           type: "image/png",
         },
         {
           url: `${SITE_URL}/agnes-usage-logo.png`,
           width: 512,
           height: 512,
-          alt: "Agnes AI Usage Analytics Dashboard logo",
+          alt: "Agnes AI Usage Analysis Dashboard logo",
           type: "image/png",
         },
       ],
@@ -80,13 +80,16 @@ export function generateMetadata(): Metadata {
       images: [`${SITE_URL}/og_image.png`],
     },
     keywords: [
-      "Agnes AI usage analytics",
-      "Agnes AI cost tracker",
+      "Agnes AI usage analysis",
+      "Agnes AI usage dashboard",
       "Agnes AI token analysis",
-      "API key cost breakdown",
-      "LLM cost dashboard",
+      "Agnes AI request analytics",
+      "API key usage breakdown",
+      "LLM usage dashboard",
       "Agnes AI 用量分析",
-      "Agnes AI API 费用追踪",
+      "Agnes AI Token 分析",
+      "Agnes AI 请求分析",
+      "Agnes AI API 费用辅助分析",
     ],
     authors: [{ name: "Gavin & Mindrose Team" }],
     icons: {

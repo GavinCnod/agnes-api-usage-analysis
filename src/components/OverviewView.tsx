@@ -5,50 +5,45 @@ import ReactECharts from "echarts-for-react";
 import { useData } from "@/lib/DataContext";
 import { useTranslation } from "@/i18n";
 import { useTheme } from "@/lib/ThemeContext";
-import { formatCost } from "@/lib/format";
+import { formatTokens } from "@/lib/format";
 
 /**
- * 总览视图：每日费用柱状图 + 各 Key 费用环形图
+ * 文件说明：
+ * 总览视图模块，负责展示 Agnes usage 的核心用量概览。
+ */
+
+/**
+ * 总览视图：Token Hero + 每日 Token 柱状图 + 各 Key Token 环形图
  *
  * Apple 极简风格 — 去除卡片容器，使用通栏模块 + 细横线分割。
  * ECharts 配色跟随全局 light/dark 主题。
- * 顶部 Hero 大数字展示总费用。
+ * 顶部 Hero 大数字优先展示总 Token 数。
  */
 export default function OverviewView() {
   const { filteredResult: result } = useData();
   const { locale, t } = useTranslation();
   const { theme } = useTheme();
-  if (!result) return null;
-
-  const { daily, keys, summary } = result;
-
-  if (daily.length === 0) {
-    return (
-      <div className="py-16 text-center">
-        <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-          {t.empty?.overview ?? "No data for the selected model. Try a different filter."}
-        </p>
-      </div>
-    );
-  }
+  const daily = result?.daily ?? [];
+  const keys = result?.keys ?? [];
+  const summary = result?.summary;
 
   // 主题感知色
   const isDark = theme === "dark";
   const textColor = isDark ? "#98989D" : "#86868B";
   const gridColor = isDark ? "#2C2C2E" : "#E5E5EA";
 
-  // 每日费用柱状图
+  // 每日 Token 柱状图
   const dailyOption = useMemo(() => {
     const dates = [...new Set(daily.map((d) => d.date))].sort();
     const byDate = new Map<string, number>();
     for (const d of daily) {
-      byDate.set(d.date, (byDate.get(d.date) ?? 0) + d.totalCost);
+      byDate.set(d.date, (byDate.get(d.date) ?? 0) + d.totalTokens);
     }
 
     return {
       tooltip: {
         trigger: "axis" as const,
-        valueFormatter: (v: unknown) => `¥${(v as number).toFixed(2)}`,
+        valueFormatter: (v: unknown) => formatTokens(v as number, locale),
       },
       grid: { top: 8, right: 16, bottom: 24, left: 48 },
       xAxis: {
@@ -59,24 +54,24 @@ export default function OverviewView() {
       },
       yAxis: {
         type: "value" as const,
-        axisLabel: { fontSize: 10, color: textColor, formatter: (v: number) => `¥${v}` },
+        axisLabel: { fontSize: 10, color: textColor, formatter: (v: number) => formatTokens(v, locale) },
         splitLine: { lineStyle: { color: gridColor } },
       },
       series: [
         {
           type: "bar",
-          data: dates.map((d) => +(byDate.get(d) ?? 0).toFixed(4)),
+          data: dates.map((d) => byDate.get(d) ?? 0),
           itemStyle: { color: isDark ? "#F5F5F7" : "#1D1D1F", borderRadius: [4, 4, 0, 0] },
         },
       ],
     };
-  }, [daily, isDark, textColor, gridColor]);
+  }, [daily, gridColor, isDark, locale, textColor]);
 
-  // 各 Key 费用环形图（donut）
+  // 各 Key Token 环形图（donut）
   const donutOption = useMemo(() => {
     const data = keys.map((k) => ({
       name: k.apiKeyName,
-      value: +k.totalCost.toFixed(4),
+      value: k.totalTokens,
     }));
 
     // Apple 风格克制色调
@@ -87,7 +82,7 @@ export default function OverviewView() {
     return {
       tooltip: {
         trigger: "item" as const,
-        valueFormatter: (v: unknown) => `¥${(v as number).toFixed(2)}`,
+        valueFormatter: (v: unknown) => formatTokens(v as number, locale),
       },
       legend: {
         orient: "vertical" as const,
@@ -109,20 +104,32 @@ export default function OverviewView() {
         },
       ],
     };
-  }, [keys, isDark, textColor]);
+  }, [isDark, keys, locale, textColor]);
+
+  if (!result) return null;
+
+  if (daily.length === 0 || !summary) {
+    return (
+      <div className="py-16 text-center">
+        <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+          {t.empty?.overview ?? "No data for the selected model. Try a different filter."}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div>
-      {/* Hero — 大数字总费用 */}
+      {/* Hero — 大数字总 Token */}
       <div className="text-center mb-12 pt-4">
         <div
           className="text-5xl sm:text-6xl md:text-[5rem] font-bold leading-none tracking-tighter"
           style={{ color: "var(--text-primary)", letterSpacing: "-0.04em" }}
         >
-          {formatCost(summary.totalCost, locale)}
+          {formatTokens(summary.totalTokens, locale)}
         </div>
         <p className="text-sm font-semibold mt-3" style={{ color: "var(--text-secondary)" }}>
-          {t.kpi.totalCost}
+          {t.kpi.totalTokens}
         </p>
         {summary.dateRange && (
           <p className="text-xs mt-1" style={{ color: "var(--text-tertiary)" }}>
@@ -137,9 +144,9 @@ export default function OverviewView() {
             className="text-[11px] font-semibold uppercase tracking-widest mb-4"
             style={{ color: "var(--text-secondary)" }}
           >
-            {t.overview.dailyCost}
+            {t.overview.dailyTokens}
           </h3>
-          <div aria-label={t.overview.dailyCost} role="img">
+          <div aria-label={t.overview.dailyTokens} role="img">
             <ReactECharts option={dailyOption} style={{ height: 300 }} />
           </div>
         </div>
@@ -148,9 +155,9 @@ export default function OverviewView() {
             className="text-[11px] font-semibold uppercase tracking-widest mb-4"
             style={{ color: "var(--text-secondary)" }}
           >
-            {t.overview.costByKey}
+            {t.overview.tokensByKey}
           </h3>
-          <div aria-label={t.overview.costByKey} role="img">
+          <div aria-label={t.overview.tokensByKey} role="img">
             <ReactECharts option={donutOption} style={{ height: 300 }} />
           </div>
         </div>

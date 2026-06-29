@@ -6,11 +6,12 @@ const translations = {
   en: {
     app: {
       title: "Agnes AI Usage Analytics",
-      subtitle: "Upload your Agnes usage CSV to see cost, token, and request analytics",
+      subtitle:
+        "Upload your Agnes usage CSV to see token and request analytics first, with cost insights as support",
     },
     tabs: {
       overview: "Overview",
-      projects: "By Project",
+      projects: "By Custom Projects",
       keys: "By Key",
       trends: "Trends",
     },
@@ -45,6 +46,8 @@ const translations = {
     overview: {
       dailyCost: "Daily Cost",
       costByKey: "Cost by API Key",
+      dailyTokens: "Daily Tokens",
+      tokensByKey: "Tokens by API Key",
     },
     trends: {
       dailyCost: "Daily Cost",
@@ -59,6 +62,10 @@ const translations = {
       cost: "Cost",
       requests: "Requests",
       heroSubtitle: "{keys} key(s) · {models} model(s)",
+      sortBy: "Sort By",
+      metricCost: "Cost",
+      metricTokens: "Tokens",
+      metricRequests: "Requests",
     },
     error: {
       missingColumns: "CSV schema not recognized",
@@ -76,7 +83,7 @@ const translations = {
     meta: {
       title: "Agnes AI Usage Analytics Dashboard by Gavin & Mindrose Team",
       description:
-        "Visualize your Agnes AI usage — upload a usage CSV and get instant cost analytics, request trends, and per-key breakdowns. Free, open source, browser-side.",
+        "Analyze your Agnes AI usage first — upload a usage CSV and get instant token analytics, request trends, per-key breakdowns, and supporting cost insights. Free, open source, browser-side.",
     },
     langSwitcher: {
       label: "Language",
@@ -121,6 +128,7 @@ const translations = {
       lowest: "Lowest",
       tokensSaved: "Tokens Saved",
       modalTitle: "Share to Social Media",
+      metricFallbackHint: "Cost is 0, so this share card automatically falls back to {metric}.",
       copyFailed: "Copy failed, try download instead",
       clipboardUnsupported: "Clipboard image not supported, downloaded instead",
       generating: "Generating\u2026",
@@ -250,7 +258,7 @@ const translations = {
         "Drag the Agnes usage CSV onto this page, or click the upload area to select the file manually.",
       howItWorksStep3Title: "3. View Analytics",
       howItWorksStep3Desc:
-        "Instantly see cost charts, per-key breakdowns, request trends, and custom project groupings — all processed locally in your browser.",
+        "Instantly see token and request trends, per-key breakdowns, custom project groupings, and supporting cost charts — all processed locally in your browser.",
       qaTitle: "Frequently Asked Questions",
       qaQ1: "Is my data uploaded to any server?",
       qaA1: "No. All CSV parsing and cost computation runs entirely in your browser. Your data never leaves your device.",
@@ -295,11 +303,11 @@ const translations = {
   zh: {
     app: {
       title: "Agnes AI 用量分析",
-      subtitle: "上传 Agnes usage CSV 即可查看费用、Token 与请求分析",
+      subtitle: "上传 Agnes usage CSV，即可优先查看 Token 与请求分析，并辅助查看费用数据",
     },
     tabs: {
       overview: "总览",
-      projects: "按项目",
+      projects: "按自定义项目",
       keys: "按 Key",
       trends: "趋势",
     },
@@ -334,6 +342,8 @@ const translations = {
     overview: {
       dailyCost: "每日费用",
       costByKey: "各 Key 费用分布",
+      dailyTokens: "每日 Token",
+      tokensByKey: "各 Key Token 分布",
     },
     trends: {
       dailyCost: "每日费用",
@@ -348,6 +358,10 @@ const translations = {
       cost: "费用",
       requests: "请求数",
       heroSubtitle: "{keys} 个 Key · {models} 个模型",
+      sortBy: "排序方式",
+      metricCost: "费用",
+      metricTokens: "Token",
+      metricRequests: "请求",
     },
     error: {
       missingColumns: "CSV 格式无法识别",
@@ -365,7 +379,7 @@ const translations = {
     meta: {
       title: "Agnes AI 用量分析仪表盘",
       description:
-        "可视化您的 Agnes AI 使用情况 — 上传 usage CSV，即时获取费用分析、请求趋势和各 Key 用量明细。数据 100% 本地处理，不上传任何服务器。免费、开源，由 Gavin Chen 和 MindRose 团队维护。",
+        "可视化您的 Agnes AI 使用情况 — 上传 usage CSV，即时获取 Token 分析、请求趋势、各 Key 用量明细，以及辅助费用洞察。数据 100% 本地处理，不上传任何服务器。免费、开源，由 Gavin Chen 和 MindRose 团队维护。",
     },
     langSwitcher: {
       label: "语言",
@@ -410,6 +424,7 @@ const translations = {
       lowest: "最低",
       tokensSaved: "节省 Token",
       modalTitle: "分享到社交媒体",
+      metricFallbackHint: "当前费用为 0，分享卡片已自动回退为 {metric} 指标。",
       copyFailed: "复制失败，请尝试下载",
       clipboardUnsupported: "浏览器不支持剪贴板图片，已自动下载",
       generating: "生成中\u2026",
@@ -539,7 +554,7 @@ const translations = {
         "将 Agnes usage CSV 拖拽到此页面，或点击上传区域手动选择文件。",
       howItWorksStep3Title: "3. 查看分析",
       howItWorksStep3Desc:
-        "即刻查看费用图表、各 Key 用量明细、请求趋势和自定义项目分组，所有数据都在浏览器本地处理。",
+        "即刻查看 Token 与请求趋势、各 Key 用量明细、自定义项目分组，以及辅助费用图表，所有数据都在浏览器本地处理。",
       qaTitle: "常见问题",
       qaQ1: "我的数据会上传到服务器吗？",
       qaA1: "不会。所有 CSV 解析和费用计算均在您的浏览器中完成，数据不会离开您的设备。",

@@ -23,15 +23,15 @@ const softwareAppSchema: Record<
   { name: string; description: string; version: string }
 > = {
   en: {
-    name: "Agnes AI Usage Analytics Dashboard by Gavin & Mindrose Team",
+    name: "Agnes AI Usage Analysis Dashboard by Gavin & Mindrose Team",
     description:
-      "Visualize your Agnes AI usage — upload a usage CSV and get instant cost analytics, request trends, and per-key breakdowns. Free, open-source, browser-side.",
+      "Analyze Agnes AI usage first — upload a usage CSV and get instant token analytics, request trends, per-key breakdowns, and supporting cost insights. Free, open-source, browser-side.",
     version: APP_VERSION,
   },
   zh: {
     name: "Agnes AI 用量分析仪表盘 by Gavin & Mindrose Team",
     description:
-      "可视化您的 Agnes AI 使用情况 — 上传 usage CSV，即时获取费用分析、请求趋势和各 Key 用量明细。免费、开源、纯浏览器端。",
+      "可视化您的 Agnes AI 使用情况 — 上传 usage CSV，即时获取 Token 分析、请求趋势、各 Key 用量明细，以及辅助费用洞察。免费、开源、纯浏览器端。",
     version: APP_VERSION,
   },
 };
@@ -167,7 +167,7 @@ export function buildFaqJsonLd(locale: Locale): Record<string, unknown> {
  */
 const breadcrumbSchema: Record<Locale, { home: string; guideline: string; privacy: string; terms: string; changelog: string }> = {
   en: {
-    home: "Agnes AI Usage Analytics Dashboard",
+    home: "Agnes AI Usage Analysis Dashboard",
     guideline: "User Guide",
     privacy: "Privacy Policy",
     terms: "Terms of Use",
@@ -231,14 +231,14 @@ export function buildBreadcrumbJsonLd(locale: Locale): Record<string, unknown> {
 /** Organization Schema 翻译 */
 const organizationSchema: Record<Locale, { name: string; description: string }> = {
   en: {
-    name: "Agnes AI Usage Analytics Dashboard by Gavin & Mindrose Team",
+    name: "Agnes AI Usage Analysis Dashboard by Gavin & Mindrose Team",
     description:
-      "Free, open-source, browser-side dashboard for Agnes AI usage analytics. Upload a usage CSV and get instant cost analysis.",
+      "Free, open-source, browser-side dashboard for Agnes AI usage analysis. Upload a usage CSV to get token and request insights first, with cost analysis as support.",
   },
   zh: {
     name: "Agnes AI 用量分析仪表盘 by Gavin & Mindrose Team",
     description:
-      "免费、开源、纯浏览器端的 Agnes AI 用量分析仪表盘。上传 usage CSV 即可获取即时费用分析。",
+      "免费、开源、纯浏览器端的 Agnes AI 用量分析仪表盘。上传 usage CSV 即可优先获取 Token 与请求洞察，并辅助查看费用分析。",
   },
 };
 
