@@ -6,7 +6,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 # Project: Agnes AI Usage Analytics Dashboard by Gavin & Mindrose Team
 
-A browser-side dashboard for Agnes AI usage analytics. Users upload a single Agnes usage CSV and get instant cost, token, request, per-key, per-project, and trend analytics. Everything runs client-side — no server, no upload, no database.
+A browser-side dashboard for Agnes AI multimodal usage analytics. Users upload a single Agnes usage CSV and get instant cost, text tokens, image count, video duration, request counts, per-key, per-project, and trend analytics — with three co-equal core metrics (tokens / images / video) displayed in every view. Everything runs client-side — no server, no upload, no database.
 
 Strictly follows an Apple-minimalist design language: cold gray paper-texture backgrounds, ample whitespace, full-width modules, thin horizontal dividers, subtle rounded corners, and diffuse shadows. Full light/dark theme support is driven by CSS custom properties.
 
@@ -23,6 +23,7 @@ Strictly follows an Apple-minimalist design language: cold gray paper-texture ba
   - `keys`
   - `trends`
 - Cache analytics are removed because the Agnes CSV does not expose cache fields.
+- Three co-equal core metrics (tokens, images, videoSeconds) are displayed in every view — do not revert to a single-token-centric layout.
 - Existing public external links and default site URL fallback remain:
   - GitHub: `https://github.com/GavinCnod/agnes-api-usage-analysis`
   - Site URL fallback: `https://agnes-usage.xyz`
@@ -32,42 +33,54 @@ Strictly follows an Apple-minimalist design language: cold gray paper-texture ba
 ```text
 src/
 ├── app/
-│   ├── layout.tsx            # Global metadata, JSON-LD, providers, GA injection
-│   ├── page.tsx              # Entry → <Dashboard />
-│   ├── guideline/page.tsx    # User guide route with independent metadata
-│   ├── privacy/page.tsx      # Privacy page route with independent metadata
-│   ├── terms/page.tsx        # Terms page route with independent metadata
-│   ├── changelog/page.tsx    # Changelog route with independent metadata
-│   ├── globals.css           # Tailwind v4 + CSS variables + global effects
-│   ├── robots.ts             # Build-time robots.txt
-│   └── sitemap.ts            # Build-time sitemap.xml
+│   ├── AppI18nShell.tsx        # Locale bootstrap: injects <html lang> before root layout
+│   ├── layout.tsx              # Global metadata, JSON-LD, providers, GA injection
+│   ├── page.tsx                # Entry → <Dashboard />
+│   ├── guideline/page.tsx      # User guide route with independent metadata
+│   ├── privacy/page.tsx        # Privacy page route with independent metadata
+│   ├── terms/page.tsx          # Terms page route with independent metadata
+│   ├── changelog/page.tsx      # Changelog route with independent metadata
+│   ├── globals.css             # Tailwind v4 + CSS variables + global effects
+│   ├── robots.ts               # Build-time robots.txt
+│   └── sitemap.ts              # Build-time sitemap.xml
 ├── components/
-│   ├── Dashboard.tsx         # Landing vs dashboard switch, tab nav, model filter
-│   ├── LandingPage.tsx       # Pre-upload landing page
-│   ├── DropZone.tsx          # Single CSV uploader with 50MB limit
-│   ├── OverviewView.tsx      # Overview charts
-│   ├── ProjectView.tsx       # By project aggregation/config
-│   ├── KeyView.tsx           # Per-key table
-│   ├── TrendsView.tsx        # Trend chart view
-│   ├── ShareButton.tsx       # Opens share modal
-│   ├── ShareModal.tsx        # Share preview/copy/download dialog
-│   ├── ShareCard.tsx         # 1200x630 share image renderer
-│   ├── TitleBar.tsx          # Shared top navigation
-│   ├── FooterBar.tsx         # Shared footer
-│   ├── GuidelinePage.tsx     # Agnes user guide
-│   ├── PrivacyPage.tsx       # Privacy policy
-│   ├── TermsPage.tsx         # Terms of use
-│   ├── ChangelogPage.tsx     # Agnes changelog
-│   └── *Content.tsx          # <noscript> SEO fallback content
+│   ├── Dashboard.tsx           # Landing vs dashboard switch, tab nav, model filter
+│   ├── LandingPage.tsx         # Pre-upload landing page
+│   ├── DropZone.tsx            # Single CSV uploader with 50MB limit
+│   ├── OverviewView.tsx        # Normalized 3-metric comparison charts
+│   ├── ProjectView.tsx         # By project aggregation / multi-metric sort
+│   ├── KeyView.tsx             # Per-key table with multi-metric sort
+│   ├── TrendsView.tsx          # Normalized relative-comparison trend charts
+│   ├── MetricHero.tsx          # Unified 3-column Hero (tokens / images / video)
+│   ├── KPICards.tsx            # KPI summary row below Hero
+│   ├── ShareButton.tsx         # Opens share modal
+│   ├── ShareModal.tsx          # Share preview / copy / download dialog
+│   ├── ShareCard.tsx           # 1200×630 share image renderer
+│   ├── TitleBar.tsx            # Shared top navigation
+│   ├── FooterBar.tsx           # Shared footer
+│   ├── CopyButton.tsx          # One-click copy helper
+│   ├── ErrorDisplay.tsx        # Structured error banner
+│   ├── LanguageSwitcher.tsx    # en / zh toggle
+│   ├── ThemeSwitcher.tsx       # Light / dark toggle
+│   ├── GuidelinePage.tsx       # Agnes user guide
+│   ├── PrivacyPage.tsx         # Privacy policy
+│   ├── TermsPage.tsx           # Terms of use
+│   ├── ChangelogPage.tsx       # Agnes changelog
+│   ├── LandingContent.tsx      # <noscript> SEO fallback — landing
+│   ├── PrivacyContent.tsx      # <noscript> SEO fallback — privacy
+│   ├── TermsContent.tsx        # <noscript> SEO fallback — terms
+│   └── ChangelogContent.tsx    # <noscript> SEO fallback — changelog
 ├── i18n/
 │   ├── I18nProvider.tsx
+│   ├── index.ts                # Barrel export + Locale type
 │   └── translations.ts
 └── lib/
-    ├── parser.ts             # Agnes CSV parser
-    ├── types.ts              # Agnes parse/result types
-    ├── DataContext.tsx       # Result/error/loading/model filter state
-    ├── upload.ts             # Single CSV read + file size constant
+    ├── parser.ts               # Agnes CSV parser (multimodal)
+    ├── types.ts                # Agnes parse / result / multimodal types
+    ├── DataContext.tsx          # Result / error / loading / model filter state
+    ├── upload.ts               # Single CSV read + file size constant
     ├── ProjectConfigContext.tsx
+    ├── dashboardMetrics.ts     # Unified 3-metric definitions + helpers
     ├── shareCardData.ts
     ├── format.ts
     ├── schema.ts
@@ -89,11 +102,14 @@ Required columns in the uploaded CSV:
 
 Current parser behavior:
 
-- Parses `Consumption Quantity` like `input:123/output:45`
+- Parses `Consumption Quantity` like `input:123/output:45` for text tokens
+- Also parses multimodal quantity formats: `images:3` (image count) and `video_seconds:180` (video duration)
+- Classifies each row's `Type` into `api_call | image | video | unknown`
 - Converts `Consumption Amount(cents)` to displayed cost by dividing by `100`
 - Groups daily data by date + model + secret key name
 - Ignores all rows whose status is not `success`
 - Returns warnings for partial quantity parsing and ignored statuses
+- Aggregates three co-equal core metrics per grouping: total tokens, image count, video seconds
 
 ## Key Technical Notes
 
@@ -106,6 +122,8 @@ Current parser behavior:
 - html2canvas + qrcode for share cards
 - Vitest + Testing Library for tests
 - No JSZip in current product scope
+- `src/lib/dashboardMetrics.ts` is the single source of truth for the three co-equal core metrics (tokens, images, videoSeconds) and their comparison/display config — all MetricHero, KPICards, OverviewView, TrendsView, KeyView, and ProjectView use it
+- Share card rendering handles multimodal annotations (peak token day, highest image/video day, lowest cost day) via `src/lib/shareCardData.ts`
 
 ## Theme / UI Rules
 
@@ -129,6 +147,8 @@ Current parser behavior:
 - **Update user-visible copy**: edit `src/i18n/translations.ts`
 - **Update public docs**: edit `README.md`, `README_zh.md`, `public/llms.txt`, and `public/llms-full.txt`
 - **Update share cards**: edit `src/components/ShareModal.tsx`, `src/components/ShareCard.tsx`, and `src/lib/shareCardData.ts`
+- **Add or change a core metric**: edit `src/lib/dashboardMetrics.ts` — it feeds MetricHero, KPICards, OverviewView, TrendsView, KeyView, and ProjectView
+- **Adjust chart rendering or normalized comparison layout**: edit `src/components/OverviewView.tsx` and `src/components/TrendsView.tsx`
 
 ## Verification Checklist
 
@@ -143,4 +163,7 @@ Current parser behavior:
 
 - Do not reintroduce DeepSeek dual-file logic unless explicitly requested by the user
 - Do not replace the preserved external links/domain without user approval
-- When in doubt, treat `src/lib/schema.ts`, `src/i18n/translations.ts`, and `src/lib/parser.ts` as the main truth sources for product behavior
+- When in doubt, treat `src/lib/schema.ts`, `src/i18n/translations.ts`, `src/lib/dashboardMetrics.ts`, and `src/lib/parser.ts` as the main truth sources for product behavior
+- The three co-equal core metrics (tokens, images, videoSeconds) are a locked product decision — do not revert to a single-token-centric view
+- Never hide or deprioritize projects/keys whose only usage is images or video (no tokens); the parser and views explicitly handle this case
+- `MetricHero` no longer accepts an `eyebrow` prop; subtitles and side annotations live below the metric grid, centered

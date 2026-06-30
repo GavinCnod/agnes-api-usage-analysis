@@ -14,7 +14,7 @@ const SITE_URL =
 export function generateMetadata(): Metadata {
   const title = "Agnes AI Usage Analytics — User Guide";
   const description =
-    "Complete user guide for Agnes AI multimodal usage analytics. Learn how to export one Agnes usage CSV, understand the text-token/image/video three-metric layout, and navigate the four dashboard tabs with screenshots.";
+    "Complete user guide for Agnes AI multimodal usage analytics. Learn how to export one Agnes usage CSV, understand the text-token/image/video three-metric layout, review relative-comparison charts, and navigate the four dashboard tabs.";
 
   return {
     title,
@@ -30,15 +30,6 @@ export function generateMetadata(): Metadata {
       siteName: "Agnes AI Usage Analytics Dashboard",
       locale: "en_US",
       alternateLocale: ["zh_CN"],
-      images: [
-        {
-          url: `${SITE_URL}/agnes-usage-logo.png`,
-          width: 512,
-          height: 512,
-          alt: "Agnes AI Usage Analytics Dashboard logo",
-          type: "image/png",
-        },
-      ],
     },
     twitter: {
       card: "summary",
@@ -46,7 +37,6 @@ export function generateMetadata(): Metadata {
       creator: "@GavinCnod",
       title,
       description,
-      images: [`${SITE_URL}/agnes-usage-logo.png`],
     },
     keywords: [
       "Agnes AI usage guide",
@@ -69,8 +59,8 @@ export function generateMetadata(): Metadata {
  * 指南页路由
  *
  * 静态导出兼容的独立操作指南页面，包含：
- * - 完整操作手册内容（解析 MD 格式）
- * - 截图自动匹配（根据当前 locale 切换 cn/en 版本）
+ * - 完整操作手册内容（结构化文字块渲染）
+ * - 与当前产品状态同步的中英双语文字指南
  * - 交互式目录导航
  * - 返回首页按钮
  * - SEO metadata + JSON-LD 结构化数据
