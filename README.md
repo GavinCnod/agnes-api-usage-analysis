@@ -8,6 +8,13 @@ A browser-side analytics dashboard for Agnes AI usage. Upload a single Agnes usa
 
 > [中文版](README_zh.md)
 
+## Sister Project
+
+If you also analyze DeepSeek API usage, check the companion open-source project in the same tool family:
+
+- GitHub: [DeepSeek API Usage Analyzer Repo](https://github.com/GavinCnod/deepseek-api-usage-analysis)
+- Website: [DeepSeek API Usage Analyzer](https://deepseek-usage.xyz)
+
 ## How It Works
 
 1. Export a usage CSV from Agnes AI.

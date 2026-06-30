@@ -5,6 +5,7 @@
  * 在 LandingPage 客户端组件中根据当前 locale 动态渲染。
  */
 import type { Locale } from "@/i18n/translations";
+import { agnesProject, deepseekProject, TOOL_SERIES_NAME } from "@/lib/sisterProjects";
 
 /* ------------------------------------------------------------------ */
 /*  多语言翻译映射                                                       */
@@ -14,8 +15,7 @@ import type { Locale } from "@/i18n/translations";
 const APP_VERSION = "0.1.1";
 
 /** 站点公开 URL */
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://agnes-usage.xyz";
+const SITE_URL = agnesProject.siteUrl;
 
 /** SoftwareApplication Schema 翻译 */
 const softwareAppSchema: Record<
@@ -246,12 +246,12 @@ const organizationSchema: Record<Locale, { name: string; description: string }> 
   en: {
     name: "Agnes AI Usage Analysis Dashboard by Gavin & Mindrose Team",
     description:
-      "Free, open-source, browser-side dashboard for Agnes AI multimodal usage analysis. Upload one usage CSV to compare text tokens, image counts, video seconds, requests, cost, keys, projects, and trends.",
+      "Free, open-source, browser-side dashboard for Agnes AI multimodal usage analysis. Part of the API Usage Analyzer Series alongside the DeepSeek companion tool.",
   },
   zh: {
     name: "Agnes AI 用量分析仪表盘 by Gavin & Mindrose Team",
     description:
-      "免费、开源、纯浏览器端的 Agnes AI 多模态用量分析仪表盘。上传单个用量 CSV 即可并列查看文本 Token、图片数量、视频时长，并继续比较请求数、费用、Key、项目与趋势。",
+      "免费、开源、纯浏览器端的 Agnes AI 多模态用量分析仪表盘，属于 API Usage Analyzer Series，可与 DeepSeek 姊妹工具形成互补分析矩阵。",
   },
 };
 
@@ -263,6 +263,14 @@ const organizationSchema: Record<Locale, { name: string; description: string }> 
  */
 export function buildOrganizationJsonLd(locale: Locale): Record<string, unknown> {
   const t = organizationSchema[locale];
+  const sameAs = Array.from(
+    new Set([
+      agnesProject.githubUrl,
+      deepseekProject.githubUrl,
+      deepseekProject.siteUrl,
+    ])
+  );
+
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -270,6 +278,7 @@ export function buildOrganizationJsonLd(locale: Locale): Record<string, unknown>
     url: SITE_URL,
     logo: `${SITE_URL}/agnes-usage-logo.png`,
     description: t.description,
-    sameAs: ["https://github.com/GavinCnod/agnes-api-usage-analysis"],
+    sameAs,
+    brand: TOOL_SERIES_NAME,
   };
 }

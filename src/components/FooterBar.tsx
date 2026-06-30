@@ -2,12 +2,10 @@
 
 import Link from "next/link";
 import { useTranslation } from "@/i18n";
+import { agnesProject, deepseekProject, TOOL_SERIES_NAME } from "@/lib/sisterProjects";
 
 /** 应用版本号，与当前 Agnes 迁移版本保持同步 */
 const APP_VERSION = "0.1.1";
-
-/** GitHub 仓库地址 */
-const GITHUB_URL = "https://github.com/GavinCnod/agnes-api-usage-analysis";
 
 /**
  * FooterBar 属性
@@ -36,6 +34,34 @@ export default function FooterBar({ animate = false, sectionRef }: FooterBarProp
       style={{ color: "var(--text-tertiary)" }}
     >
       <hr style={{ borderColor: "var(--border)", marginBottom: "1.5rem" }} />
+
+      <div className="mb-4 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-xs">
+        <span style={{ color: "var(--text-secondary)" }}>
+          {t.footer.relatedTools}
+        </span>
+        <span aria-hidden="true">·</span>
+        <a
+          href={deepseekProject.trackedSiteUrls.footer}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="transition-colors duration-200 hover:underline underline-offset-2"
+          style={{ color: "var(--text-secondary)" }}
+        >
+          {t.footer.sisterProject}
+        </a>
+        <span aria-hidden="true">·</span>
+        <a
+          href={deepseekProject.trackedRepoUrls.footer}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="transition-colors duration-200 hover:underline underline-offset-2"
+          style={{ color: "var(--text-secondary)" }}
+        >
+          {t.footer.visitSisterRepo}
+        </a>
+        <span aria-hidden="true">·</span>
+        <span>{TOOL_SERIES_NAME}</span>
+      </div>
 
       {/* 使用 flex-wrap 确保移动端文字换行时保持居中 */}
       <div className="flex flex-wrap items-center justify-center gap-x-1.5 text-xs">
@@ -73,7 +99,7 @@ export default function FooterBar({ animate = false, sectionRef }: FooterBarProp
         </Link>
         <span aria-hidden="true">·</span>
         <a
-          href={GITHUB_URL}
+          href={agnesProject.githubUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="transition-colors duration-200 hover:underline underline-offset-2"

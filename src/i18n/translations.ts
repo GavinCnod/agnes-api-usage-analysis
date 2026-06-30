@@ -18,10 +18,15 @@ const translations = {
     header: {
       loadDifferent: "Load different file",
       clear: "Clear",
+      sisterProject: "DeepSeek Tool",
+      sisterProjectTitle: "Visit the sister DeepSeek usage analyzer",
     },
     footer: {
       text: "Agnes AI Usage Analytics Dashboard by Gavin & Mindrose Team · Data processed locally in your browser · ",
       version: "Version",
+      relatedTools: "Related Tools",
+      sisterProject: "DeepSeek Usage Analyzer",
+      visitSisterRepo: "DeepSeek Repo",
     },
     dropzone: {
       processing: "Processing CSV\u2026",
@@ -309,6 +314,12 @@ const translations = {
       qaA8: "Yes, each file must be under 50 MB. This keeps the browser responsive and prevents oversized files from freezing the page.",
       qaQ9: "Can I group API keys by custom projects?",
       qaA9: "Yes. Switch to the 'By Project' tab and click the gear icon to open the configuration panel. Drag API key names from the unassigned pool into your custom project groups. Your project configuration is saved in your browser's local storage.",
+      sisterBadge: "Sister Project",
+      sisterTitle: "Also using DeepSeek API?",
+      sisterDesc:
+        "Open the dedicated DeepSeek usage analyzer to review token spend, model distribution, and trends with a matching browser-side workflow.",
+      sisterVisit: "Open DeepSeek Analyzer",
+      sisterRepo: "View GitHub Repo",
       aboutSectionTitle: "About",
       aboutWhyTitle: "Why We Built This",
       aboutWhyDesc:
@@ -345,10 +356,15 @@ const translations = {
     header: {
       loadDifferent: "加载其他文件",
       clear: "清除",
+      sisterProject: "DeepSeek 分析器",
+      sisterProjectTitle: "前往姊妹项目 DeepSeek 用量分析器",
     },
     footer: {
       text: "Agnes AI 用量分析仪表盘 · 数据仅在浏览器本地处理 · ",
       version: "版本",
+      relatedTools: "姊妹工具",
+      sisterProject: "DeepSeek 用量分析器",
+      visitSisterRepo: "DeepSeek 仓库",
     },
     dropzone: {
       processing: "正在处理 CSV\u2026",
@@ -636,6 +652,12 @@ const translations = {
       qaA8: "有，单个文件不能超过 50 MB。这是为了保持浏览器响应速度，避免超大文件导致页面卡死。",
       qaQ9: "可以按项目分组 API Key 吗？",
       qaA9: "可以。切换到「按项目」标签页，点击齿轮图标打开配置面板。将 API Key 从「未分配 Key」区域拖拽到对应的自定义项目分组中即可。项目配置保存在浏览器本地存储中。",
+      sisterBadge: "姊妹项目",
+      sisterTitle: "你也在用 DeepSeek API 吗？",
+      sisterDesc:
+        "如果你还在同时分析 DeepSeek 的成本、模型分布与趋势，可以打开配套的 DeepSeek 专用分析器，继续沿用相同的纯浏览器工作流。",
+      sisterVisit: "打开 DeepSeek 分析器",
+      sisterRepo: "查看 GitHub 仓库",
       aboutSectionTitle: "关于我们",
       aboutWhyTitle: "为什么开发这个工具？",
       aboutWhyDesc:

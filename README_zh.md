@@ -8,6 +8,13 @@
 
 > [English version](README.md)
 
+## 姊妹项目
+
+如果你也在分析 DeepSeek API 的调用与成本，可以继续查看同一产品矩阵下的配套开源项目：
+
+- GitHub： [DeepSeek API Usage Analyzer Repo](https://github.com/GavinCnod/deepseek-api-usage-analysis)
+- 网站：[DeepSeek API Usage Analyzer](https://deepseek-usage.xyz)
+
 ## 使用方式
 
 1. 从 Agnes AI 导出用量 CSV。
