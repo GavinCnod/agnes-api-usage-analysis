@@ -92,7 +92,7 @@ function createParseResult(options: {
 }
 
 describe("extractShareCardData", () => {
-  it("固定输出 tokens/images/videoSeconds 三维 Hero，并默认以 token 作为辅助图表指标", () => {
+  it("固定输出 tokens/images/videoSeconds 三维 Hero，并仅在排行类分享卡上暴露 token 辅助指标", () => {
     const projectConfig: ProjectDef[] = [
       { name: "Project A", keyNames: ["Key-A"] },
       { name: "Project B", keyNames: ["Key-B"] },
@@ -168,15 +168,23 @@ describe("extractShareCardData", () => {
     const keyData = extractShareCardData({ tab: "keys", result });
     const trendsData = extractShareCardData({ tab: "trends", result });
 
-    expect(getShareMetricKey(overviewData)).toBe("tokens");
+    expect(getShareMetricKey(overviewData)).toBeNull();
     expect(getShareMetricKey(projectData)).toBe("tokens");
     expect(getShareMetricKey(keyData)).toBe("tokens");
-    expect(getShareMetricKey(trendsData)).toBe("tokens");
+    expect(getShareMetricKey(trendsData)).toBeNull();
     expect(overviewData.heroMetrics).toEqual([
       { key: "tokens", value: 300 },
       { key: "images", value: 12 },
       { key: "videoSeconds", value: 90 },
     ]);
+    expect(overviewData.tab).toBe("overview");
+    if (overviewData.tab === "overview") {
+      expect(overviewData.coreMetricSummaries).toEqual([
+        { key: "tokens", peakValue: 200, peakDate: "2026-06-02", lowestValue: 100, lowestDate: "2026-06-01" },
+        { key: "images", peakValue: 10, peakDate: "2026-06-02", lowestValue: 2, lowestDate: "2026-06-01" },
+        { key: "videoSeconds", peakValue: 60, peakDate: "2026-06-02", lowestValue: 30, lowestDate: "2026-06-01" },
+      ]);
+    }
 
     expect(projectData.tab).toBe("projects");
     if (projectData.tab === "projects") {
@@ -194,13 +202,15 @@ describe("extractShareCardData", () => {
 
     expect(trendsData.tab).toBe("trends");
     if (trendsData.tab === "trends") {
-      expect(trendsData.totalValue).toBe(300);
-      expect(trendsData.peakValue).toBe(200);
-      expect(trendsData.lowestValue).toBe(100);
+      expect(trendsData.coreMetricSummaries).toEqual([
+        { key: "tokens", peakValue: 200, peakDate: "2026-06-02", lowestValue: 100, lowestDate: "2026-06-01" },
+        { key: "images", peakValue: 10, peakDate: "2026-06-02", lowestValue: 2, lowestDate: "2026-06-01" },
+        { key: "videoSeconds", peakValue: 60, peakDate: "2026-06-02", lowestValue: 30, lowestDate: "2026-06-01" },
+      ]);
     }
   });
 
-  it("在 token 为 0 时会优先回退到图片指标，而不是费用或请求数", () => {
+  it("在 token 为 0 时会让排行类分享卡优先回退到图片指标，而概览/趋势仍保持固定三维结构", () => {
     const result = createParseResult({
       summary: {
         totalCost: 16,
@@ -254,14 +264,24 @@ describe("extractShareCardData", () => {
     const keyData = extractShareCardData({ tab: "keys", result });
     const trendsData = extractShareCardData({ tab: "trends", result });
 
-    expect(getShareMetricKey(overviewData)).toBe("images");
+    expect(getShareMetricKey(overviewData)).toBeNull();
     expect(getShareMetricKey(keyData)).toBe("images");
-    expect(getShareMetricKey(trendsData)).toBe("images");
+    expect(getShareMetricKey(trendsData)).toBeNull();
     expect(overviewData.heroMetrics).toEqual([
       { key: "tokens", value: 0 },
       { key: "images", value: 12 },
       { key: "videoSeconds", value: 45 },
     ]);
+    expect(overviewData.tab).toBe("overview");
+    if (overviewData.tab === "overview") {
+      expect(overviewData.coreMetricSummaries[1]).toEqual({
+        key: "images",
+        peakValue: 10,
+        peakDate: "2026-06-02",
+        lowestValue: 2,
+        lowestDate: "2026-06-01",
+      });
+    }
 
     expect(keyData.tab).toBe("keys");
     if (keyData.tab === "keys") {
@@ -271,9 +291,13 @@ describe("extractShareCardData", () => {
 
     expect(trendsData.tab).toBe("trends");
     if (trendsData.tab === "trends") {
-      expect(trendsData.totalValue).toBe(12);
-      expect(trendsData.dailyAverage).toBe(6);
-      expect(trendsData.peakValue).toBe(10);
+      expect(trendsData.coreMetricSummaries[1]).toEqual({
+        key: "images",
+        peakValue: 10,
+        peakDate: "2026-06-02",
+        lowestValue: 2,
+        lowestDate: "2026-06-01",
+      });
     }
   });
 });

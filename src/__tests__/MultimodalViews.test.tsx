@@ -146,25 +146,33 @@ function setupCommonMocks() {
         totalCost: "Total Cost",
         totalRequests: "Total Requests",
         activeKeys: "Active Keys",
+        totalTextTokens: "Total Text Tokens",
+        generatedImages: "Generated Images",
+        generatedVideoSeconds: "Video Length (s)",
         requestsPerKey: "{count} active key(s)",
         models: "{count} model(s)",
       },
       metrics: {
         textTokens: "Text Tokens",
+        tabTextTokens: "Total Text Tokens",
         images: "Images",
+        tabImages: "Generated Images",
         videoSeconds: "Video Seconds",
+        tabVideoSeconds: "Video Length (s)",
         requests: "Requests",
         cost: "Cost",
       },
       overview: {
-        heroEyebrow: "Overview",
         heroSubtitle: "{start} - {end}",
         chartMetricLabel: "Chart Metric",
+        dailyCoreMetrics: "Daily Core Metrics (Relative Comparison)",
+        coreMetricsByKey: "Core Metrics by API Key (Relative Comparison)",
+        normalizedHint: "Relative comparison view · Hover to inspect actual values",
       },
       trends: {
-        heroEyebrow: "Trends",
         heroSubtitle: "Over {days} days",
-        activeMetric: "Trend Metric",
+        coreMetricsTrend: "Core Metrics Trend (Relative Comparison)",
+        normalizedHint: "Relative comparison across scales · Hover to inspect actual values",
       },
       empty: {
         overview: "No data",
@@ -184,44 +192,53 @@ describe("Multimodal dashboard views", () => {
 
     render(<KPICards />);
 
-    expect(screen.getAllByText("Text Tokens").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Images").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Video Seconds").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Total Text Tokens").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Generated Images").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Video Length (s)").length).toBeGreaterThan(0);
     expect(screen.getByText("Total Requests")).toBeInTheDocument();
     expect(screen.getByText("Total Cost")).toBeInTheDocument();
   });
 
-  it("keeps overview hero fixed and switches chart metric labels", () => {
+  it("keeps overview hero fixed and renders dual relative-comparison charts", () => {
     setupCommonMocks();
 
     render(<OverviewView />);
 
-    expect(screen.getByText("Overview")).toBeInTheDocument();
     expect(screen.getAllByText("Text Tokens").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Images").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Video Seconds").length).toBeGreaterThan(0);
-    expect(screen.getByRole("img", { name: "Daily Text Tokens" })).toBeInTheDocument();
+    expect(screen.getByText("Relative comparison view · Hover to inspect actual values")).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Daily Core Metrics (Relative Comparison)" })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Core Metrics by API Key (Relative Comparison)" })).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "Images" }));
+    const charts = screen.getAllByTestId("echarts");
+    const dailyOption = JSON.parse(charts[0].getAttribute("data-option") ?? "{}");
 
-    expect(screen.getByRole("img", { name: "Daily Images" })).toBeInTheDocument();
-    expect(screen.getByRole("img", { name: "Images by API Key" })).toBeInTheDocument();
+    expect(dailyOption.xAxis.data).toEqual(["2026-06-28", "2026-06-29"]);
+    expect(dailyOption.series.map((item: { name: string }) => item.name)).toEqual([
+      "Total Text Tokens",
+      "Generated Images",
+      "Video Length (s)",
+    ]);
   });
 
-  it("keeps trends hero fixed and switches the active trend metric", () => {
+  it("keeps trends hero fixed and renders a single relative-comparison trend chart", () => {
     setupCommonMocks();
 
     render(<TrendsView />);
 
-    expect(screen.getByText("Trends")).toBeInTheDocument();
     expect(screen.getAllByText("Text Tokens").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Images").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Video Seconds").length).toBeGreaterThan(0);
-    expect(screen.getByRole("img", { name: "Text Tokens" })).toBeInTheDocument();
+    expect(screen.getByText("Relative comparison across scales · Hover to inspect actual values")).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Core Metrics Trend (Relative Comparison)" })).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "Cost" }));
-
-    expect(screen.getByRole("img", { name: "Cost" })).toBeInTheDocument();
-    expect(screen.getByText("Trend Metric: Cost")).toBeInTheDocument();
+    const option = JSON.parse(screen.getByTestId("echarts").getAttribute("data-option") ?? "{}");
+    expect(option.xAxis.data).toEqual(["2026-06-28", "2026-06-29"]);
+    expect(option.series.map((item: { name: string }) => item.name)).toEqual([
+      "Total Text Tokens",
+      "Generated Images",
+      "Video Length (s)",
+    ]);
   });
 });

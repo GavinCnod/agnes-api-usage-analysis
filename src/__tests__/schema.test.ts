@@ -48,11 +48,14 @@ describe("buildOrganizationJsonLd", () => {
     expect(result.name).toContain("Agnes");
     expect(result.url).toContain("agnes-usage.xyz");
     expect(result.logo).toContain("agnes-usage-logo.png");
-    expect(result.description).toContain("image counts");
-    expect(result.description).toContain("video seconds");
-    expect(result.sameAs).toEqual([
-      "https://github.com/GavinCnod/agnes-api-usage-analysis",
-    ]);
+    expect(result.description).toContain("API Usage Analyzer Series");
+    expect(result.description).toContain("DeepSeek companion tool");
+    expect(result.sameAs).toEqual(
+      expect.arrayContaining([
+        "https://github.com/GavinCnod/agnes-api-usage-analysis",
+        "https://github.com/GavinCnod/deepseek-api-usage-analysis",
+      ])
+    );
   });
 
   it("returns Agnes organization schema for Chinese", () => {
@@ -62,8 +65,8 @@ describe("buildOrganizationJsonLd", () => {
     expect(result["@type"]).toBe("Organization");
     expect(result.name).toContain("Agnes");
     expect(result.name).toContain("用量分析");
-    expect(result.description).toContain("图片数量");
-    expect(result.description).toContain("视频时长");
+    expect(result.description).toContain("API Usage Analyzer Series");
+    expect(result.description).toContain("姊妹工具");
   });
 });
 

@@ -202,8 +202,11 @@ describe("KeyView", () => {
         kpi: { activeKeys: "Active Keys" },
         metrics: {
           textTokens: "Text Tokens",
+          tabTextTokens: "Total Text Tokens",
           images: "Images",
+          tabImages: "Generated Images",
           videoSeconds: "Video Seconds",
+          tabVideoSeconds: "Video Length (s)",
           requests: "Requests",
           cost: "Cost",
         },
@@ -233,13 +236,14 @@ describe("KeyView", () => {
     expect(screen.getAllByText("Text Tokens").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Images").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Video Seconds").length).toBeGreaterThan(0);
+    expect(screen.getByText("Sort By: Total Text Tokens")).toBeInTheDocument();
     expect(screen.getByTestId("copy-Key A")).toHaveAttribute("data-value", "10");
     expect(screen.getByTestId("copy-Key B")).toHaveAttribute("data-value", "5");
     expect(screen.getByTestId("copy-Key C")).toHaveAttribute("data-value", "20");
 
-    fireEvent.click(screen.getAllByRole("button", { name: "Images" })[0]);
+    fireEvent.click(screen.getByRole("button", { name: "Generated Images" }));
 
     expect(getRenderedKeyOrder()).toEqual(["Key A", "Key C", "Key B"]);
-    expect(screen.getByText("Bars scaled by Images")).toBeInTheDocument();
+    expect(screen.getByText("Bars scaled by Generated Images")).toBeInTheDocument();
   });
 });

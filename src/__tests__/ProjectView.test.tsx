@@ -160,8 +160,11 @@ describe("ProjectView", () => {
         empty: { projects: "No data yet." },
         metrics: {
           textTokens: "Text Tokens",
+          tabTextTokens: "Total Text Tokens",
           images: "Images",
+          tabImages: "Generated Images",
           videoSeconds: "Video Seconds",
+          tabVideoSeconds: "Video Length (s)",
           requests: "Requests",
           cost: "Cost",
         },
@@ -224,10 +227,10 @@ describe("ProjectView", () => {
     expect(screen.getByText("Uncategorized")).toBeInTheDocument();
     expect(getRenderedProjectOrder()).toEqual(["Project Alpha", "Project Beta", "Uncategorized"]);
 
-    fireEvent.click(screen.getAllByRole("button", { name: "Images" })[0]);
+    fireEvent.click(screen.getByRole("button", { name: "Generated Images" }));
 
     expect(getRenderedProjectOrder()).toEqual(["Project Beta", "Project Alpha", "Uncategorized"]);
-    expect(screen.getByText("Bars scaled by Images")).toBeInTheDocument();
+    expect(screen.getByText("Bars scaled by Generated Images")).toBeInTheDocument();
     expect(screen.getByTestId("copy-Project Alpha")).toHaveAttribute("data-value", "12");
     expect(screen.getByTestId("copy-Project Beta")).toHaveAttribute("data-value", "7");
   });
