@@ -4,13 +4,13 @@
   <img src="public/agnes-usage-logo.png" alt="Logo" width="128" />
 </p>
 
-一款纯浏览器端的 Agnes AI 用量分析仪表盘。上传单个 Agnes usage CSV，即可在本地浏览器中即时查看费用、Token、请求量和按 Key 的统计。无需服务器、无需上传、无需注册。
+一款纯浏览器端的 Agnes AI 用量分析仪表盘。上传单个 Agnes 用量 CSV，即可在本地浏览器中即时查看费用、Token、请求量和按 Key 的统计。无需服务器、无需上传、无需注册。
 
 > [English version](README.md)
 
 ## 使用方式
 
-1. 从 Agnes AI 导出 usage CSV。
+1. 从 Agnes AI 导出用量 CSV。
 2. 将该 CSV 上传到仪表盘。
 3. 查看总览、按项目、按 Key 和趋势四个视图。
 4. 所有数据都只在浏览器本地处理。
@@ -19,7 +19,7 @@
 
 ## 当前范围
 
-- **单文件输入**：Agnes 当前导出为单个 usage CSV，不需要 ZIP 解压，也不需要 amount/cost 双文件配对。
+- **单文件输入**：Agnes 当前导出为单个用量 CSV，不需要 ZIP 解压，也不需要 amount/cost 双文件配对。
 - **只统计 success**：仅纳入 `Consumption Status=success` 的记录。
 - **四个核心标签页**：`总览`、`按项目`、`按 Key`、`趋势`。
 - **模型筛选**：当 CSV 中存在两个及以上模型时，可对所有视图按模型过滤。
@@ -31,7 +31,7 @@
 
 ## CSV 格式
 
-当前解析器要求 Agnes usage CSV 至少包含以下列：
+当前解析器要求 Agnes 用量 CSV 至少包含以下列：
 
 | 列名 | 含义 |
 | --- | --- |

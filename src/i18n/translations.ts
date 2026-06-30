@@ -268,20 +268,6 @@ const translations = {
       reviewSourceCode: "Review source code \u2192",
     },
     landing: {
-      coreModesTitle: "Three Core Dimensions",
-      coreModesIntro:
-        "One Agnes usage CSV can contain text calls, image generations, and video generations. The dashboard keeps text tokens, image counts, and video seconds side by side instead of forcing every workload into a single token-first lens.",
-      coreModesScopeTitle: "Locked Product Scope",
-      coreModesScopeSingleCsv: "Single Agnes usage CSV only",
-      coreModesScopeSuccessOnly: "Only rows with Consumption Status=success are counted",
-      coreModesScopeTabs: "Exactly four dashboard tabs: Overview, Projects, Keys, Trends",
-      coreModesScopeLinks: "Existing public links and site URL fallback stay unchanged",
-      coreModesTokensDesc:
-        "Parsed from `api_call` rows so text generation remains visible without swallowing image and video activity.",
-      coreModesImagesDesc:
-        "Counted from `image` rows as a first-class metric in cards, rankings, and trend comparisons.",
-      coreModesVideoDesc:
-        "Aggregated from `video` rows so generated duration stays comparable with text and image workloads.",
       howItWorksTitle: "How It Works",
       howItWorksStep1Title: "1. Export Data",
       howItWorksStep1Desc:
@@ -336,7 +322,7 @@ const translations = {
   zh: {
     app: {
       title: "Agnes AI 用量分析",
-      subtitle: "上传单个 Agnes usage CSV，即可并列分析文本 Token、图片数量与视频时长，并结合请求数和费用辅助判断",
+      subtitle: "上传单个 Agnes 用量 CSV，即可并列分析文本 Token、图片数量与视频时长，并结合请求数和费用辅助判断",
     },
     tabs: {
       overview: "总览",
@@ -354,15 +340,15 @@ const translations = {
     },
     dropzone: {
       processing: "正在处理 CSV\u2026",
-      title: "拖拽 Agnes usage CSV 到此处或点击上传",
-      hint: "当前版本仅支持单个 Agnes usage CSV 文件",
+      title: "拖拽 Agnes 用量 CSV 到此处或点击上传",
+      hint: "当前版本仅支持单个 Agnes 用量 CSV 文件",
       privacy: "文件仅在浏览器中处理，不会上传",
       oversizedTitle: "文件过大",
       oversizedHint:
         "单个文件不能超过 50 MB。文件 \"{name}\" 大小为 {size} MB。过大的文件可能导致浏览器卡死。",
       processingError: "处理错误",
       singleFileHint: "当前 Agnes 版本一次只支持上传一个 CSV 文件。",
-      csvOnlyHint: "当前仅支持 Agnes usage CSV 文件。",
+      csvOnlyHint: "当前仅支持 Agnes 用量 CSV 文件。",
     },
     kpi: {
       totalCost: "总费用",
@@ -428,7 +414,7 @@ const translations = {
     meta: {
       title: "Agnes AI 用量分析仪表盘",
       description:
-        "上传单个 Agnes usage CSV，即可在浏览器内即时分析 Agnes AI 多模态用量。并列查看文本 Token、图片数量、视频时长，并继续比较请求数、费用、各 Key 明细、自定义项目分组与趋势。数据 100% 本地处理，不上传任何服务器。",
+        "上传单个 Agnes 用量 CSV，即可在浏览器内即时分析 Agnes AI 多模态用量。并列查看文本 Token、图片数量、视频时长，并继续比较请求数、费用、各 Key 明细、自定义项目分组与趋势。数据 100% 本地处理，不上传任何服务器。",
     },
     langSwitcher: {
       label: "语言",
@@ -539,7 +525,7 @@ const translations = {
         "本应用是纯客户端应用。所有 CSV 文件解析、费用计算和图表渲染都在您的浏览器内完成。我们不会收集、存储、传输或访问您上传的任何 CSV 数据。",
       localProcessingTitle: "2. 本地处理",
       localProcessingDesc:
-        "您的 Agnes usage CSV 文件仅由浏览器中运行的 JavaScript 读取和处理。任何数据都不会发送到后台服务器、数据库或第三方服务。本应用没有用于数据处理的服务器端组件。您配置的应用程序偏好设置（如自定义项目分组）仅保存在浏览器的本地存储中，不会向外传输。",
+        "您的 Agnes 用量 CSV 文件仅由浏览器中运行的 JavaScript 读取和处理。任何数据都不会发送到后台服务器、数据库或第三方服务。本应用没有用于数据处理的服务器端组件。您配置的应用程序偏好设置（如自定义项目分组）仅保存在浏览器的本地存储中，不会向外传输。",
       analyticsTitle: "3. Google Analytics（谷歌分析）",
       analyticsDesc:
         "我们使用 Google Analytics 4（GA4）收集匿名的页面访问统计数据，以了解应用的使用情况并持续改进。GA4 可能会使用 Cookie 并收集页面 URL、浏览器类型和大致地理位置等信息。您上传的 CSV 内容和使用数据不会被跟踪。",
@@ -597,27 +583,13 @@ const translations = {
       reviewSourceCode: "查看源码验证 \u2192",
     },
     landing: {
-      coreModesTitle: "三维并列主展示",
-      coreModesIntro:
-        "同一个 Agnes usage CSV 中可能同时出现文本调用、图片生成和视频生成记录。仪表盘会把文本 Token、图片数量、视频时长并列展示，而不是强行用单一 Token 口径覆盖所有模态。",
-      coreModesScopeTitle: "固定产品边界",
-      coreModesScopeSingleCsv: "仅支持单个 Agnes usage CSV",
-      coreModesScopeSuccessOnly: "仅统计 Consumption Status=success 的记录",
-      coreModesScopeTabs: "仪表盘固定为四个标签页：Overview、Projects、Keys、Trends",
-      coreModesScopeLinks: "现有公开外链与站点域名 fallback 保持不变",
-      coreModesTokensDesc:
-        "从 `api_call` 记录中解析输入与输出 Token，确保文本生成仍然清晰可见，同时不吞没图片和视频活动。",
-      coreModesImagesDesc:
-        "从 `image` 记录中直接统计生成图片数量，作为卡片、排行和趋势中的一等公民指标。",
-      coreModesVideoDesc:
-        "从 `video` 记录中聚合生成视频时长，让视频工作负载可以与文本和图片直接并列比较。",
       howItWorksTitle: "使用方式",
       howItWorksStep1Title: "1. 导出数据",
       howItWorksStep1Desc:
-        "前往 Agnes AI 的 usage 导出页面，下载你需要分析时间范围对应的 usage CSV 文件。",
+        "前往 Agnes AI 的 账单导出页面，下载你需要分析时间范围对应的用量 CSV 文件。",
       howItWorksStep2Title: "2. 拖拽上传",
       howItWorksStep2Desc:
-        "将 Agnes usage CSV 拖拽到此页面，或点击上传区域手动选择文件。",
+        "将 Agnes 用量 CSV 拖拽到此页面，或点击上传区域手动选择文件。",
       howItWorksStep3Title: "3. 查看分析",
       howItWorksStep3Desc:
         "即刻并列查看文本 Token、图片数量、视频时长，再结合请求趋势、各 Key 用量明细、自定义项目分组和辅助费用图表完成判断，所有数据都在浏览器本地处理。",
@@ -625,15 +597,15 @@ const translations = {
       qaQ1: "我的数据会上传到服务器吗？",
       qaA1: "不会。所有 CSV 解析和费用计算均在您的浏览器中完成，数据不会离开您的设备。",
       qaQ2: "我需要上传哪些文件？",
-      qaA2: "上传单个 Agnes usage CSV 即可。当前版本不需要 ZIP 解压，也不需要双文件配对。",
+      qaA2: "上传单个 Agnes 用量 CSV 即可。当前版本不需要 ZIP 解压，也不需要双文件配对。",
       qaQ3: "可以同时分析多个月份吗？",
       qaA3: "暂时还不支持。当前 Agnes 版本先聚焦单个 CSV 的稳定分析流程。",
       qaQ4: "优先展示哪些用量维度，支持哪些模型？",
-      qaA4: "Agnes usage 导出中的所有模型均支持。仪表盘会在当前模型或全部模型视角下，始终并列展示文本 Token、图片数量和视频时长。",
+      qaA4: "Agnes 账单导出中的所有模型均支持。仪表盘会在当前模型或全部模型视角下，始终并列展示文本 Token、图片数量和视频时长。",
       qaQ5: "为什么三项核心指标里有一项是 0？",
       qaA5: "这通常表示当前 CSV、模型筛选或时间范围内没有该模态的记录。文本 Token 为 0、图片数量为 0、视频时长为 0 都可能是正常结果。",
       qaQ6: "显示\u201C上传不完整\u201D是什么意思？",
-      qaA6: "在 Agnes 版本里，这通常表示上传的文件为空、缺少必需列，或不是有效的 Agnes usage CSV。",
+      qaA6: "在 Agnes 版本里，这通常表示上传的文件为空、缺少必需列，或不是有效的 Agnes 用量 CSV。",
       qaQ7: "哪里可以找到更多故障排查帮助？",
       qaA7: "请查看完整操作指南中的\u201C常见问题排查\u201D章节，涵盖 CSV 格式错误、缺少字段和上传校验等常见问题。",
       qaQ8: "有文件大小限制吗？",
@@ -646,7 +618,7 @@ const translations = {
         "随着 Agnes AI 使用量增长，原始 CSV 越来越难一眼看清重点，尤其是文本、图片、视频记录开始混在同一份导出里之后更明显。\n为了回答“哪个项目消耗了最多资源”“哪个 Key 生成了最多图片”“视频生成在什么时候抬升”这类问题，我们决定自己动手，打造一个简单、直观且绝对安全的浏览器端可视化仪表盘。",
       aboutPrivacyTitle: "极致的隐私与技术架构",
       aboutPrivacyDesc:
-        "处理账单与用量数据时，隐私是不可妥协的底线，因此我们采用了纯前端架构。\n基于 Next.js 16 (App Router) 和 React 19，结合 Papa Parse 与 ECharts，应用会在你的浏览器本地解析单个 Agnes usage CSV，只统计 success 记录，并通过四个聚焦标签页呈现总览、项目、Key 与趋势。\n没有后端、没有数据库，你的数据绝不会离开设备。",
+        "处理账单与用量数据时，隐私是不可妥协的底线，因此我们采用了纯前端架构。\n基于 Next.js 16 (App Router) 和 React 19，结合 Papa Parse 与 ECharts，应用会在你的浏览器本地解析单个 Agnes 用量 CSV，只统计 success 记录，并通过四个聚焦标签页呈现总览、项目、Key 与趋势。\n没有后端、没有数据库，你的数据绝不会离开设备。",
       aboutMindRoseTitle: "关于 MindRose",
       aboutMindRoseDesc:
         "本项目由 Gavin Chen 及 MindRose 团队开发并开源呈现。MindRose 是专注于为中小制造企业、物流公司及跨国贸易商提供轻量级数字化解决方案的科技团队。\n我们不卖虚无的\u201C数字化转型\u201D概念，而是通过 AI 技术与全栈敏捷开发（Next.js、React、Mendix 等），在几周内为你交付解决实际业务痛点的应用。\n从外贸独立站的 SEO 优化重构，到企业内部核心系统的敏捷搭建，再到 AI Agent 的业务流接入，我们懂技术，更懂你的商业场景。",

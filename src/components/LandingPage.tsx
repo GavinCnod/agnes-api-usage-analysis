@@ -135,33 +135,6 @@ export default function LandingPage() {
     { q: t.landing.qaQ9, a: t.landing.qaA9 },
   ];
 
-  // 三维并列主展示说明
-  const coreModes = [
-    {
-      key: "tokens",
-      label: t.metrics.textTokens,
-      desc: t.landing.coreModesTokensDesc,
-    },
-    {
-      key: "images",
-      label: t.metrics.images,
-      desc: t.landing.coreModesImagesDesc,
-    },
-    {
-      key: "videoSeconds",
-      label: t.metrics.videoSeconds,
-      desc: t.landing.coreModesVideoDesc,
-    },
-  ];
-
-  // 固定产品边界提示
-  const scopeItems = [
-    t.landing.coreModesScopeSingleCsv,
-    t.landing.coreModesScopeSuccessOnly,
-    t.landing.coreModesScopeTabs,
-    t.landing.coreModesScopeLinks,
-  ];
-
   return (
     <div className="min-h-screen" style={{ background: "var(--bg)" }}>
       <TitleBar />
@@ -218,91 +191,6 @@ export default function LandingPage() {
             <ErrorDisplay />
           </section>
         </div>
-
-        {/* ============================================================ */}
-        {/* 三维并列主展示                                                   */}
-        {/* ============================================================ */}
-        <hr className="reveal-section" style={{ borderColor: "var(--border)" }} />
-        <section
-          id="core-modes"
-          className="pt-10 pb-12 reveal-section"
-          style={{ contentVisibility: "auto" }}
-          ref={(el) => {
-            sectionRefs.current[2] = el;
-          }}
-        >
-          <div className="mx-auto max-w-4xl text-center">
-            <h2
-              className="text-[11px] font-semibold uppercase tracking-widest mb-4 text-pretty"
-              style={{ color: "var(--text-secondary)" }}
-            >
-              {t.landing.coreModesTitle}
-            </h2>
-            <p
-              className="mx-auto max-w-3xl text-sm leading-relaxed text-pretty"
-              style={{ color: "var(--text-secondary)" }}
-            >
-              {t.landing.coreModesIntro}
-            </p>
-          </div>
-
-          <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
-            {coreModes.map((item) => (
-              <article
-                key={item.key}
-                className="rounded-[24px] border p-5 md:p-6"
-                style={{
-                  borderColor: "var(--border)",
-                  background: "var(--bg-surface)",
-                  boxShadow: "var(--shadow-card)",
-                }}
-              >
-                <p
-                  className="text-[11px] font-semibold uppercase tracking-[0.24em]"
-                  style={{ color: "var(--text-tertiary)" }}
-                >
-                  {t.landing.coreModesTitle}
-                </p>
-                <h3
-                  className="mt-4 text-xl font-semibold tracking-tight text-pretty"
-                  style={{ color: "var(--text-primary)", letterSpacing: "-0.03em" }}
-                >
-                  {item.label}
-                </h3>
-                <p
-                  className="mt-3 text-sm leading-relaxed text-pretty"
-                  style={{ color: "var(--text-secondary)" }}
-                >
-                  {item.desc}
-                </p>
-              </article>
-            ))}
-          </div>
-
-          <div className="mt-8 rounded-[24px] border px-5 py-5 md:px-6" style={{ borderColor: "var(--border)" }}>
-            <p
-              className="text-[11px] font-semibold uppercase tracking-[0.24em]"
-              style={{ color: "var(--text-secondary)" }}
-            >
-              {t.landing.coreModesScopeTitle}
-            </p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {scopeItems.map((item) => (
-                <span
-                  key={item}
-                  className="inline-flex rounded-full border px-3 py-1.5 text-[11px] font-medium"
-                  style={{
-                    borderColor: "var(--border)",
-                    color: "var(--text-secondary)",
-                    background: "var(--bg-surface-hover)",
-                  }}
-                >
-                  {item}
-                </span>
-              ))}
-            </div>
-          </div>
-        </section>
 
         {/* ============================================================ */}
         {/* 使用说明                                                       */}

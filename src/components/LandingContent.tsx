@@ -66,62 +66,6 @@ export default function LandingContent() {
       </section>
 
       {/* ============================================================ */}
-      {/* 三维并列主展示 — 英文版                                            */}
-      {/* ============================================================ */}
-      <section lang="en">
-        <h2>{en.landing.coreModesTitle}</h2>
-        <p>{en.landing.coreModesIntro}</p>
-        <div>
-          <div>
-            <h3>{en.metrics.textTokens}</h3>
-            <p>{en.landing.coreModesTokensDesc}</p>
-          </div>
-          <div>
-            <h3>{en.metrics.images}</h3>
-            <p>{en.landing.coreModesImagesDesc}</p>
-          </div>
-          <div>
-            <h3>{en.metrics.videoSeconds}</h3>
-            <p>{en.landing.coreModesVideoDesc}</p>
-          </div>
-        </div>
-        <h3>{en.landing.coreModesScopeTitle}</h3>
-        <ul>
-          <li>{en.landing.coreModesScopeSingleCsv}</li>
-          <li>{en.landing.coreModesScopeSuccessOnly}</li>
-          <li>{en.landing.coreModesScopeTabs}</li>
-          <li>{en.landing.coreModesScopeLinks}</li>
-        </ul>
-      </section>
-
-      {/* 三维并列主展示 — 中文版 */}
-      <section lang="zh">
-        <h2>{zh.landing.coreModesTitle}</h2>
-        <p>{zh.landing.coreModesIntro}</p>
-        <div>
-          <div>
-            <h3>{zh.metrics.textTokens}</h3>
-            <p>{zh.landing.coreModesTokensDesc}</p>
-          </div>
-          <div>
-            <h3>{zh.metrics.images}</h3>
-            <p>{zh.landing.coreModesImagesDesc}</p>
-          </div>
-          <div>
-            <h3>{zh.metrics.videoSeconds}</h3>
-            <p>{zh.landing.coreModesVideoDesc}</p>
-          </div>
-        </div>
-        <h3>{zh.landing.coreModesScopeTitle}</h3>
-        <ul>
-          <li>{zh.landing.coreModesScopeSingleCsv}</li>
-          <li>{zh.landing.coreModesScopeSuccessOnly}</li>
-          <li>{zh.landing.coreModesScopeTabs}</li>
-          <li>{zh.landing.coreModesScopeLinks}</li>
-        </ul>
-      </section>
-
-      {/* ============================================================ */}
       {/* 常见问题 — 英文版                                                  */}
       {/* ============================================================ */}
       <section lang="en">

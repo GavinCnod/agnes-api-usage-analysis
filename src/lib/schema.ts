@@ -37,10 +37,10 @@ const softwareAppSchema: Record<
   zh: {
     name: "Agnes AI 用量分析仪表盘 by Gavin & Mindrose Team",
     description:
-      "上传单个 Agnes usage CSV，即可在浏览器内即时分析 Agnes AI 多模态用量，并列查看文本 Token、图片数量、视频时长，同时比较请求数、费用、各 Key 明细、自定义项目分组与趋势。",
+      "上传单个 Agnes 用量 CSV，即可在浏览器内即时分析 Agnes AI 多模态用量，并列查看文本 Token、图片数量、视频时长，同时比较请求数、费用、各 Key 明细、自定义项目分组与趋势。",
     version: APP_VERSION,
     featureList: [
-      "单个 Agnes usage CSV 工作流",
+      "单个 Agnes 用量 CSV 工作流",
       "文本 Token、图片数量、视频时长并列展示",
       "仅统计 Consumption Status=success 的记录",
       "固定四个标签页：Overview、Projects、Keys、Trends",
@@ -98,15 +98,15 @@ const faqSchema: Record<Locale, { questions: { q: string; a: string }[] }> = {
       },
       {
         q: "我需要哪些 CSV 文件？",
-        a: "需要一个 Agnes usage CSV 文件。当前版本不需要 ZIP 解压，也不需要双文件配对。",
+        a: "需要一个 Agnes 用量 CSV 文件。当前版本不需要 ZIP 解压，也不需要双文件配对。",
       },
       {
         q: "可以同时分析多个月份吗？",
-        a: "暂时还不支持。当前 Agnes 版本先聚焦单个 usage CSV 的稳定分析流程。",
+        a: "暂时还不支持。当前 Agnes 版本先聚焦单个用量 CSV 的稳定分析流程。",
       },
       {
         q: "优先展示哪些用量维度，支持哪些模型？",
-        a: "Agnes usage 导出中的所有模型均支持。仪表盘会在当前模型或全部模型视角下，始终并列展示文本 Token、图片数量和视频时长。",
+        a: "Agnes 账单导出中的所有模型均支持。仪表盘会在当前模型或全部模型视角下，始终并列展示文本 Token、图片数量和视频时长。",
       },
       {
         q: "为什么三项核心指标里有一项是 0？",
@@ -114,7 +114,7 @@ const faqSchema: Record<Locale, { questions: { q: string; a: string }[] }> = {
       },
       {
         q: "显示\u201C上传不完整\u201D是什么意思？",
-        a: "在 Agnes 版本里，这通常表示上传的文件为空、缺少必需列，或不是有效的 Agnes usage CSV。",
+        a: "在 Agnes 版本里，这通常表示上传的文件为空、缺少必需列，或不是有效的 Agnes 用量 CSV。",
       },
       {
         q: "哪里可以找到更多故障排查帮助？",
@@ -251,7 +251,7 @@ const organizationSchema: Record<Locale, { name: string; description: string }> 
   zh: {
     name: "Agnes AI 用量分析仪表盘 by Gavin & Mindrose Team",
     description:
-      "免费、开源、纯浏览器端的 Agnes AI 多模态用量分析仪表盘。上传单个 usage CSV 即可并列查看文本 Token、图片数量、视频时长，并继续比较请求数、费用、Key、项目与趋势。",
+      "免费、开源、纯浏览器端的 Agnes AI 多模态用量分析仪表盘。上传单个用量 CSV 即可并列查看文本 Token、图片数量、视频时长，并继续比较请求数、费用、Key、项目与趋势。",
   },
 };
 

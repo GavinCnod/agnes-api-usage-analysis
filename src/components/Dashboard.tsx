@@ -66,7 +66,7 @@ export default function Dashboard() {
 
       const file = fileArr[0];
       if (!file.name.toLowerCase().endsWith(".csv")) {
-        setReuploadError(t.dropzone.csvOnlyHint ?? "当前只支持 Agnes usage CSV 文件。");
+        setReuploadError(t.dropzone.csvOnlyHint ?? "当前只支持 Agnes 用量 CSV 文件。");
         e.target.value = "";
         return;
       }

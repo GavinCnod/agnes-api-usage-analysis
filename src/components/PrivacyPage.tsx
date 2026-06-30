@@ -45,7 +45,7 @@ export function PrivacyPage() {
         ? "隐私政策 — Agnes AI Usage Analysis"
         : "Privacy Policy — Agnes AI Usage Analysis",
       description: isZh
-        ? "Agnes AI Usage Analysis 隐私政策。所有 Agnes usage CSV 解析均在本地浏览器完成，不上传任何数据，Google Analytics 仅在配置后可选启用。"
+        ? "Agnes AI Usage Analysis 隐私政策。所有 Agnes 用量 CSV 解析均在本地浏览器完成，不上传任何数据，Google Analytics 仅在配置后可选启用。"
         : "Privacy Policy for Agnes AI Usage Analysis. All Agnes usage CSV parsing runs locally in your browser, no data is uploaded, and Google Analytics is opt-in only when configured.",
       about: {
         "@type": "Thing",

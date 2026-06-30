@@ -30,7 +30,7 @@
 
 ### 中文
 
-1. 从 Agnes AI 导出 usage CSV。
+1. 从 Agnes AI 导出用量 CSV。
 2. 将该 CSV 上传到应用中。
 3. 应用会解析金额、数量、模型、Key 名称、时间和状态字段。
 4. 然后展示总览、按项目、按 Key 和趋势四类分析。
@@ -69,13 +69,13 @@ Yes. Use the `By Project` tab and configure custom project groups locally in the
 不会。所有解析和渲染都在浏览器本地完成。
 
 **Q2：需要上传什么文件？**  
-需要一个 Agnes usage CSV 文件。
+需要一个 Agnes 用量 CSV 文件。
 
 **Q3：可以同时分析多个月份吗？**  
 当前版本还不支持，现阶段聚焦单个 CSV 的稳定分析。
 
 **Q4：支持哪些模型？**  
-支持 Agnes usage 导出中出现的所有模型。
+支持 Agnes 用量导出中出现的所有模型。
 
 **Q5：为什么费用显示为 0？**  
 如果导出文件里的 `Consumption Amount(cents)` 本身就是 `0`，仪表盘也会显示 `0`。

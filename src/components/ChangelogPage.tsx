@@ -44,7 +44,7 @@ const CHANGELOG_DATA: VersionEntry[] = [
     date: "2026-06-28",
     added: [
       {
-        zh: "基于前期本团队开源项目 deepseek-api-usage-analysis，构建此工程，将输入切换为 Agnes usage CSV。",
+        zh: "基于前期本团队开源项目 deepseek-api-usage-analysis，构建此工程，将输入切换为 Agnes 用量 CSV。",
         en: "Switched the input to a single Agnes usage CSV base on our existing open-source project deepseek-api-usage-analysis.",
       },
       {

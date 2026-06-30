@@ -44,7 +44,7 @@ export default function ChangelogContent() {
         <p>最后更新：2026-06-28</p>
         <p>
           Agnes AI Usage Analysis 更新日志。当前项目已聚焦于 Agnes
-          usage CSV 的本地浏览器分析能力。
+          用量 CSV 的本地浏览器分析能力。
         </p>
         <ol>
           {VERSION_SUMMARY.map((item) => (

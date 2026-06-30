@@ -42,7 +42,7 @@ export default function DropZone() {
 
       const file = fileArr[0];
       if (!file.name.toLowerCase().endsWith(".csv")) {
-        setSelectionError(t.dropzone.csvOnlyHint ?? "当前只支持 Agnes usage CSV 文件。");
+        setSelectionError(t.dropzone.csvOnlyHint ?? "当前只支持 Agnes 用量 CSV 文件。");
         return;
       }
 

@@ -92,7 +92,7 @@ function createZhGuide(): GuideDocument {
         {
           type: "p",
           text:
-            "Agnes AI Usage Analysis 是一个纯浏览器端运行的 Agnes usage 分析工具。您只需上传单个 Agnes usage CSV，即可并列查看文本 Token、图片数量、视频时长，并继续分析请求数、费用、按 Key 明细、按项目聚合和趋势图表。",
+            "Agnes AI Usage Analysis 是一个纯浏览器端运行的 Agnes 用量分析工具。您只需上传单个 Agnes 用量 CSV，即可并列查看文本 Token、图片数量、视频时长，并继续分析请求数、费用、按 Key 明细、按项目聚合和趋势图表。",
         },
         {
           type: "ul",
@@ -126,7 +126,7 @@ function createZhGuide(): GuideDocument {
           type: "ol",
           items: [
             "登录 Agnes AI 控制台，打开 usage 或 billing 相关页面。",
-            "导出 usage CSV。",
+            "导出用量 CSV。",
             "确认 CSV 至少包含 Type、Secret Key Name、Consumption Model、Consumption Amount(cents)、Consumption Quantity、Consumption Time、Consumption Status 这些列。",
             "将 CSV 拖拽到首页上传区域，或点击上传区域手动选择文件。",
             "等待解析完成，页面会自动切换到仪表盘。",
@@ -339,7 +339,7 @@ function createZhGuide(): GuideDocument {
           type: "table",
           headers: ["问题", "可能原因", "建议"],
           rows: [
-            ["上传后无反应", "不是 CSV 文件", "确认上传的是 Agnes usage CSV"],
+            ["上传后无反应", "不是 CSV 文件", "确认上传的是 Agnes 用量 CSV"],
             ["显示文件过大", "文件超过 50 MB", "检查是否误选了其他大文件"],
             ["提示缺列", "不是标准 Agnes 导出", "重新从 Agnes 控制台导出"],
             ["金额为 0", "原始导出本身金额为 0", "先核对 Agnes 控制台数据"],
@@ -358,15 +358,15 @@ function createZhGuide(): GuideDocument {
     jsonLd: {
       name: "Agnes AI Usage Analysis — 用户操作手册",
       description:
-        "完整的 Agnes AI Usage Analysis 操作指南。学习如何导出 Agnes usage CSV、上传单个文件，并理解文本 Token、图片数量、视频时长三维并列展示，以及总览、项目、Key 和趋势视图。",
+        "完整的 Agnes AI Usage Analysis 操作指南。学习如何导出 Agnes 用量 CSV、上传单个文件，并理解文本 Token、图片数量、视频时长三维并列展示，以及总览、项目、Key 和趋势视图。",
       steps: [
         {
-          name: "导出 Agnes usage CSV",
-          text: "前往 Agnes AI 控制台的 usage 或 billing 页面，导出包含 Secret Key、Model、Amount、Quantity、Time、Status 的 usage CSV。",
+          name: "导出 Agnes 用量 CSV",
+          text: "前往 Agnes AI 控制台的 usage 或 billing 页面，导出包含 Secret Key、Model、Amount、Quantity、Time、Status 的用量 CSV。",
         },
         {
           name: "上传单个 CSV 文件",
-          text: "将单个 Agnes usage CSV 拖拽到上传区域，或点击上传区域手动选择文件。",
+          text: "将单个 Agnes 用量 CSV 拖拽到上传区域，或点击上传区域手动选择文件。",
         },
         {
           name: "查看分析结果",
