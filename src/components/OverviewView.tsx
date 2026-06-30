@@ -267,7 +267,6 @@ export default function OverviewView() {
     <div>
       <MetricHero
         items={heroItems}
-        eyebrow={t.overview.heroEyebrow}
         subtitle={
           summary.dateRange
             ? t.overview.heroSubtitle

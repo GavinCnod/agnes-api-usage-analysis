@@ -144,7 +144,6 @@ export default function ProjectView() {
     <div>
       <MetricHero
         items={heroItems}
-        eyebrow={t.projects.heroEyebrow}
         subtitle={t.keys.heroSubtitle
           .replace("{keys}", String(allKeys.length))
           .replace("{models}", String(modelCount))}

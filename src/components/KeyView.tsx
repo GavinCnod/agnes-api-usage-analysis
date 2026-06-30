@@ -75,7 +75,6 @@ export default function KeyView() {
     <div>
       <MetricHero
         items={heroItems}
-        eyebrow={t.keys.heroEyebrow}
         subtitle={t.keys.heroSubtitle
           .replace("{keys}", String(sortedKeys.length))
           .replace("{models}", String(modelCount))}

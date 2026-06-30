@@ -204,7 +204,6 @@ export default function TrendsView() {
     <div>
       <MetricHero
         items={heroItems}
-        eyebrow={t.trends.heroEyebrow}
         subtitle={t.trends.heroSubtitle.replace("{days}", String(dates.length))}
         sideNote={t.trends.normalizedHint}
       />

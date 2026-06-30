@@ -11,7 +11,6 @@ import type { MetricDisplayItem } from "@/lib/dashboardMetrics";
 /** Hero 单项展示数据。 */
 interface MetricHeroProps {
   items: MetricDisplayItem[];
-  eyebrow?: string;
   subtitle?: ReactNode;
   sideNote?: ReactNode;
 }
@@ -19,38 +18,16 @@ interface MetricHeroProps {
 /**
  * 渲染统一风格的三维 Hero 区域。
  */
-export default function MetricHero({ items, eyebrow, subtitle, sideNote }: MetricHeroProps) {
+export default function MetricHero({ items, subtitle, sideNote }: MetricHeroProps) {
   return (
     <div className="mb-12 pt-4">
-      {(eyebrow || sideNote) && (
-        <div className="mb-5 flex flex-col gap-2 border-b pb-4 md:flex-row md:items-end md:justify-between" style={{ borderColor: "var(--border)" }}>
-          <div>
-            {eyebrow && (
-              <p className="text-[11px] font-semibold uppercase tracking-[0.24em]" style={{ color: "var(--text-secondary)" }}>
-                {eyebrow}
-              </p>
-            )}
-            {subtitle && (
-              <div className="mt-2 text-xs" style={{ color: "var(--text-tertiary)" }}>
-                {subtitle}
-              </div>
-            )}
-          </div>
-          {sideNote && (
-            <div className="text-xs md:text-right" style={{ color: "var(--text-tertiary)" }}>
-              {sideNote}
-            </div>
-          )}
-        </div>
-      )}
-
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         {items.map((item) => {
           const isEmpty = item.value === 0;
           return (
             <div
               key={item.key}
-              className="rounded-subtle border px-0 py-4 md:border-x-0 md:border-y-0 md:px-4 md:first:pl-0 md:last:pr-0"
+              className="rounded-subtle border px-0 py-4 text-center md:border-x-0 md:border-y-0 md:px-4 md:first:pl-0 md:last:pr-0"
               style={{ borderColor: "var(--border)" }}
             >
               <div
@@ -69,6 +46,21 @@ export default function MetricHero({ items, eyebrow, subtitle, sideNote }: Metri
           );
         })}
       </div>
+
+      {(subtitle || sideNote) && (
+        <div
+          className="mt-4 flex items-center justify-center pt-2 text-center"
+        >
+          <div
+            className="flex flex-wrap items-center justify-center gap-2 text-[11px]"
+            style={{ color: "var(--text-tertiary)", opacity: 0.82 }}
+          >
+            {subtitle && <span>{subtitle}</span>}
+            {subtitle && sideNote && <span aria-hidden="true">&middot;</span>}
+            {sideNote && <span>{sideNote}</span>}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
