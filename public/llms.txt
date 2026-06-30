@@ -1,15 +1,17 @@
 # Agnes AI Usage Analytics Dashboard
 
-> Visualize Agnes AI usage from a single CSV export. The app runs entirely in the browser and shows cost, token, request, per-key, per-project, and trend analytics. Open source, bilingual, and privacy-first.
+> Visualize Agnes AI multimodal usage from a single CSV export. The app runs entirely in the browser and shows text tokens, image counts, video duration, cost, requests, per-key, per-project, and trend analytics. Open source, bilingual, and privacy-first.
 
 ## Core Capabilities
 
 - Upload one Agnes usage CSV
-- Parse `Consumption Quantity` into input/output tokens
+- Parse `Consumption Quantity` into text tokens, image counts, or video seconds
+- Classify each row's `Type` as `api_call`, `image`, `video`, or `unknown`
 - Count only `Consumption Status=success`
-- View `Overview`, `By Project`, `By Key`, and `Trends`
+- View `Overview`, `By Project`, `By Key`, and `Trends` — each with three co-equal metrics
+- Sort tables by tokens, images, video duration, requests, or cost
 - Filter by model when multiple models exist
-- Generate social share cards
+- Generate social share cards with multimodal annotations
 - Process everything locally in the browser
 
 ## Public Pages
@@ -23,11 +25,13 @@
 
 ## External Links
 
-- [GitHub Repository](https://github.com/GavinCnod/agnes-api-usage-analysis)
+- [Agnes GitHub Repository](https://github.com/GavinCnod/agnes-api-usage-analysis)
+- [DeepSeek Sister Project](https://github.com/GavinCnod/deepseek-api-usage-analysis)
 - [MindRose](https://www.mindrose.xyz)
 
 ## Notes
 
 - Current app version: `0.1.1`
-- Default public domain fallback is still `https://agnes-usage.xyz`
+- Default public domain fallback is `https://agnes-usage.xyz`
+- DeepSeek sister-project links are managed centrally via `src/lib/sisterProjects.ts`
 - External links are intentionally preserved during this migration pass

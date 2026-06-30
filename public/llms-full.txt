@@ -1,6 +1,6 @@
 # Agnes AI Usage Analytics Dashboard — Full Content
 
-> A browser-side analytics dashboard for Agnes AI usage. Upload a single usage CSV and get cost, token, request, per-key, and trend analytics without sending any data to a server. Built by Gavin Chen & the Mindrose team. Version `0.1.1`.
+> A browser-side multimodal analytics dashboard for Agnes AI usage. Upload a single usage CSV and get text tokens, image counts, video duration, cost, requests, per-key, and trend analytics without sending any data to a server. Built by Gavin Chen & the Mindrose team. Version `0.1.1`.
 
 ---
 
@@ -8,10 +8,12 @@
 
 - **Single CSV workflow** — One Agnes usage CSV per analysis session.
 - **Success-only counting** — Only rows with `Consumption Status=success` are included.
+- **Three co-equal core metrics** — Text tokens, image counts, and video seconds displayed side by side in every view.
 - **Dashboard views** — `Overview`, `By Project`, `By Key`, `Trends`.
+- **Multi-metric sorting** — Sort tables by tokens, images, video duration, requests, or cost.
 - **Project grouping** — Group secret keys into custom local projects.
 - **Model filter** — Filter all views when multiple models exist.
-- **Share cards** — Export 1200x630 dashboard share images.
+- **Share cards** — Export 1200×630 share images with multimodal annotations.
 - **Privacy-first** — All parsing and rendering happen in the browser.
 - **Bilingual UI** — English and Chinese are available across UI and docs.
 - **Apple-minimalist design** — Thin dividers, large hero metrics, and theme-aware charts.
@@ -24,16 +26,16 @@
 
 1. Export a usage CSV from Agnes AI.
 2. Upload that CSV into the app.
-3. The app parses amount, quantity, model, key name, time, and status fields.
-4. It shows analytics for Overview, By Project, By Key, and Trends.
+3. The app parses type, amount, quantity (text tokens / image count / video seconds), model, key name, time, and status fields.
+4. It shows analytics for Overview, By Project, By Key, and Trends — each with three co-equal metrics.
 5. All data stays in the browser.
 
 ### 中文
 
 1. 从 Agnes AI 导出用量 CSV。
 2. 将该 CSV 上传到应用中。
-3. 应用会解析金额、数量、模型、Key 名称、时间和状态字段。
-4. 然后展示总览、按项目、按 Key 和趋势四类分析。
+3. 应用会解析类型、金额、数量（文本 Token / 图片数量 / 视频时长）、模型、Key 名称、时间和状态字段。
+4. 然后展示总览、按项目、按 Key 和趋势四类分析，每类分析同时呈现三个对等核心指标。
 5. 所有数据都保留在浏览器本地。
 
 ---
@@ -51,11 +53,11 @@ You need one Agnes usage CSV file.
 **Q3: Can I analyze multiple months at once?**  
 Not in the current version. The current workflow focuses on one CSV at a time.
 
-**Q4: What models are supported?**  
-Any model present in the Agnes usage export.
+**Q4: What models and modalities are supported?**
+Any model present in the Agnes usage export. The dashboard always surfaces text tokens, image counts, and video seconds for the selected model or all models combined.
 
-**Q5: Why is cost 0?**  
-If `Consumption Amount(cents)` is `0` in the export, the dashboard will also show `0`.
+**Q5: Why is one of the three core metrics 0?**
+That usually means the current CSV, model filter, or date range has no records for that modality. Zero text tokens, zero images, or zero video seconds are all valid outcomes.
 
 **Q6: What does "Incomplete Upload" mean now?**  
 It usually means the file is empty, malformed, or missing required columns.
@@ -74,11 +76,11 @@ Yes. Use the `By Project` tab and configure custom project groups locally in the
 **Q3：可以同时分析多个月份吗？**  
 当前版本还不支持，现阶段聚焦单个 CSV 的稳定分析。
 
-**Q4：支持哪些模型？**  
-支持 Agnes 用量导出中出现的所有模型。
+**Q4：支持哪些模型和使用类型？**
+支持 Agnes 用量导出中出现的所有模型。仪表盘始终并列展示文本 Token、图片数量和视频时长。
 
-**Q5：为什么费用显示为 0？**  
-如果导出文件里的 `Consumption Amount(cents)` 本身就是 `0`，仪表盘也会显示 `0`。
+**Q5：为什么三个核心指标中有某个显示为 0？**
+通常说明当前 CSV、模型筛选或日期范围内没有该类型的记录。文本 Token、图片数量或视频时长为 0 都是正常结果。
 
 **Q6："上传不完整" 现在是什么意思？**  
 通常表示文件为空、格式错误，或者缺少必要列。
@@ -114,15 +116,17 @@ This is an independent open-source project by Gavin Chen and the Mindrose team. 
 
 ## Public Links
 
-- Main App: https://agnes-usage.xyz
-- User Guide: https://agnes-usage.xyz/guideline
-- Changelog: https://agnes-usage.xyz/changelog
-- Privacy Policy: https://agnes-usage.xyz/privacy
-- Terms of Use: https://agnes-usage.xyz/terms
-- GitHub Repository: https://github.com/GavinCnod/agnes-api-usage-analysis
+- Main App: [https://agnes-usage.xyz](https://agnes-usage.xyz)
+- User Guide: [https://agnes-usage.xyz/guideline](https://agnes-usage.xyz/guideline)
+- Changelog: [https://agnes-usage.xyz/changelog](https://agnes-usage.xyz/changelog)
+- Privacy Policy: [https://agnes-usage.xyz/privacy](https://agnes-usage.xyz/privacy)
+- Terms of Use: [https://agnes-usage.xyz/terms](https://agnes-usage.xyz/terms)
+- GitHub Repository (Agnes): [https://github.com/GavinCnod/agnes-api-usage-analysis](https://github.com/GavinCnod/agnes-api-usage-analysis)
+- Sister Project (DeepSeek): [https://github.com/GavinCnod/deepseek-api-usage-analysis](https://github.com/GavinCnod/deepseek-api-usage-analysis)
 
 ## Migration Notes
 
 - Current migration version: `0.1.1`
 - Default public domain fallback remains `https://agnes-usage.xyz`
+- DeepSeek sister-project links are managed centrally via `src/lib/sisterProjects.ts`
 - Existing external links are intentionally preserved for now

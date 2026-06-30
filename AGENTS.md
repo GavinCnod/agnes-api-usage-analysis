@@ -62,7 +62,7 @@ src/
 │   ├── ErrorDisplay.tsx        # Structured error banner
 │   ├── LanguageSwitcher.tsx    # en / zh toggle
 │   ├── ThemeSwitcher.tsx       # Light / dark toggle
-│   ├── GuidelinePage.tsx       # Agnes user guide
+│   ├── GuidelinePage.tsx       # Agnes user guide (text-only, no screenshots)
 │   ├── PrivacyPage.tsx         # Privacy policy
 │   ├── TermsPage.tsx           # Terms of use
 │   ├── ChangelogPage.tsx       # Agnes changelog
@@ -83,6 +83,7 @@ src/
     ├── dashboardMetrics.ts     # Unified 3-metric definitions + helpers
     ├── shareCardData.ts
     ├── format.ts
+    ├── sisterProjects.ts       # Sister-project link config + UTM tracking
     ├── schema.ts
     ├── analytics.ts
     └── ThemeContext.tsx
@@ -149,6 +150,7 @@ Current parser behavior:
 - **Update share cards**: edit `src/components/ShareModal.tsx`, `src/components/ShareCard.tsx`, and `src/lib/shareCardData.ts`
 - **Add or change a core metric**: edit `src/lib/dashboardMetrics.ts` — it feeds MetricHero, KPICards, OverviewView, TrendsView, KeyView, and ProjectView
 - **Adjust chart rendering or normalized comparison layout**: edit `src/components/OverviewView.tsx` and `src/components/TrendsView.tsx`
+- **Manage sister-project links or UTM tracking**: edit `src/lib/sisterProjects.ts` — used by TitleBar, FooterBar, LandingPage, and schema.ts
 
 ## Verification Checklist
 
@@ -167,3 +169,6 @@ Current parser behavior:
 - The three co-equal core metrics (tokens, images, videoSeconds) are a locked product decision — do not revert to a single-token-centric view
 - Never hide or deprioritize projects/keys whose only usage is images or video (no tokens); the parser and views explicitly handle this case
 - `MetricHero` no longer accepts an `eyebrow` prop; subtitles and side annotations live below the metric grid, centered
+- `GuidelinePage` is text-only — all screenshots were removed; do not reintroduce image rendering or URL mapping without explicit approval
+- Sister-project links (DeepSeek) are managed centrally through `src/lib/sisterProjects.ts` — do not hardcode external URLs in navigation or footer components
+- Landing page includes a sister-tool promotion block powered by `deepseekProject` from `sisterProjects.ts`
