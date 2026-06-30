@@ -1,34 +1,33 @@
 "use client";
 
+/**
+ * Agnes 解析结果上下文模块。
+ *
+ * 负责在客户端持有原始解析结果、模型筛选结果与多模态告警，
+ * 让各个视图都能消费统一的聚合数据结构。
+ */
+
 import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react";
-import type { ParseResult, ParseError, ParseWarning, KeyStats } from "./types";
-import { parseAgnesData, computeKeyStats } from "./parser";
+import type { ParseResult, ParseError, ParseWarning } from "./types";
+import { parseAgnesData, computeKeyStats, computeSummary } from "./parser";
 
 /** Sentinel value for "show all models" */
 export const ALL_MODELS = "__all__";
 
+/**
+ * 根据当前模型筛选结果重新构造可消费的解析结果。
+ */
 function filterResult(result: ParseResult | null, model: string): ParseResult | null {
   if (!result) return null;
   if (model === ALL_MODELS) return result;
 
   const filteredDaily = result.daily.filter((d) => d.model === model);
-  const keys = computeKeyStats(filteredDaily).sort((a, b) => b.totalCost - a.totalCost);
-  const totalCost = keys.reduce((s, k) => s + k.totalCost, 0);
-  const totalTokens = keys.reduce((s, k) => s + k.totalTokens, 0);
-  const totalRequests = keys.reduce((s, k) => s + k.requestCount, 0);
-  const dates = [...new Set(filteredDaily.map((d) => d.date))].sort();
+  const keys = computeKeyStats(filteredDaily);
 
   return {
     daily: filteredDaily,
     keys,
-    summary: {
-      totalCost,
-      totalTokens,
-      totalRequests,
-      activeKeys: keys.length,
-      dateRange: dates.length > 0 ? { start: dates[0], end: dates[dates.length - 1] } : null,
-      models: result.summary.models, // keep original model list for filter UI
-    },
+    summary: computeSummary(filteredDaily, keys, result.summary.models),
     warnings: result.warnings,
   };
 }
@@ -51,6 +50,9 @@ interface DataContextValue extends DataState {
 
 const DataContext = createContext<DataContextValue | null>(null);
 
+/**
+ * 数据上下文提供者。
+ */
 export function DataProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<DataState>({
     result: null,
@@ -132,6 +134,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * 读取 Agnes 数据上下文。
+ */
 export function useData() {
   const ctx = useContext(DataContext);
   if (!ctx) throw new Error("useData must be used within DataProvider");

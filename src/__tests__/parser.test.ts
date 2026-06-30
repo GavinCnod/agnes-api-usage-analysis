@@ -21,7 +21,12 @@ describe("parseAgnesData", () => {
     expect(result.keys).toHaveLength(1);
     expect(result.summary.totalCost).toBe(2);
     expect(result.summary.totalTokens).toBe(180);
+    expect(result.summary.imageCount).toBe(0);
+    expect(result.summary.videoSeconds).toBe(0);
     expect(result.summary.totalRequests).toBe(2);
+    expect(result.summary.textRequestCount).toBe(2);
+    expect(result.summary.imageRequestCount).toBe(0);
+    expect(result.summary.videoRequestCount).toBe(0);
     expect(result.summary.activeKeys).toBe(1);
     expect(result.summary.models).toEqual(["agnes-2.0-flash"]);
     expect(result.summary.dateRange).toEqual({
@@ -61,6 +66,45 @@ describe("parseAgnesData", () => {
     expect(result.summary.totalTokens).toBe(10);
     expect(result.warnings).toHaveLength(1);
     expect(result.warnings[0].type).toBe("partial_quantity_data");
+  });
+
+  it("parses image and video quantities without partial warnings", () => {
+    const csv = [
+      HEADER,
+      "image,Key-A,agnes-image-1,200,2 images,2026-06-28T02:45:32,success",
+      "video,Key-A,agnes-video-1,300,15.0 seconds,2026-06-28T03:45:32,success",
+    ].join("\n");
+
+    const result = parseAgnesData(csv);
+    if ("error" in result) {
+      throw new Error("Expected parse success");
+    }
+
+    expect(result.summary.totalTokens).toBe(0);
+    expect(result.summary.imageCount).toBe(2);
+    expect(result.summary.videoSeconds).toBe(15);
+    expect(result.summary.textRequestCount).toBe(0);
+    expect(result.summary.imageRequestCount).toBe(1);
+    expect(result.summary.videoRequestCount).toBe(1);
+    expect(result.warnings.some((warning) => warning.type === "partial_quantity_data")).toBe(false);
+  });
+
+  it("keeps schema drift rows and emits schema_drift warning", () => {
+    const csv = [
+      HEADER,
+      "image,Key-A,agnes-image-1,200,input:10/output:5,2026-06-28T02:45:32,success",
+    ].join("\n");
+
+    const result = parseAgnesData(csv);
+    if ("error" in result) {
+      throw new Error("Expected parse success");
+    }
+
+    expect(result.summary.totalTokens).toBe(15);
+    expect(result.summary.imageRequestCount).toBe(1);
+    expect(result.warnings).toHaveLength(1);
+    expect(result.warnings[0].type).toBe("schema_drift");
+    expect(result.warnings[0].parsedKind).toBe("tokens");
   });
 
   it("returns missing_columns when required columns are absent", () => {

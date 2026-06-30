@@ -7,7 +7,7 @@ const translations = {
     app: {
       title: "Agnes AI Usage Analytics",
       subtitle:
-        "Upload your Agnes usage CSV to see token and request analytics first, with cost insights as support",
+        "Upload one Agnes usage CSV to analyze text tokens, image counts, and video seconds side by side, with requests and cost as supporting context",
     },
     tabs: {
       overview: "Overview",
@@ -43,22 +43,36 @@ const translations = {
       requestsPerKey: "{count} active key(s)",
       models: "{count} model(s)",
     },
+    metrics: {
+      textTokens: "Text Tokens",
+      images: "Images",
+      videoSeconds: "Video Seconds",
+      requests: "Requests",
+      cost: "Cost",
+    },
     overview: {
       dailyCost: "Daily Cost",
       costByKey: "Cost by API Key",
       dailyTokens: "Daily Tokens",
       tokensByKey: "Tokens by API Key",
+      heroEyebrow: "Overview",
+      heroSubtitle: "{start} - {end}",
+      chartMetricLabel: "Chart Metric",
     },
     trends: {
       dailyCost: "Daily Cost",
       dailyTokens: "Daily Tokens",
       requestCount: "Request Count",
       heroSubtitle: "Over {days} days",
+      heroEyebrow: "Trends",
+      activeMetric: "Trend Metric",
     },
     keys: {
       title: "Per-Key Breakdown",
       apiKeyName: "Secret Key Name",
       tokens: "Tokens",
+      images: "Images",
+      videoSeconds: "Video Seconds",
       cost: "Cost",
       requests: "Requests",
       heroSubtitle: "{keys} key(s) · {models} model(s)",
@@ -66,6 +80,8 @@ const translations = {
       metricCost: "Cost",
       metricTokens: "Tokens",
       metricRequests: "Requests",
+      heroEyebrow: "By Key",
+      progressBy: "Bars scaled by {metric}",
     },
     error: {
       missingColumns: "CSV schema not recognized",
@@ -83,7 +99,7 @@ const translations = {
     meta: {
       title: "Agnes AI Usage Analytics Dashboard by Gavin & Mindrose Team",
       description:
-        "Analyze your Agnes AI usage first — upload a usage CSV and get instant token analytics, request trends, per-key breakdowns, and supporting cost insights. Free, open source, browser-side.",
+        "Upload one Agnes usage CSV to analyze Agnes AI multimodal usage in your browser. Compare text tokens, image counts, video seconds, requests, cost, per-key breakdowns, per-project grouping, and trends instantly. Free and open source.",
     },
     langSwitcher: {
       label: "Language",
@@ -158,11 +174,14 @@ const translations = {
       resetConfig: "Reset All",
       emptyHint: "Click the gear icon to configure custom project groups",
       assignTo: "Assign to\u2026",
+      sortBy: "Sort By",
+      progressBy: "Bars scaled by {metric}",
+      heroEyebrow: "By Project",
     },
     guideline: {
       pageTitle: "User Guide",
       backToHome: "Back to Home",
-      viewGuide: "View Full Guide →",
+      viewGuide: "View Full Multimodal Guide →",
       toc: "Table of Contents",
       footerNote:
         "This document is updated with app releases. For questions or suggestions, please reach out via {githubLink}.",
@@ -249,6 +268,20 @@ const translations = {
       reviewSourceCode: "Review source code \u2192",
     },
     landing: {
+      coreModesTitle: "Three Core Dimensions",
+      coreModesIntro:
+        "One Agnes usage CSV can contain text calls, image generations, and video generations. The dashboard keeps text tokens, image counts, and video seconds side by side instead of forcing every workload into a single token-first lens.",
+      coreModesScopeTitle: "Locked Product Scope",
+      coreModesScopeSingleCsv: "Single Agnes usage CSV only",
+      coreModesScopeSuccessOnly: "Only rows with Consumption Status=success are counted",
+      coreModesScopeTabs: "Exactly four dashboard tabs: Overview, Projects, Keys, Trends",
+      coreModesScopeLinks: "Existing public links and site URL fallback stay unchanged",
+      coreModesTokensDesc:
+        "Parsed from `api_call` rows so text generation remains visible without swallowing image and video activity.",
+      coreModesImagesDesc:
+        "Counted from `image` rows as a first-class metric in cards, rankings, and trend comparisons.",
+      coreModesVideoDesc:
+        "Aggregated from `video` rows so generated duration stays comparable with text and image workloads.",
       howItWorksTitle: "How It Works",
       howItWorksStep1Title: "1. Export Data",
       howItWorksStep1Desc:
@@ -258,7 +291,7 @@ const translations = {
         "Drag the Agnes usage CSV onto this page, or click the upload area to select the file manually.",
       howItWorksStep3Title: "3. View Analytics",
       howItWorksStep3Desc:
-        "Instantly see token and request trends, per-key breakdowns, custom project groupings, and supporting cost charts — all processed locally in your browser.",
+        "Instantly inspect text tokens, image counts, and video seconds side by side, then compare requests, cost, per-key breakdowns, custom project groupings, and trends — all processed locally in your browser.",
       qaTitle: "Frequently Asked Questions",
       qaQ1: "Is my data uploaded to any server?",
       qaA1: "No. All CSV parsing and cost computation runs entirely in your browser. Your data never leaves your device.",
@@ -266,10 +299,10 @@ const translations = {
       qaA2: "Upload a single Agnes usage CSV file. The current version does not require ZIP extraction or multi-file pairing.",
       qaQ3: "Can I analyze multiple months at once?",
       qaA3: "Not yet. The current Agnes version focuses on one CSV at a time so the workflow stays simple and reliable.",
-      qaQ4: "What models are supported?",
-      qaA4: "Any model listed in your Agnes usage export. The dashboard auto-detects all models and provides a filter to view them individually or combined.",
-      qaQ5: "Why does my cost show as $0?",
-      qaA5: "If the Agnes export itself reports `Consumption Amount(cents)` as 0, the dashboard will also show 0. No extra cost file is required.",
+      qaQ4: "What usage dimensions and models are shown first?",
+      qaA4: "Any model listed in your Agnes usage export is supported. The dashboard always surfaces text tokens, image counts, and video seconds side by side for the selected model or for all models combined.",
+      qaQ5: "Why is one of the three core metrics 0?",
+      qaA5: "That usually means the current CSV, model filter, or date range has no records for that modality. Zero text tokens, zero images, or zero video seconds are all valid outcomes.",
       qaQ6: "What does \"Incomplete Upload\" mean?",
       qaA6: "In the Agnes version, this usually means the uploaded file is empty, missing required columns, or is not a valid Agnes usage CSV.",
       qaQ7: "Where can I find more troubleshooting help?",
@@ -281,10 +314,10 @@ const translations = {
       aboutSectionTitle: "About",
       aboutWhyTitle: "Why We Built This",
       aboutWhyDesc:
-        "As our Agnes AI usage kept growing, we found the raw CSV export hard to scan at a glance. To answer questions like \"which project consumed the most tokens?\" and \"which key generated the highest cost?\", we built our own simple, intuitive, and absolutely secure visualization dashboard.",
+        "As our Agnes AI usage kept growing, the raw CSV became harder to interpret at a glance, especially once text, image, and video records started appearing in the same export. To answer questions like \"which project spent the most?\", \"which key produced the most images?\", and \"where did video generation spike?\", we built a browser-side dashboard that keeps all three core dimensions visible together.",
       aboutPrivacyTitle: "Under the Hood: Privacy & Tech",
       aboutPrivacyDesc:
-        "When handling billing data, privacy is non-negotiable. That's why we chose a pure frontend architecture. Built with Next.js 16 (App Router) and React 19, powered by Papa Parse and ECharts, all CSV parsing and chart rendering happens 100% locally in your browser. No backend server, no database — your data never leaves your device. With Apple-inspired minimalist design and CSS custom property-driven dual themes, we aim to deliver the most elegant data analytics experience.",
+        "When handling billing and usage data, privacy is non-negotiable. That's why we chose a pure frontend architecture. Built with Next.js 16 (App Router) and React 19, powered by Papa Parse and ECharts, the app parses one Agnes usage CSV locally in your browser, counts only success rows, and keeps four focused dashboard tabs for overview, projects, keys, and trends. No backend server, no database — your data never leaves your device.",
       aboutMindRoseTitle: "About MindRose",
       aboutMindRoseDesc:
         "This project is open-sourced by Gavin Chen and the MindRose team. MindRose is a tech team focused on delivering lightweight digital solutions for small and medium manufacturers, logistics companies, and cross-border traders. We don't sell vague \"digital transformation\" concepts — we use AI and full-stack agile development (Next.js, React, Mendix, etc.) to deliver applications that solve real business pain points within weeks. From SEO-optimized independent e-commerce sites, to agile internal system builds, to AI agent workflow integration — we understand tech, and more importantly, we understand your business.",
@@ -303,7 +336,7 @@ const translations = {
   zh: {
     app: {
       title: "Agnes AI 用量分析",
-      subtitle: "上传 Agnes usage CSV，即可优先查看 Token 与请求分析，并辅助查看费用数据",
+      subtitle: "上传单个 Agnes usage CSV，即可并列分析文本 Token、图片数量与视频时长，并结合请求数和费用辅助判断",
     },
     tabs: {
       overview: "总览",
@@ -339,22 +372,36 @@ const translations = {
       requestsPerKey: "{count} 个活跃 Key",
       models: "{count} 个模型",
     },
+    metrics: {
+      textTokens: "文本 Token",
+      images: "图片数量",
+      videoSeconds: "视频时长（秒）",
+      requests: "请求数",
+      cost: "费用",
+    },
     overview: {
       dailyCost: "每日费用",
       costByKey: "各 Key 费用分布",
       dailyTokens: "每日 Token",
       tokensByKey: "各 Key Token 分布",
+      heroEyebrow: "总览",
+      heroSubtitle: "{start} - {end}",
+      chartMetricLabel: "图表指标",
     },
     trends: {
       dailyCost: "每日费用",
       dailyTokens: "每日 Token",
       requestCount: "请求次数",
       heroSubtitle: "共 {days} 天",
+      heroEyebrow: "趋势",
+      activeMetric: "趋势指标",
     },
     keys: {
       title: "各 Key 详情",
       apiKeyName: "Secret Key 名称",
       tokens: "Token 数",
+      images: "图片数量",
+      videoSeconds: "视频时长（秒）",
       cost: "费用",
       requests: "请求数",
       heroSubtitle: "{keys} 个 Key · {models} 个模型",
@@ -362,6 +409,8 @@ const translations = {
       metricCost: "费用",
       metricTokens: "Token",
       metricRequests: "请求",
+      heroEyebrow: "按 Key",
+      progressBy: "进度条基于 {metric}",
     },
     error: {
       missingColumns: "CSV 格式无法识别",
@@ -379,7 +428,7 @@ const translations = {
     meta: {
       title: "Agnes AI 用量分析仪表盘",
       description:
-        "可视化您的 Agnes AI 使用情况 — 上传 usage CSV，即时获取 Token 分析、请求趋势、各 Key 用量明细，以及辅助费用洞察。数据 100% 本地处理，不上传任何服务器。免费、开源，由 Gavin Chen 和 MindRose 团队维护。",
+        "上传单个 Agnes usage CSV，即可在浏览器内即时分析 Agnes AI 多模态用量。并列查看文本 Token、图片数量、视频时长，并继续比较请求数、费用、各 Key 明细、自定义项目分组与趋势。数据 100% 本地处理，不上传任何服务器。",
     },
     langSwitcher: {
       label: "语言",
@@ -454,11 +503,14 @@ const translations = {
       resetConfig: "全部重置",
       emptyHint: "点击齿轮图标配置自定义项目分组",
       assignTo: "分配到\u2026",
+      sortBy: "排序方式",
+      progressBy: "进度条基于 {metric}",
+      heroEyebrow: "按项目",
     },
     guideline: {
       pageTitle: "用户操作手册",
       backToHome: "返回首页",
-      viewGuide: "查看完整操作指南 →",
+      viewGuide: "查看完整多模态操作指南 →",
       toc: "目录",
       footerNote:
         "文档随应用版本迭代更新。如有疑问或建议，欢迎通过 {githubLink} 反馈。",
@@ -545,6 +597,20 @@ const translations = {
       reviewSourceCode: "查看源码验证 \u2192",
     },
     landing: {
+      coreModesTitle: "三维并列主展示",
+      coreModesIntro:
+        "同一个 Agnes usage CSV 中可能同时出现文本调用、图片生成和视频生成记录。仪表盘会把文本 Token、图片数量、视频时长并列展示，而不是强行用单一 Token 口径覆盖所有模态。",
+      coreModesScopeTitle: "固定产品边界",
+      coreModesScopeSingleCsv: "仅支持单个 Agnes usage CSV",
+      coreModesScopeSuccessOnly: "仅统计 Consumption Status=success 的记录",
+      coreModesScopeTabs: "仪表盘固定为四个标签页：Overview、Projects、Keys、Trends",
+      coreModesScopeLinks: "现有公开外链与站点域名 fallback 保持不变",
+      coreModesTokensDesc:
+        "从 `api_call` 记录中解析输入与输出 Token，确保文本生成仍然清晰可见，同时不吞没图片和视频活动。",
+      coreModesImagesDesc:
+        "从 `image` 记录中直接统计生成图片数量，作为卡片、排行和趋势中的一等公民指标。",
+      coreModesVideoDesc:
+        "从 `video` 记录中聚合生成视频时长，让视频工作负载可以与文本和图片直接并列比较。",
       howItWorksTitle: "使用方式",
       howItWorksStep1Title: "1. 导出数据",
       howItWorksStep1Desc:
@@ -554,7 +620,7 @@ const translations = {
         "将 Agnes usage CSV 拖拽到此页面，或点击上传区域手动选择文件。",
       howItWorksStep3Title: "3. 查看分析",
       howItWorksStep3Desc:
-        "即刻查看 Token 与请求趋势、各 Key 用量明细、自定义项目分组，以及辅助费用图表，所有数据都在浏览器本地处理。",
+        "即刻并列查看文本 Token、图片数量、视频时长，再结合请求趋势、各 Key 用量明细、自定义项目分组和辅助费用图表完成判断，所有数据都在浏览器本地处理。",
       qaTitle: "常见问题",
       qaQ1: "我的数据会上传到服务器吗？",
       qaA1: "不会。所有 CSV 解析和费用计算均在您的浏览器中完成，数据不会离开您的设备。",
@@ -562,10 +628,10 @@ const translations = {
       qaA2: "上传单个 Agnes usage CSV 即可。当前版本不需要 ZIP 解压，也不需要双文件配对。",
       qaQ3: "可以同时分析多个月份吗？",
       qaA3: "暂时还不支持。当前 Agnes 版本先聚焦单个 CSV 的稳定分析流程。",
-      qaQ4: "支持哪些模型？",
-      qaA4: "Agnes usage 导出中的所有模型均支持。仪表盘会自动检测模型，并提供筛选器以便单独或合并查看。",
-      qaQ5: "为什么费用显示为 0？",
-      qaA5: "如果 Agnes 导出的 `Consumption Amount(cents)` 本身就是 0，仪表盘中显示的费用也会是 0。本工具不再依赖额外的 cost 文件。",
+      qaQ4: "优先展示哪些用量维度，支持哪些模型？",
+      qaA4: "Agnes usage 导出中的所有模型均支持。仪表盘会在当前模型或全部模型视角下，始终并列展示文本 Token、图片数量和视频时长。",
+      qaQ5: "为什么三项核心指标里有一项是 0？",
+      qaA5: "这通常表示当前 CSV、模型筛选或时间范围内没有该模态的记录。文本 Token 为 0、图片数量为 0、视频时长为 0 都可能是正常结果。",
       qaQ6: "显示\u201C上传不完整\u201D是什么意思？",
       qaA6: "在 Agnes 版本里，这通常表示上传的文件为空、缺少必需列，或不是有效的 Agnes usage CSV。",
       qaQ7: "哪里可以找到更多故障排查帮助？",
@@ -577,10 +643,10 @@ const translations = {
       aboutSectionTitle: "关于我们",
       aboutWhyTitle: "为什么开发这个工具？",
       aboutWhyDesc:
-        "随着 Agnes AI 使用量的增长，我们发现官方导出的 CSV 很难一眼看清重点。\n为了搞清楚\u201C到底哪个项目消耗了最多的 Token\u201D以及\u201C哪个 Key 贡献了最高成本\u201D，我们决定自己动手，打造一个简单、直观且绝对安全的可视化仪表盘。",
+        "随着 Agnes AI 使用量增长，原始 CSV 越来越难一眼看清重点，尤其是文本、图片、视频记录开始混在同一份导出里之后更明显。\n为了回答“哪个项目消耗了最多资源”“哪个 Key 生成了最多图片”“视频生成在什么时候抬升”这类问题，我们决定自己动手，打造一个简单、直观且绝对安全的浏览器端可视化仪表盘。",
       aboutPrivacyTitle: "极致的隐私与技术架构",
       aboutPrivacyDesc:
-        "处理账单数据，隐私是不可妥协的底线。因此，我们采用了纯前端的架构设计。\n基于 Next.js 16 (App Router) 和 React 19，结合 Papa Parse 与 ECharts，所有的 CSV 数据解析和图表渲染 100% 在你的浏览器本地完成。\n没有数据库，你的数据绝不会离开你的设备半步。\n配合 Apple 风格的极简设计和 CSS 自定义属性驱动的双主题，我们希望为你提供最优雅的数据分析体验。",
+        "处理账单与用量数据时，隐私是不可妥协的底线，因此我们采用了纯前端架构。\n基于 Next.js 16 (App Router) 和 React 19，结合 Papa Parse 与 ECharts，应用会在你的浏览器本地解析单个 Agnes usage CSV，只统计 success 记录，并通过四个聚焦标签页呈现总览、项目、Key 与趋势。\n没有后端、没有数据库，你的数据绝不会离开设备。",
       aboutMindRoseTitle: "关于 MindRose",
       aboutMindRoseDesc:
         "本项目由 Gavin Chen 及 MindRose 团队开发并开源呈现。MindRose 是专注于为中小制造企业、物流公司及跨国贸易商提供轻量级数字化解决方案的科技团队。\n我们不卖虚无的\u201C数字化转型\u201D概念，而是通过 AI 技术与全栈敏捷开发（Next.js、React、Mendix 等），在几周内为你交付解决实际业务痛点的应用。\n从外贸独立站的 SEO 优化重构，到企业内部核心系统的敏捷搭建，再到 AI Agent 的业务流接入，我们懂技术，更懂你的商业场景。",

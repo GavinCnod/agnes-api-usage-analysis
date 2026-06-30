@@ -24,25 +24,46 @@ function createParseResult(): ParseResult {
         model: "agnes-2.0-flash",
         apiKeyName: "For-CC-by-Gavin",
         requestCount: 2,
+        textRequestCount: 1,
+        imageRequestCount: 1,
+        videoRequestCount: 0,
+        unknownTypeRequestCount: 0,
         inputTokens: 30,
         outputTokens: 12,
         totalTokens: 42,
+        imageCount: 3,
+        videoSeconds: 0,
         totalCost: 1.5,
       },
     ],
     keys: [
       {
         apiKeyName: "For-CC-by-Gavin",
+        requestCount: 2,
+        textRequestCount: 1,
+        imageRequestCount: 1,
+        videoRequestCount: 0,
+        unknownTypeRequestCount: 0,
         totalTokens: 42,
         inputTokens: 30,
         outputTokens: 12,
+        imageCount: 3,
+        videoSeconds: 0,
         totalCost: 1.5,
-        requestCount: 2,
       },
     ],
     summary: {
       totalCost: 1.5,
+      requestCount: 2,
+      textRequestCount: 1,
+      imageRequestCount: 1,
+      videoRequestCount: 0,
+      unknownTypeRequestCount: 0,
+      inputTokens: 30,
+      outputTokens: 12,
       totalTokens: 42,
+      imageCount: 3,
+      videoSeconds: 0,
       totalRequests: 2,
       activeKeys: 1,
       dateRange: { start: "2026-06-28", end: "2026-06-28" },
@@ -100,6 +121,7 @@ describe("DataContext", () => {
     expect(result.current.fileName).toBe("agnes.csv");
     expect(result.current.result?.summary.totalCost).toBe(1.5);
     expect(result.current.result?.summary.totalRequests).toBe(2);
+    expect(result.current.result?.summary.imageCount).toBe(3);
     expect(result.current.result?.summary.models).toEqual(["agnes-2.0-flash"]);
   });
 

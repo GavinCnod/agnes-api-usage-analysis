@@ -34,7 +34,7 @@ const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 export function generateMetadata(): Metadata {
   const title = "Agnes AI Usage Analysis Dashboard by Gavin & Mindrose Team";
   const description =
-    "Analyze Agnes AI usage first — upload a usage CSV and get instant token analytics, request trends, per-key breakdowns, and supporting cost insights. Free, open source, browser-side.";
+    "Upload one Agnes usage CSV to analyze Agnes AI multimodal usage in your browser. Compare text tokens, image counts, video seconds, requests, cost, per-key breakdowns, per-project grouping, and trends instantly.";
 
   return {
     title,
@@ -59,7 +59,7 @@ export function generateMetadata(): Metadata {
           url: `${SITE_URL}/og_image.png`,
           width: 1200,
           height: 630,
-          alt: "Agnes AI Usage Analysis Dashboard — usage-first insights with supporting cost data",
+          alt: "Agnes AI Usage Analysis Dashboard — text tokens, image counts, video seconds, requests, and cost in one browser-side view",
           type: "image/png",
         },
         {
@@ -82,11 +82,17 @@ export function generateMetadata(): Metadata {
     keywords: [
       "Agnes AI usage analysis",
       "Agnes AI usage dashboard",
+      "Agnes AI multimodal analytics",
+      "Agnes AI image analytics",
+      "Agnes AI video analytics",
       "Agnes AI token analysis",
       "Agnes AI request analytics",
       "API key usage breakdown",
       "LLM usage dashboard",
       "Agnes AI 用量分析",
+      "Agnes AI 多模态分析",
+      "Agnes AI 图片分析",
+      "Agnes AI 视频分析",
       "Agnes AI Token 分析",
       "Agnes AI 请求分析",
       "Agnes AI API 费用辅助分析",

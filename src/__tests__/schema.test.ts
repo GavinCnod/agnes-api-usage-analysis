@@ -1,5 +1,43 @@
 import { describe, it, expect } from "vitest";
-import { buildOrganizationJsonLd, buildBreadcrumbJsonLd } from "@/lib/schema";
+import { buildOrganizationJsonLd, buildBreadcrumbJsonLd, buildSoftwareAppJsonLd, buildFaqJsonLd } from "@/lib/schema";
+
+describe("buildSoftwareAppJsonLd", () => {
+  it("returns multimodal software schema for English", () => {
+    const result = buildSoftwareAppJsonLd("en");
+
+    expect(result["@context"]).toBe("https://schema.org");
+    expect(result["@type"]).toBe("SoftwareApplication");
+    expect(result.description).toContain("text tokens");
+    expect(result.description).toContain("image counts");
+    expect(result.description).toContain("video seconds");
+    expect(result.featureList).toEqual(
+      expect.arrayContaining([
+        "Single Agnes usage CSV workflow",
+        "Four focused tabs: Overview, Projects, Keys, Trends",
+      ])
+    );
+  });
+
+  it("returns multimodal software schema for Chinese", () => {
+    const result = buildSoftwareAppJsonLd("zh");
+
+    expect(result.description).toContain("文本 Token");
+    expect(result.description).toContain("图片数量");
+    expect(result.description).toContain("视频时长");
+  });
+});
+
+describe("buildFaqJsonLd", () => {
+  it("returns updated multimodal FAQ entries for English", () => {
+    const result = buildFaqJsonLd("en");
+    const entities = result.mainEntity as Array<Record<string, unknown>>;
+
+    expect(entities).toHaveLength(9);
+    expect(entities[3]?.name).toBe("What usage dimensions and models are shown first?");
+    expect(JSON.stringify(entities[3])).toContain("text tokens");
+    expect(entities[4]?.name).toBe("Why is one of the three core metrics 0?");
+  });
+});
 
 describe("buildOrganizationJsonLd", () => {
   it("returns Agnes organization schema for English", () => {
@@ -10,6 +48,8 @@ describe("buildOrganizationJsonLd", () => {
     expect(result.name).toContain("Agnes");
     expect(result.url).toContain("agnes-usage.xyz");
     expect(result.logo).toContain("agnes-usage-logo.png");
+    expect(result.description).toContain("image counts");
+    expect(result.description).toContain("video seconds");
     expect(result.sameAs).toEqual([
       "https://github.com/GavinCnod/agnes-api-usage-analysis",
     ]);
@@ -22,6 +62,8 @@ describe("buildOrganizationJsonLd", () => {
     expect(result["@type"]).toBe("Organization");
     expect(result.name).toContain("Agnes");
     expect(result.name).toContain("用量分析");
+    expect(result.description).toContain("图片数量");
+    expect(result.description).toContain("视频时长");
   });
 });
 

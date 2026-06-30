@@ -3,6 +3,7 @@
 import { useData } from"@/lib/DataContext";
 import { useTranslation } from"@/i18n";
 import { formatCost, formatTokens } from"@/lib/format";
+import { buildHeroMetricItems } from "@/lib/dashboardMetrics";
 
 /**
  * 文件说明：
@@ -10,10 +11,10 @@ import { formatCost, formatTokens } from"@/lib/format";
  */
 
 /**
- * KPI 指标卡片
+ * KPI 指标卡片。
  *
- * Apple 极简风格，采用大数字与细标签组合。
- * 当前按用量优先展示：Token、请求、费用、活跃 Key。
+ * 将首页顶层指标重排为三维主展示 + 三个辅助指标，
+ * 让文本 Token、图片数量、视频时长在首屏并列可见。
  */
 export default function KPICards() {
  const { result } = useData();
@@ -21,15 +22,21 @@ export default function KPICards() {
  if (!result) return null;
 
  const { summary } = result;
+  const heroItems = buildHeroMetricItems(summary, locale, t);
 
  const items = [
-  {
-  value: formatTokens(summary.totalTokens, locale),
-  label: t.kpi.totalTokens,
-  sub: summary.dateRange
-   ? `${summary.dateRange.start} — ${summary.dateRange.end}`
-   :"",
-  },
+  ...heroItems.map((item) => ({
+   value: item.formattedValue,
+   label: item.label,
+   sub:
+    item.key === "tokens"
+     ? summary.dateRange
+       ? `${summary.dateRange.start} — ${summary.dateRange.end}`
+       :""
+     : item.key === "images"
+      ? `${summary.imageRequestCount.toLocaleString(locale)} ${t.metrics.requests.toLowerCase()}`
+      : `${summary.videoRequestCount.toLocaleString(locale)} ${t.metrics.requests.toLowerCase()}`,
+  })),
   {
   value: summary.totalRequests.toLocaleString(),
   label: t.kpi.totalRequests,
@@ -49,7 +56,7 @@ export default function KPICards() {
 
  return (
  <div className="mb-12 mt-4">
-  <div className="grid grid-cols-2 lg:grid-cols-4">
+  <div className="grid grid-cols-2 lg:grid-cols-6">
   {items.map((item) => (
    <div key={item.label} className="px-0 py-5">
    <div

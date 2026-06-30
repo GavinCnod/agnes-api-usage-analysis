@@ -20,6 +20,7 @@ import { useData } from "@/lib/DataContext";
 import { useTranslation } from "@/i18n";
 import { useTheme } from "@/lib/ThemeContext";
 import { useProjectConfig } from "@/lib/ProjectConfigContext";
+import { formatMetricValue } from "@/lib/dashboardMetrics";
 import { extractShareCardData, getShareMetricKey } from "@/lib/shareCardData";
 import type { ShareTab, ShareCardData, ShareMetricKey } from "@/lib/shareCardData";
 import ShareCard, { CARD_W, CARD_H, type ShareCardStrings } from "./ShareCard";
@@ -44,12 +45,16 @@ function saveShareName(name: string): void {
  */
 function getShareMetricLabel(metric: ShareMetricKey, strings: ShareCardStrings): string {
   switch (metric) {
-    case "cost":
-      return strings.kpiTotalCost;
     case "tokens":
-      return strings.kpiTotalTokens;
+      return strings.textTokensLabel;
+    case "images":
+      return strings.imagesLabel;
+    case "videoSeconds":
+      return strings.videoSecondsLabel;
     case "requests":
-      return strings.kpiTotalRequests;
+      return strings.requestsLabel;
+    case "cost":
+      return strings.costLabel;
   }
 }
 
@@ -117,22 +122,22 @@ export default function ShareModal({ tab, onClose }: ShareModalProps) {
       keys: t.tabs.keys, trends: t.tabs.trends,
     } as Record<string, string>)[tab] ?? tab,
     appName: t.app.title,
-    kpiTotalCost: t.kpi.totalCost,
-    kpiTotalTokens: t.kpi.totalTokens,
-    kpiTotalRequests: t.kpi.totalRequests,
-    kpiActiveKeys: t.kpi.activeKeys,
-    kpiModels: t.kpi.models.replace("{count}", "").trim(),
+    fromLabel: t.share.from,
+    textTokensLabel: t.metrics.textTokens,
+    imagesLabel: t.metrics.images,
+    videoSecondsLabel: t.metrics.videoSeconds,
+    requestsLabel: t.metrics.requests,
+    costLabel: t.metrics.cost,
+    activeKeysLabel: t.kpi.activeKeys,
+    modelsLabel: t.kpi.models.replace("{count}", "").trim(),
     projectsLabel: t.tabs.projects,
     keysLabel: t.tabs.keys,
-    requestsLabel: t.kpi.totalRequests,
-    uncategorizedLabel: t.projects.uncategorized,
+    chartMetricLabel: t.overview.chartMetricLabel,
     peakLabel: t.share.peak,
     lowestLabel: t.share.lowest,
     dailyAverageLabel: t.share.dailyAverage,
     generatedBy: t.share.generatedBy,
     scanToVisit: t.share.scanToVisit,
-    costHeader: t.keys.cost,
-    tokensHeader: t.keys.tokens,
   }), [tab, t]);
   const shareMetric = useMemo<ShareMetricKey | null>(() => {
     return shareData ? getShareMetricKey(shareData) : null;
@@ -140,6 +145,14 @@ export default function ShareModal({ tab, onClose }: ShareModalProps) {
   const shareMetricLabel = useMemo(() => {
     return shareMetric ? getShareMetricLabel(shareMetric, cardStrings) : "";
   }, [shareMetric, cardStrings]);
+  const heroMetricPreviewItems = useMemo(() => {
+    if (!shareData) return [];
+    return shareData.heroMetrics.map((item) => ({
+      key: item.key,
+      label: getShareMetricLabel(item.key, cardStrings),
+      value: formatMetricValue(item.key, item.value, locale),
+    }));
+  }, [cardStrings, locale, shareData]);
 
   // 图表就绪回调（带超时兜底）
   const handleChartsReady = useCallback(() => {
@@ -289,16 +302,35 @@ export default function ShareModal({ tab, onClose }: ShareModalProps) {
             </div>
           </div>
 
-          {shareMetric && shareMetric !== "cost" && (
+          {shareData && (
             <div
-              className="rounded-subtle px-3 py-2 text-xs"
+              className="rounded-subtle px-3 py-3"
               style={{
-                color: "var(--text-secondary)",
                 background: "var(--bg)",
                 border: "1px solid var(--border)",
               }}
             >
-              {t.share.metricFallbackHint.replace("{metric}", shareMetricLabel)}
+              <div className="flex flex-wrap gap-2">
+                {heroMetricPreviewItems.map((item) => (
+                  <div
+                    key={item.key}
+                    className="rounded-full px-3 py-1.5"
+                    style={{ background: "var(--bg-surface)", border: "1px solid var(--border)" }}
+                  >
+                    <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+                      {item.value}
+                    </span>
+                    <span className="ml-2 text-[11px] uppercase tracking-[0.18em]" style={{ color: "var(--text-secondary)" }}>
+                      {item.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              {shareMetric && (
+                <p className="mt-3 text-[11px]" style={{ color: "var(--text-tertiary)" }}>
+                  {cardStrings.chartMetricLabel}: {shareMetricLabel}
+                </p>
+              )}
             </div>
           )}
 

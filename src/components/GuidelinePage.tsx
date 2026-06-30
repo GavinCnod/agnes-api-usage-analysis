@@ -92,16 +92,17 @@ function createZhGuide(): GuideDocument {
         {
           type: "p",
           text:
-            "Agnes AI Usage Analysis 是一个纯浏览器端运行的 Agnes usage 分析工具。您只需上传单个 Agnes usage CSV，即可查看费用、Token、请求数、按 Key 明细、按项目聚合和趋势图表。",
+            "Agnes AI Usage Analysis 是一个纯浏览器端运行的 Agnes usage 分析工具。您只需上传单个 Agnes usage CSV，即可并列查看文本 Token、图片数量、视频时长，并继续分析请求数、费用、按 Key 明细、按项目聚合和趋势图表。",
         },
         {
           type: "ul",
           items: [
+            "核心三维：文本 Token、图片数量、视频时长在首页和各分析页中并列展示",
             "费用总览：总费用、每日费用变化、各 Secret Key 费用占比",
-            "用量统计：input token、output token、总 token、请求次数",
-            "Key 明细：按 Secret Key 查看 Cost、Tokens、Requests",
-            "项目归组：将多个 Secret Key 归入自定义项目",
-            "趋势分析：在费用、Token、请求数三个维度间切换",
+            "用量统计：文本 Token、图片数量、视频时长、请求次数",
+            "Key 明细：按 Secret Key 查看文本 Token、图片数量、视频时长、Cost、Requests",
+            "项目归组：将多个 Secret Key 归入自定义项目，并保留多模态聚合结果",
+            "趋势分析：在费用、文本 Token、图片数量、视频时长、请求数之间切换",
             "分享图片：为当前标签页生成 1200×630 分享图",
           ],
         },
@@ -134,7 +135,7 @@ function createZhGuide(): GuideDocument {
         {
           type: "note",
           text:
-            "当前版本只支持单个 CSV 文件，不需要 ZIP 解压，也不需要 amount / cost 双文件配对。",
+            "当前版本只支持单个 CSV 文件，不需要 ZIP 解压，也不需要 amount / cost 双文件配对；只统计 Consumption Status=success 的记录，仪表盘固定为 Overview、By Project、By Key、Trends 四个标签页。",
         },
         {
           type: "table",
@@ -205,9 +206,11 @@ function createZhGuide(): GuideDocument {
           type: "table",
           headers: ["指标", "说明"],
           rows: [
-            ["总费用", "所有 success 记录换算后的费用总和"],
-            ["总 Token 数", "input + output 的累计值"],
+            ["文本 Token", "所有文本 success 记录的 input + output 累计值"],
+            ["图片数量", "所有 image success 记录的生成图片数"],
+            ["视频时长", "所有 video success 记录的生成秒数"],
             ["总请求数", "success 记录条数"],
+            ["总费用", "所有 success 记录换算后的费用总和"],
             ["活跃 Key 数", "出现在结果中的 Secret Key 数量"],
           ],
         },
@@ -220,16 +223,16 @@ function createZhGuide(): GuideDocument {
           type: "table",
           headers: ["标签页", "说明"],
           rows: [
-            ["Overview", "查看总费用和费用分布"],
-            ["By Project", "查看自定义项目归组后的聚合结果"],
-            ["By Key", "查看 Secret Key 维度明细"],
-            ["Trends", "查看每日费用、Token、请求数变化"],
+            ["Overview", "查看三维 Hero，以及按当前指标切换的每日趋势和按 Key 分布"],
+            ["By Project", "查看自定义项目归组后的三维 Hero 与项目级聚合结果"],
+            ["By Key", "查看 Secret Key 维度的三维 Hero 与多指标明细"],
+            ["Trends", "固定展示三维 Hero，并切换查看每日费用、文本 Token、图片数量、视频时长、请求数变化"],
           ],
         },
         {
           type: "p",
           text:
-            "当 CSV 中包含多个模型时，KPI 下方会出现模型筛选器，可切换到单模型视角查看全部图表与表格。",
+            "当 CSV 中包含多个模型时，KPI 下方会出现模型筛选器，可切换到单模型视角查看三项核心指标及其对应的图表、表格与排行。",
         },
       ],
     },
@@ -240,10 +243,10 @@ function createZhGuide(): GuideDocument {
         {
           type: "ul",
           items: [
-            "Overview：Hero 显示总费用，下方展示每日费用图和按 Secret Key 的费用占比图。",
-            "By Key：Hero 显示活跃 Key 数量，表格展示 Tokens、Cost、Requests，费用值支持一键复制。",
-            "By Project：可将多个 Secret Key 归入自定义项目，查看项目级 Tokens、Cost、Requests。",
-            "Trends：在每日费用、每日 Token、请求次数之间切换，适合观察峰值和长期波动。",
+            "Overview：Hero 固定并列展示文本 Token、图片数量、视频时长，下方图表再切换查看文本、图片、视频、请求数和费用。",
+            "By Key：Hero 固定展示三项核心指标，表格可按文本 Token、图片数量、视频时长、Cost、Requests 排序，费用值支持一键复制。",
+            "By Project：可将多个 Secret Key 归入自定义项目，并在项目级别查看文本 Token、图片数量、视频时长、Cost、Requests。",
+            "Trends：Hero 不再只显示单一指标，而是固定并列展示三项核心指标；趋势图区域再承担每日费用、文本 Token、图片数量、视频时长、请求次数的切换。",
           ],
         },
         {
@@ -350,12 +353,12 @@ function createZhGuide(): GuideDocument {
 
   return {
     title: "Agnes AI Usage Analysis — 用户操作手册",
-    subtitle: "版本：v0.1.0 | 适用语言：中文 / English | 最后更新：2026-06-28",
+    subtitle: "版本：v0.1.0 | 适用语言：中文 / English | 最后更新：2026-06-30",
     sections,
     jsonLd: {
       name: "Agnes AI Usage Analysis — 用户操作手册",
       description:
-        "完整的 Agnes AI Usage Analysis 操作指南。学习如何导出 Agnes usage CSV、上传单个文件，并浏览总览、项目、Key 和趋势视图。",
+        "完整的 Agnes AI Usage Analysis 操作指南。学习如何导出 Agnes usage CSV、上传单个文件，并理解文本 Token、图片数量、视频时长三维并列展示，以及总览、项目、Key 和趋势视图。",
       steps: [
         {
           name: "导出 Agnes usage CSV",
@@ -367,7 +370,7 @@ function createZhGuide(): GuideDocument {
         },
         {
           name: "查看分析结果",
-          text: "即刻查看费用、Token、请求数、按项目与按 Key 明细，以及每日趋势；所有数据都在浏览器本地处理。",
+          text: "即刻并列查看文本 Token、图片数量、视频时长，再结合请求数、费用、按项目与按 Key 明细，以及每日趋势完成分析；所有数据都在浏览器本地处理。",
         },
       ],
     },
@@ -386,16 +389,17 @@ function createEnGuide(): GuideDocument {
         {
           type: "p",
           text:
-            "Agnes AI Usage Analysis is a browser-side analytics tool for Agnes usage exports. Upload one Agnes usage CSV and you can immediately inspect cost, tokens, requests, key-level breakdowns, project grouping, and daily trends.",
+            "Agnes AI Usage Analysis is a browser-side analytics tool for Agnes usage exports. Upload one Agnes usage CSV and you can immediately inspect text tokens, image counts, video seconds, requests, cost, key-level breakdowns, project grouping, and daily trends.",
         },
         {
           type: "ul",
           items: [
+            "Core three-metric layout: text tokens, image counts, and video seconds stay visible side by side across the dashboard",
             "Cost overview: total cost, daily cost trend, cost split by Secret Key",
-            "Usage metrics: input tokens, output tokens, total tokens, and requests",
-            "Key breakdown: per-key cost, tokens, and requests",
-            "Project grouping: aggregate multiple Secret Keys into custom projects",
-            "Trend charts: switch between cost, tokens, and requests",
+            "Usage metrics: text tokens, image counts, video seconds, and requests",
+            "Key breakdown: per-key text tokens, image counts, video seconds, cost, and requests",
+            "Project grouping: aggregate multiple Secret Keys into custom projects with multimodal totals preserved",
+            "Trend charts: switch between cost, text tokens, image counts, video seconds, and requests",
             "Share cards: export a 1200×630 infographic for the current tab",
           ],
         },
@@ -428,7 +432,7 @@ function createEnGuide(): GuideDocument {
         {
           type: "note",
           text:
-            "The current version supports one CSV file only. No ZIP extraction and no amount/cost file pairing are required.",
+            "The current version supports one CSV file only. No ZIP extraction and no amount/cost file pairing are required. Only rows with Consumption Status=success are counted, and the dashboard scope stays fixed to Overview, By Project, By Key, and Trends.",
         },
         {
           type: "table",
@@ -499,9 +503,11 @@ function createEnGuide(): GuideDocument {
           type: "table",
           headers: ["Metric", "Description"],
           rows: [
-            ["Total Cost", "Sum of all counted success rows"],
-            ["Total Tokens", "Input + output tokens"],
+            ["Text Tokens", "Combined input + output tokens from counted text rows"],
+            ["Image Count", "Generated images from counted image rows"],
+            ["Video Seconds", "Generated duration from counted video rows"],
             ["Total Requests", "Number of counted success rows"],
+            ["Total Cost", "Sum of all counted success rows"],
             ["Active Keys", "Number of Secret Keys in the result"],
           ],
         },
@@ -514,16 +520,16 @@ function createEnGuide(): GuideDocument {
           type: "table",
           headers: ["Tab", "Description"],
           rows: [
-            ["Overview", "Inspect total cost and cost distribution"],
-            ["By Project", "Inspect project-level aggregation"],
-            ["By Key", "Inspect Secret Key-level details"],
-            ["Trends", "Inspect daily cost, tokens, and requests"],
+            ["Overview", "Inspect the three-metric hero plus switchable daily and by-key comparisons"],
+            ["By Project", "Inspect the three-metric hero and project-level aggregation"],
+            ["By Key", "Inspect the three-metric hero and key-level multi-metric details"],
+            ["Trends", "Keep the three-metric hero fixed while switching daily cost, text tokens, image counts, video seconds, and requests"],
           ],
         },
         {
           type: "p",
           text:
-            "When the CSV contains multiple models, a model filter appears below the tabs so you can inspect a single model view across charts and tables.",
+            "When the CSV contains multiple models, a model filter appears below the tabs so you can inspect the three core metrics and supporting comparisons for one model or for all models combined.",
         },
       ],
     },
@@ -534,10 +540,10 @@ function createEnGuide(): GuideDocument {
         {
           type: "ul",
           items: [
-            "Overview: the hero shows total cost, followed by daily cost and cost-by-key charts.",
-            "By Key: the hero shows active key count, and the table lists tokens, cost, and requests for each Secret Key.",
-            "By Project: multiple Secret Keys can be grouped into custom projects to inspect project-level tokens, cost, and requests.",
-            "Trends: switch between daily cost, daily tokens, and requests to identify spikes and long-term changes.",
+            "Overview: the hero keeps text tokens, image counts, and video seconds visible together, while the charts switch across text, image, video, requests, and cost.",
+            "By Key: the hero keeps the three core metrics fixed, and the table can sort by text tokens, image counts, video seconds, cost, and requests for each Secret Key.",
+            "By Project: multiple Secret Keys can be grouped into custom projects to inspect project-level text tokens, image counts, video seconds, cost, and requests.",
+            "Trends: the hero no longer collapses into one metric. Instead, it keeps the three core metrics side by side while the chart switches across daily cost, text tokens, image counts, video seconds, and requests.",
           ],
         },
         {
@@ -644,12 +650,12 @@ function createEnGuide(): GuideDocument {
 
   return {
     title: "Agnes AI Usage Analysis — User Guide",
-    subtitle: "Version: v0.1.0 | Language: English / 中文 | Last Updated: 2026-06-28",
+    subtitle: "Version: v0.1.0 | Language: English / 中文 | Last Updated: 2026-06-30",
     sections,
     jsonLd: {
       name: "Agnes AI Usage Analysis — User Guide",
       description:
-        "Complete user guide for Agnes AI Usage Analysis. Learn how to export an Agnes usage CSV, upload a single file, and navigate the overview, project, key, and trends views.",
+        "Complete user guide for Agnes AI Usage Analysis. Learn how to export an Agnes usage CSV, upload a single file, understand the side-by-side text-token/image/video layout, and navigate the overview, project, key, and trends views.",
       steps: [
         {
           name: "Export an Agnes usage CSV",
@@ -661,7 +667,7 @@ function createEnGuide(): GuideDocument {
         },
         {
           name: "View analytics",
-          text: "Inspect cost, tokens, requests, project and key breakdowns, plus daily trends. All processing stays in the browser.",
+          text: "Inspect text tokens, image counts, and video seconds side by side, then compare requests, cost, project and key breakdowns, plus daily trends. All processing stays in the browser.",
         },
       ],
     },
@@ -910,7 +916,7 @@ export function GuidelinePage() {
               className="text-[11px] uppercase tracking-[0.16em] mb-4"
               style={{ color: "var(--text-tertiary)" }}
             >
-              Table Of Contents
+              {t.guideline.toc}
             </p>
             <nav>
               <ul className="space-y-2">

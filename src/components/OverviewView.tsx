@@ -1,51 +1,69 @@
 "use client";
 
-import { useMemo } from "react";
+/**
+ * 文件说明：
+ * 总览视图模块，负责以三维 Hero + 可切换多指标图表的方式展示 Agnes 多模态用量概览。
+ */
+
+import { useMemo, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import { useData } from "@/lib/DataContext";
 import { useTranslation } from "@/i18n";
 import { useTheme } from "@/lib/ThemeContext";
-import { formatTokens } from "@/lib/format";
+import MetricHero from "@/components/MetricHero";
+import {
+  type DashboardMetricKey,
+  buildComparisonMetricItems,
+  buildHeroMetricItems,
+  formatMetricValue,
+  getMetricValue,
+} from "@/lib/dashboardMetrics";
 
 /**
- * 文件说明：
- * 总览视图模块，负责展示 Agnes usage 的核心用量概览。
- */
-
-/**
- * 总览视图：Token Hero + 每日 Token 柱状图 + 各 Key Token 环形图
+ * 生成总览视图。
  *
- * Apple 极简风格 — 去除卡片容器，使用通栏模块 + 细横线分割。
- * ECharts 配色跟随全局 light/dark 主题。
- * 顶部 Hero 大数字优先展示总 Token 数。
+ * 顶部固定展示文本 Token、图片数量、视频时长三个主指标，
+ * 下方图表共享同一指标切换状态，避免再次退回到“只看 Token”的语义。
  */
 export default function OverviewView() {
   const { filteredResult: result } = useData();
   const { locale, t } = useTranslation();
   const { theme } = useTheme();
+  const [metric, setMetric] = useState<DashboardMetricKey>("tokens");
   const daily = result?.daily ?? [];
   const keys = result?.keys ?? [];
   const summary = result?.summary;
 
-  // 主题感知色
   const isDark = theme === "dark";
   const textColor = isDark ? "#98989D" : "#86868B";
   const gridColor = isDark ? "#2C2C2E" : "#E5E5EA";
+  const palette = isDark
+    ? ["#F5F5F7", "#D2D2D7", "#98989D", "#636366", "#48484A", "#38383A"]
+    : ["#1D1D1F", "#636366", "#86868B", "#98989D", "#D2D2D7", "#E5E5EA"];
+  const metricOptions = useMemo(() => buildComparisonMetricItems(t), [t]);
+  const activeMetricLabel = metricOptions.find((item) => item.key === metric)?.label ?? "";
+  const heroItems = useMemo(
+    () => (summary ? buildHeroMetricItems(summary, locale, t) : []),
+    [locale, summary, t]
+  );
 
-  // 每日 Token 柱状图
+  const dailyTitle = locale === "zh" ? `每日${activeMetricLabel}` : `Daily ${activeMetricLabel}`;
+  const distributionTitle = locale === "zh" ? `${activeMetricLabel} 按 Key 分布` : `${activeMetricLabel} by API Key`;
+
   const dailyOption = useMemo(() => {
-    const dates = [...new Set(daily.map((d) => d.date))].sort();
+    const dates = [...new Set(daily.map((item) => item.date))].sort();
     const byDate = new Map<string, number>();
-    for (const d of daily) {
-      byDate.set(d.date, (byDate.get(d.date) ?? 0) + d.totalTokens);
+
+    for (const item of daily) {
+      byDate.set(item.date, (byDate.get(item.date) ?? 0) + getMetricValue(item, metric));
     }
 
     return {
       tooltip: {
         trigger: "axis" as const,
-        valueFormatter: (v: unknown) => formatTokens(v as number, locale),
+        valueFormatter: (value: unknown) => formatMetricValue(metric, value as number, locale),
       },
-      grid: { top: 8, right: 16, bottom: 24, left: 48 },
+      grid: { top: 8, right: 16, bottom: 24, left: 52 },
       xAxis: {
         type: "category" as const,
         data: dates,
@@ -54,35 +72,35 @@ export default function OverviewView() {
       },
       yAxis: {
         type: "value" as const,
-        axisLabel: { fontSize: 10, color: textColor, formatter: (v: number) => formatTokens(v, locale) },
+        axisLabel: {
+          fontSize: 10,
+          color: textColor,
+          formatter: (value: number) => formatMetricValue(metric, value, locale),
+        },
         splitLine: { lineStyle: { color: gridColor } },
       },
       series: [
         {
           type: "bar",
-          data: dates.map((d) => byDate.get(d) ?? 0),
+          data: dates.map((date) => byDate.get(date) ?? 0),
           itemStyle: { color: isDark ? "#F5F5F7" : "#1D1D1F", borderRadius: [4, 4, 0, 0] },
         },
       ],
     };
-  }, [daily, gridColor, isDark, locale, textColor]);
+  }, [daily, gridColor, isDark, locale, metric, textColor]);
 
-  // 各 Key Token 环形图（donut）
   const donutOption = useMemo(() => {
-    const data = keys.map((k) => ({
-      name: k.apiKeyName,
-      value: k.totalTokens,
-    }));
-
-    // Apple 风格克制色调
-    const palette = isDark
-      ? ["#F5F5F7", "#D2D2D7", "#98989D", "#636366", "#48484A", "#38383A"]
-      : ["#1D1D1F", "#636366", "#86868B", "#98989D", "#D2D2D7", "#E5E5EA"];
+    const data = keys
+      .map((item) => ({
+        name: item.apiKeyName,
+        value: getMetricValue(item, metric),
+      }))
+      .filter((item) => item.value > 0);
 
     return {
       tooltip: {
         trigger: "item" as const,
-        valueFormatter: (v: unknown) => formatTokens(v as number, locale),
+        valueFormatter: (value: unknown) => formatMetricValue(metric, value as number, locale),
       },
       legend: {
         orient: "vertical" as const,
@@ -104,7 +122,7 @@ export default function OverviewView() {
         },
       ],
     };
-  }, [isDark, keys, locale, textColor]);
+  }, [keys, locale, metric, palette, textColor]);
 
   if (!result) return null;
 
@@ -120,44 +138,56 @@ export default function OverviewView() {
 
   return (
     <div>
-      {/* Hero — 大数字总 Token */}
-      <div className="text-center mb-12 pt-4">
-        <div
-          className="text-5xl sm:text-6xl md:text-[5rem] font-bold leading-none tracking-tighter"
-          style={{ color: "var(--text-primary)", letterSpacing: "-0.04em" }}
-        >
-          {formatTokens(summary.totalTokens, locale)}
+      <MetricHero
+        items={heroItems}
+        eyebrow={t.overview.heroEyebrow}
+        subtitle={
+          summary.dateRange
+            ? t.overview.heroSubtitle
+                .replace("{start}", summary.dateRange.start)
+                .replace("{end}", summary.dateRange.end)
+            : undefined
+        }
+        sideNote={`${summary.totalRequests.toLocaleString(locale)} ${t.metrics.requests} · ${summary.activeKeys.toLocaleString(locale)} ${t.kpi.activeKeys}`}
+      />
+
+      <div className="mb-6 flex flex-wrap items-center gap-3">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.24em]" style={{ color: "var(--text-secondary)" }}>
+          {t.overview.chartMetricLabel}
+        </span>
+        <div className="flex flex-wrap gap-2">
+          {metricOptions.map((item) => (
+            <button
+              key={item.key}
+              type="button"
+              onClick={() => setMetric(item.key)}
+              className="rounded-full border px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.18em] transition-colors duration-200"
+              style={{
+                borderColor: metric === item.key ? "var(--text-primary)" : "var(--border)",
+                color: metric === item.key ? "var(--accent-inverse)" : "var(--text-secondary)",
+                background: metric === item.key ? "var(--text-primary)" : "transparent",
+              }}
+            >
+              {item.label}
+            </button>
+          ))}
         </div>
-        <p className="text-sm font-semibold mt-3" style={{ color: "var(--text-secondary)" }}>
-          {t.kpi.totalTokens}
-        </p>
-        {summary.dateRange && (
-          <p className="text-xs mt-1" style={{ color: "var(--text-tertiary)" }}>
-            {summary.dateRange.start} — {summary.dateRange.end}
-          </p>
-        )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         <div>
-          <h3
-            className="text-[11px] font-semibold uppercase tracking-widest mb-4"
-            style={{ color: "var(--text-secondary)" }}
-          >
-            {t.overview.dailyTokens}
+          <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.24em]" style={{ color: "var(--text-secondary)" }}>
+            {dailyTitle}
           </h3>
-          <div aria-label={t.overview.dailyTokens} role="img">
+          <div aria-label={dailyTitle} role="img">
             <ReactECharts option={dailyOption} style={{ height: 300 }} />
           </div>
         </div>
         <div>
-          <h3
-            className="text-[11px] font-semibold uppercase tracking-widest mb-4"
-            style={{ color: "var(--text-secondary)" }}
-          >
-            {t.overview.tokensByKey}
+          <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.24em]" style={{ color: "var(--text-secondary)" }}>
+            {distributionTitle}
           </h3>
-          <div aria-label={t.overview.tokensByKey} role="img">
+          <div aria-label={distributionTitle} role="img">
             <ReactECharts option={donutOption} style={{ height: 300 }} />
           </div>
         </div>

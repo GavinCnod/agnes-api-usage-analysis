@@ -20,19 +20,31 @@ const SITE_URL =
 /** SoftwareApplication Schema 翻译 */
 const softwareAppSchema: Record<
   Locale,
-  { name: string; description: string; version: string }
+  { name: string; description: string; version: string; featureList: string[] }
 > = {
   en: {
     name: "Agnes AI Usage Analysis Dashboard by Gavin & Mindrose Team",
     description:
-      "Analyze Agnes AI usage first — upload a usage CSV and get instant token analytics, request trends, per-key breakdowns, and supporting cost insights. Free, open-source, browser-side.",
+      "Upload one Agnes usage CSV to analyze Agnes AI multimodal usage in your browser. Compare text tokens, image counts, video seconds, requests, cost, per-key breakdowns, per-project grouping, and trends instantly.",
     version: APP_VERSION,
+    featureList: [
+      "Single Agnes usage CSV workflow",
+      "Text tokens, image counts, and video seconds shown side by side",
+      "Only rows with Consumption Status=success are counted",
+      "Four focused tabs: Overview, Projects, Keys, Trends",
+    ],
   },
   zh: {
     name: "Agnes AI 用量分析仪表盘 by Gavin & Mindrose Team",
     description:
-      "可视化您的 Agnes AI 使用情况 — 上传 usage CSV，即时获取 Token 分析、请求趋势、各 Key 用量明细，以及辅助费用洞察。免费、开源、纯浏览器端。",
+      "上传单个 Agnes usage CSV，即可在浏览器内即时分析 Agnes AI 多模态用量，并列查看文本 Token、图片数量、视频时长，同时比较请求数、费用、各 Key 明细、自定义项目分组与趋势。",
     version: APP_VERSION,
+    featureList: [
+      "单个 Agnes usage CSV 工作流",
+      "文本 Token、图片数量、视频时长并列展示",
+      "仅统计 Consumption Status=success 的记录",
+      "固定四个标签页：Overview、Projects、Keys、Trends",
+    ],
   },
 };
 
@@ -53,12 +65,12 @@ const faqSchema: Record<Locale, { questions: { q: string; a: string }[] }> = {
         a: "Not yet. The current Agnes version focuses on one usage CSV at a time.",
       },
       {
-        q: "What models are supported?",
-        a: "Any model listed in your Agnes usage export. The dashboard auto-detects all models and provides a filter to view them individually or combined.",
+        q: "What usage dimensions and models are shown first?",
+        a: "Any model listed in your Agnes usage export is supported. The dashboard always surfaces text tokens, image counts, and video seconds side by side for the selected model or for all models combined.",
       },
       {
-        q: "Why does my cost show as $0?",
-        a: "If the Agnes export itself reports Consumption Amount(cents) as 0, the dashboard will also show 0. No extra cost file is required.",
+        q: "Why is one of the three core metrics 0?",
+        a: "That usually means the current CSV, model filter, or date range has no records for that modality. Zero text tokens, zero images, or zero video seconds are all valid outcomes.",
       },
       {
         q: "What does \"Incomplete Upload\" mean?",
@@ -93,12 +105,12 @@ const faqSchema: Record<Locale, { questions: { q: string; a: string }[] }> = {
         a: "暂时还不支持。当前 Agnes 版本先聚焦单个 usage CSV 的稳定分析流程。",
       },
       {
-        q: "支持哪些模型？",
-        a: "Agnes usage 导出中的所有模型均支持。仪表盘会自动检测模型，并提供筛选器以便单独或合并查看。",
+        q: "优先展示哪些用量维度，支持哪些模型？",
+        a: "Agnes usage 导出中的所有模型均支持。仪表盘会在当前模型或全部模型视角下，始终并列展示文本 Token、图片数量和视频时长。",
       },
       {
-        q: "为什么费用显示为 0？",
-        a: "如果 Agnes 导出的 Consumption Amount(cents) 本身为 0，仪表盘中显示的费用也会是 0。本工具不再依赖额外的 cost 文件。",
+        q: "为什么三项核心指标里有一项是 0？",
+        a: "这通常表示当前 CSV、模型筛选或时间范围内没有该模态的记录。文本 Token 为 0、图片数量为 0、视频时长为 0 都可能是正常结果。",
       },
       {
         q: "显示\u201C上传不完整\u201D是什么意思？",
@@ -135,6 +147,7 @@ export function buildSoftwareAppJsonLd(locale: Locale): Record<string, unknown> 
     operatingSystem: "Any (web browser)",
     applicationCategory: "DeveloperApplication",
     description: t.description,
+    featureList: t.featureList,
     offers: {
       "@type": "Offer",
       price: "0",
@@ -233,12 +246,12 @@ const organizationSchema: Record<Locale, { name: string; description: string }> 
   en: {
     name: "Agnes AI Usage Analysis Dashboard by Gavin & Mindrose Team",
     description:
-      "Free, open-source, browser-side dashboard for Agnes AI usage analysis. Upload a usage CSV to get token and request insights first, with cost analysis as support.",
+      "Free, open-source, browser-side dashboard for Agnes AI multimodal usage analysis. Upload one usage CSV to compare text tokens, image counts, video seconds, requests, cost, keys, projects, and trends.",
   },
   zh: {
     name: "Agnes AI 用量分析仪表盘 by Gavin & Mindrose Team",
     description:
-      "免费、开源、纯浏览器端的 Agnes AI 用量分析仪表盘。上传 usage CSV 即可优先获取 Token 与请求洞察，并辅助查看费用分析。",
+      "免费、开源、纯浏览器端的 Agnes AI 多模态用量分析仪表盘。上传单个 usage CSV 即可并列查看文本 Token、图片数量、视频时长，并继续比较请求数、费用、Key、项目与趋势。",
   },
 };
 

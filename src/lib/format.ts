@@ -1,4 +1,32 @@
+/**
+ * 数值格式化工具模块。
+ *
+ * 统一提供费用、Token、图片数量、视频时长等指标的紧凑格式与完整格式，
+ * 供多模态 Hero、图表、表格和分享卡复用。
+ */
+
 import type { Locale } from "@/i18n";
+
+/**
+ * 以紧凑形式格式化通用数字。
+ *
+ * 中文优先使用“万 / 亿”，英文使用“K / M”，
+ * 适合 Hero、标签和图表坐标轴等有限空间场景。
+ */
+export function formatCompactNumber(value: number, locale?: Locale): string {
+  if (locale === "zh") {
+    if (value >= 100_000_000) {
+      return `${(value / 100_000_000).toFixed(3)}亿`;
+    }
+    if (value >= 10_000) {
+      return `${(value / 10_000).toFixed(1)}万`;
+    }
+  }
+
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`;
+  if (value >= 1_000) return `${(value / 1_000).toFixed(0)}K`;
+  return String(value);
+}
 
 /**
  * Format a cost value in CNY.
@@ -21,17 +49,7 @@ export function formatCost(yuan: number, locale: Locale): string {
  * ZH: 1.234亿 / 1.2万 / 123
  */
 export function formatTokens(n: number, locale?: Locale): string {
-  if (locale === "zh") {
-    if (n >= 100_000_000) {
-      return `${(n / 100_000_000).toFixed(3)}亿`;
-    }
-    if (n >= 10_000) {
-      return `${(n / 10_000).toFixed(1)}万`;
-    }
-  }
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K`;
-  return String(n);
+  return formatCompactNumber(n, locale);
 }
 
 /**
@@ -50,9 +68,16 @@ export function formatCostFull(yuan: number): string {
 }
 
 /**
+ * 以完整数字格式输出通用数量，不使用缩写。
+ */
+export function formatCountFull(value: number, locale?: Locale): string {
+  return value.toLocaleString(locale === "zh" ? "zh-CN" : "en-US");
+}
+
+/**
  * Format a token count as a full number with no suffix abbreviation.
  * Comma-separated thousands.
  */
-export function formatTokensFull(n: number): string {
-  return n.toLocaleString("en-US");
+export function formatTokensFull(n: number, locale?: Locale): string {
+  return formatCountFull(n, locale);
 }

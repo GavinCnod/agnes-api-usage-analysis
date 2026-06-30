@@ -3,38 +3,25 @@
 /**
  * Key 详情视图文件
  *
- * 提供按 Secret Key 维度的明细表格。
- * 当前固定以总 Token 数降序展示，同时保留费用列的一键复制能力。
+ * 提供按 Secret Key 维度的多模态明细表格与排序联动能力。
  */
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useData } from "@/lib/DataContext";
 import { useTranslation } from "@/i18n";
-import { formatCost, formatTokens } from "@/lib/format";
 import { useTheme } from "@/lib/ThemeContext";
 import CopyButton from "@/components/CopyButton";
 import type { DailyUsage, KeyStats } from "@/lib/types";
-
-/**
- * 对 Key 列表执行稳定的降序排序。
- *
- * 固定按总 Token 数排序，再回退到费用、请求数和 Key 名称，
- * 避免相同数值时表格顺序频繁抖动。
- */
-function sortKeys(keys: KeyStats[]): KeyStats[] {
-  return [...keys].sort((left, right) => {
-    const primaryDiff = right.totalTokens - left.totalTokens;
-    if (primaryDiff !== 0) return primaryDiff;
-
-    const costDiff = right.totalCost - left.totalCost;
-    if (costDiff !== 0) return costDiff;
-
-    const requestDiff = right.requestCount - left.requestCount;
-    if (requestDiff !== 0) return requestDiff;
-
-    return left.apiKeyName.localeCompare(right.apiKeyName);
-  });
-}
+import MetricHero from "@/components/MetricHero";
+import {
+  type DashboardMetricKey,
+  buildComparisonMetricItems,
+  buildHeroMetricItems,
+  formatMetricValue,
+  getMetricLabel,
+  getMetricValue,
+  sortByMetric,
+} from "@/lib/dashboardMetrics";
 
 /**
  * 统计当前筛选结果中出现过的模型数量。
@@ -47,22 +34,30 @@ function getModelCount(daily: DailyUsage[]): number {
  * Key 详情表格视图
  *
  * Apple 极简风格，不包裹卡片，使用通栏表格展示所有 Key 指标。
- * 列表固定按 Token 数降序展示，右侧进度条也以 Token 数为基准。
+ * 排序方式、表头激活态与右侧进度条基准共享同一指标状态。
  */
 export default function KeyView() {
   const { filteredResult: result } = useData();
   const { locale, t } = useTranslation();
   const { theme } = useTheme();
+  const [metric, setMetric] = useState<DashboardMetricKey>("tokens");
 
   const keys = result?.keys ?? [];
   const daily = result?.daily ?? [];
+  const summary = result?.summary;
   const isDark = theme === "dark";
 
   const modelCount = useMemo(() => getModelCount(daily), [daily]);
-  const sortedKeys = useMemo(() => sortKeys(keys), [keys]);
+  const sortedKeys = useMemo(() => sortByMetric(keys, metric), [keys, metric]);
+  const metricOptions = useMemo(() => buildComparisonMetricItems(t), [t]);
+  const activeMetricLabel = getMetricLabel(metric, t);
+  const heroItems = useMemo(
+    () => (summary ? buildHeroMetricItems(summary, locale, t) : []),
+    [locale, summary, t]
+  );
   const maxMetricValue = useMemo(
-    () => Math.max(...sortedKeys.map((item) => item.totalTokens), 1),
-    [sortedKeys]
+    () => Math.max(...sortedKeys.map((item) => getMetricValue(item, metric)), 1),
+    [metric, sortedKeys]
   );
 
   if (!result) return null;
@@ -79,31 +74,39 @@ export default function KeyView() {
 
   return (
     <div>
-      {/* Hero — 大数字活跃 Key 数 */}
-      <div className="text-center mb-12 pt-4">
-        <div
-          className="text-5xl sm:text-6xl md:text-[5rem] font-bold leading-none tracking-tighter"
-          style={{ color: "var(--text-primary)", letterSpacing: "-0.04em" }}
-        >
-          {sortedKeys.length}
-        </div>
-        <p className="text-sm font-semibold mt-3" style={{ color: "var(--text-secondary)" }}>
-          {t.kpi.activeKeys}
-        </p>
-        <p className="text-xs mt-1" style={{ color: "var(--text-tertiary)" }}>
-          {t.keys.heroSubtitle
-            .replace("{keys}", String(sortedKeys.length))
-            .replace("{models}", String(modelCount))}
-        </p>
-      </div>
+      <MetricHero
+        items={heroItems}
+        eyebrow={t.keys.heroEyebrow}
+        subtitle={t.keys.heroSubtitle
+          .replace("{keys}", String(sortedKeys.length))
+          .replace("{models}", String(modelCount))}
+        sideNote={`${t.keys.sortBy}: ${activeMetricLabel}`}
+      />
 
-      <div className="mb-4">
-        <h3
-          className="text-[11px] font-semibold uppercase tracking-widest"
-          style={{ color: "var(--text-secondary)" }}
-        >
+      <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <h3 className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: "var(--text-secondary)" }}>
           {t.keys.title}
         </h3>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.24em]" style={{ color: "var(--text-secondary)" }}>
+            {t.keys.sortBy}
+          </span>
+          {metricOptions.map((item) => (
+            <button
+              key={item.key}
+              type="button"
+              onClick={() => setMetric(item.key)}
+              className="rounded-full border px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.18em] transition-colors duration-200"
+              style={{
+                borderColor: metric === item.key ? "var(--text-primary)" : "var(--border)",
+                color: metric === item.key ? "var(--accent-inverse)" : "var(--text-secondary)",
+                background: metric === item.key ? "var(--text-primary)" : "transparent",
+              }}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="overflow-x-auto">
@@ -120,21 +123,45 @@ export default function KeyView() {
                 className="px-3 py-2.5 text-right text-[10px] font-semibold uppercase tracking-wider"
                 style={{ color: "var(--text-tertiary)" }}
               >
-                {t.keys.tokens}
+                <button type="button" onClick={() => setMetric("tokens")} style={{ color: metric === "tokens" ? "var(--text-primary)" : "inherit" }}>
+                  {t.keys.tokens}
+                </button>
               </th>
               <th
                 className="px-3 py-2.5 text-right text-[10px] font-semibold uppercase tracking-wider"
                 style={{ color: "var(--text-tertiary)" }}
               >
-                {t.keys.cost}
+                <button type="button" onClick={() => setMetric("images")} style={{ color: metric === "images" ? "var(--text-primary)" : "inherit" }}>
+                  {t.keys.images}
+                </button>
               </th>
               <th
                 className="px-3 py-2.5 text-right text-[10px] font-semibold uppercase tracking-wider"
                 style={{ color: "var(--text-tertiary)" }}
               >
-                {t.keys.requests}
+                <button type="button" onClick={() => setMetric("videoSeconds")} style={{ color: metric === "videoSeconds" ? "var(--text-primary)" : "inherit" }}>
+                  {t.keys.videoSeconds}
+                </button>
               </th>
-              <th className="px-3 py-2.5 w-28"></th>
+              <th
+                className="px-3 py-2.5 text-right text-[10px] font-semibold uppercase tracking-wider"
+                style={{ color: "var(--text-tertiary)" }}
+              >
+                <button type="button" onClick={() => setMetric("cost")} style={{ color: metric === "cost" ? "var(--text-primary)" : "inherit" }}>
+                  {t.keys.cost}
+                </button>
+              </th>
+              <th
+                className="px-3 py-2.5 text-right text-[10px] font-semibold uppercase tracking-wider"
+                style={{ color: "var(--text-tertiary)" }}
+              >
+                <button type="button" onClick={() => setMetric("requests")} style={{ color: metric === "requests" ? "var(--text-primary)" : "inherit" }}>
+                  {t.keys.requests}
+                </button>
+              </th>
+              <th className="px-3 py-2.5 w-28 text-right text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-tertiary)" }}>
+                {t.keys.progressBy.replace("{metric}", activeMetricLabel)}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -154,7 +181,19 @@ export default function KeyView() {
                   className="px-3 py-3 text-right"
                   style={{ color: "var(--text-secondary)" }}
                 >
-                  {formatTokens(keyItem.totalTokens, locale)}
+                  {formatMetricValue("tokens", keyItem.totalTokens, locale, "full")}
+                </td>
+                <td
+                  className="px-3 py-3 text-right"
+                  style={{ color: "var(--text-secondary)" }}
+                >
+                  {formatMetricValue("images", keyItem.imageCount, locale, "full")}
+                </td>
+                <td
+                  className="px-3 py-3 text-right"
+                  style={{ color: "var(--text-secondary)" }}
+                >
+                  {formatMetricValue("videoSeconds", keyItem.videoSeconds, locale, "full")}
                 </td>
                 <td
                   className="px-3 py-3 text-right font-semibold"
@@ -165,14 +204,14 @@ export default function KeyView() {
                     name={keyItem.apiKeyName}
                     className="cursor-pointer transition-opacity duration-150 hover:opacity-70"
                   >
-                    {formatCost(keyItem.totalCost, locale)}
+                    {formatMetricValue("cost", keyItem.totalCost, locale, "full")}
                   </CopyButton>
                 </td>
                 <td
                   className="px-3 py-3 text-right"
                   style={{ color: "var(--text-secondary)" }}
                 >
-                  {keyItem.requestCount.toLocaleString(locale)}
+                  {formatMetricValue("requests", keyItem.requestCount, locale, "full")}
                 </td>
                 <td className="px-3 py-3">
                   <div
@@ -182,7 +221,7 @@ export default function KeyView() {
                     <div
                       className="h-full rounded-full transition-all"
                       style={{
-                        width: `${(keyItem.totalTokens / maxMetricValue) * 100}%`,
+                        width: `${(getMetricValue(keyItem, metric) / maxMetricValue) * 100}%`,
                         background: isDark ? "var(--text-primary)" : "var(--accent)",
                         opacity: 0.6,
                       }}

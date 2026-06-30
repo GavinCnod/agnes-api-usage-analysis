@@ -3,8 +3,7 @@
 /**
  * 文件说明：项目维度分析视图
  *
- * 提供自定义项目分组的统计表格与配置浮窗。
- * 当前固定按 Token 数排序，同时保留费用复制能力。
+ * 提供自定义项目分组的多模态统计表格、排序联动能力与配置浮窗。
  */
 
 /**
@@ -20,10 +19,19 @@
 import { useMemo, useState, useRef, useCallback, type DragEvent } from "react";
 import { useData } from "@/lib/DataContext";
 import { useTranslation } from "@/i18n";
-import { formatCostFull, formatTokensFull } from "@/lib/format";
 import { useTheme } from "@/lib/ThemeContext";
 import { useProjectConfig, UNCATEGORIZED, type ProjectDef } from "@/lib/ProjectConfigContext";
 import CopyButton from "@/components/CopyButton";
+import MetricHero from "@/components/MetricHero";
+import {
+  type DashboardMetricKey,
+  buildComparisonMetricItems,
+  buildHeroMetricItems,
+  formatMetricValue,
+  getMetricLabel,
+  getMetricValue,
+  sortByMetric,
+} from "@/lib/dashboardMetrics";
 
 // ============================================================================
 // 类型
@@ -32,6 +40,8 @@ import CopyButton from "@/components/CopyButton";
 interface ProjectStats {
   name: string;
   totalTokens: number;
+  imageCount: number;
+  videoSeconds: number;
   totalCost: number;
   requestCount: number;
   isUncategorized: boolean;
@@ -43,13 +53,14 @@ interface ProjectStats {
 
 export default function ProjectView() {
   const { filteredResult: result } = useData();
-  const { t } = useTranslation();
+  const { locale, t } = useTranslation();
   const { theme } = useTheme();
   const { config, setConfig, matchProject } = useProjectConfig();
   const [showConfig, setShowConfig] = useState(false);
+  const [metric, setMetric] = useState<DashboardMetricKey>("tokens");
   if (!result) return null;
 
-  const { daily } = result;
+  const { daily, summary } = result;
   const isDark = theme === "dark";
 
   // 从 daily 数据中提取所有唯一的 Key 名称
@@ -73,6 +84,8 @@ export default function ProjectView() {
     const map = new Map<string, {
       name: string;
       totalTokens: number;
+      imageCount: number;
+      videoSeconds: number;
       totalCost: number;
       requestCount: number;
       isUncategorized: boolean;
@@ -81,13 +94,19 @@ export default function ProjectView() {
     for (const p of config) {
       map.set(p.name, {
         name: p.name,
-        totalTokens: 0, totalCost: 0,
+        totalTokens: 0,
+        imageCount: 0,
+        videoSeconds: 0,
+        totalCost: 0,
         requestCount: 0, isUncategorized: false,
       });
     }
     map.set(UNCATEGORIZED, {
       name: t.projects.uncategorized,
-      totalTokens: 0, totalCost: 0,
+      totalTokens: 0,
+      imageCount: 0,
+      videoSeconds: 0,
+      totalCost: 0,
       requestCount: 0, isUncategorized: true,
     });
 
@@ -96,84 +115,86 @@ export default function ProjectView() {
       const entry = map.get(matched);
       if (!entry) continue;
       entry.totalTokens += d.totalTokens;
+      entry.imageCount += d.imageCount;
+      entry.videoSeconds += d.videoSeconds;
       entry.totalCost += d.totalCost;
       entry.requestCount += d.requestCount;
     }
 
     return Array.from(map.values())
-      .filter((p) => !p.isUncategorized || p.totalTokens > 0);
+      .filter((project) =>
+        !project.isUncategorized ||
+        project.totalTokens > 0 ||
+        project.imageCount > 0 ||
+        project.videoSeconds > 0 ||
+        project.requestCount > 0 ||
+        project.totalCost > 0
+      );
   }, [daily, config, matchProject, t.projects.uncategorized]);
 
-  /**
-   * 固定按 Token 数排序，并保持未分类项目始终位于末尾。
-   */
-  const sortedProjects = useMemo(
-    () =>
-      [...projects].sort((a, b) => {
-        if (a.isUncategorized !== b.isUncategorized) return a.isUncategorized ? 1 : -1;
+  const sortedProjects = useMemo(() => sortByMetric(projects, metric), [metric, projects]);
+  const metricOptions = useMemo(() => buildComparisonMetricItems(t), [t]);
+  const activeMetricLabel = getMetricLabel(metric, t);
+  const heroItems = useMemo(() => buildHeroMetricItems(summary, locale, t), [locale, summary, t]);
 
-        const tokenDiff = b.totalTokens - a.totalTokens;
-        if (tokenDiff !== 0) return tokenDiff;
-
-        const costDiff = b.totalCost - a.totalCost;
-        if (costDiff !== 0) return costDiff;
-
-        return b.requestCount - a.requestCount;
-      }),
-    [projects]
-  );
-
-  const maxMetricValue = Math.max(...sortedProjects.map((p) => p.totalTokens), 1);
+  const maxMetricValue = Math.max(...sortedProjects.map((project) => getMetricValue(project, metric)), 1);
   const activeCount = projects.filter((p) => !p.isUncategorized).length;
   const modelCount = result.summary.models.length;
 
   return (
     <div>
-      {/* Hero */}
-      <div className="text-center mb-12 pt-4">
-        <div
-          className="text-5xl sm:text-6xl md:text-[5rem] font-bold leading-none tracking-tighter"
-          style={{ color: "var(--text-primary)", letterSpacing: "-0.04em" }}
-        >
-          {activeCount}
-        </div>
-        <p className="text-sm font-semibold mt-3" style={{ color: "var(--text-secondary)" }}>
-          {t.projects.heroProjects}
-        </p>
-        <p className="text-xs mt-1" style={{ color: "var(--text-tertiary)" }}>
-          {t.keys.heroSubtitle
-            .replace("{keys}", String(allKeys.length))
-            .replace("{models}", String(modelCount))}
-        </p>
-        {activeCount === 0 && allKeys.length > 0 && (
-          <p className="text-xs mt-2" style={{ color: "var(--text-tertiary)" }}>
-            {t.projects.emptyHint}
-          </p>
-        )}
-      </div>
+      <MetricHero
+        items={heroItems}
+        eyebrow={t.projects.heroEyebrow}
+        subtitle={t.keys.heroSubtitle
+          .replace("{keys}", String(allKeys.length))
+          .replace("{models}", String(modelCount))}
+        sideNote={
+          activeCount === 0 && allKeys.length > 0
+            ? t.projects.emptyHint
+            : `${t.projects.sortBy}: ${activeMetricLabel}`
+        }
+      />
 
       {/* 标题 + 配置按钮 */}
-      <div className="flex items-center justify-between mb-4">
-        <h3
-          className="text-[11px] font-semibold uppercase tracking-widest"
-          style={{ color: "var(--text-secondary)" }}
-        >
+      <div className="mb-4 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+        <h3 className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: "var(--text-secondary)" }}>
           {t.projects.sectionTitle}
         </h3>
-        <button
-          onClick={() => setShowConfig(true)}
-          className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider transition-colors duration-200"
-          style={{ color: "var(--text-tertiary)" }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = "var(--text-primary)"; }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-tertiary)"; }}
-        >
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="3" />
-            <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
-          </svg>
-          {t.projects.configure}
-        </button>
+        <div className="flex flex-wrap items-center gap-2 xl:justify-end">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.24em]" style={{ color: "var(--text-secondary)" }}>
+            {t.projects.sortBy}
+          </span>
+          {metricOptions.map((item) => (
+            <button
+              key={item.key}
+              type="button"
+              onClick={() => setMetric(item.key)}
+              className="rounded-full border px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.18em] transition-colors duration-200"
+              style={{
+                borderColor: metric === item.key ? "var(--text-primary)" : "var(--border)",
+                color: metric === item.key ? "var(--accent-inverse)" : "var(--text-secondary)",
+                background: metric === item.key ? "var(--text-primary)" : "transparent",
+              }}
+            >
+              {item.label}
+            </button>
+          ))}
+          <button
+            onClick={() => setShowConfig(true)}
+            className="ml-2 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider transition-colors duration-200"
+            style={{ color: "var(--text-tertiary)" }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = "var(--text-primary)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-tertiary)"; }}
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
+            </svg>
+            {t.projects.configure}
+          </button>
+        </div>
       </div>
 
       {/* 表格 */}
@@ -184,12 +205,27 @@ export default function ProjectView() {
               <th className="px-3 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wider"
                 style={{ color: "var(--text-tertiary)" }}>{t.projects.columnProject}</th>
               <th className="px-3 py-2.5 text-right text-[10px] font-semibold uppercase tracking-wider"
-                style={{ color: "var(--text-tertiary)" }}>{t.keys.tokens}</th>
+                style={{ color: "var(--text-tertiary)" }}>
+                <button type="button" onClick={() => setMetric("tokens")} style={{ color: metric === "tokens" ? "var(--text-primary)" : "inherit" }}>{t.keys.tokens}</button>
+              </th>
               <th className="px-3 py-2.5 text-right text-[10px] font-semibold uppercase tracking-wider"
-                style={{ color: "var(--text-tertiary)" }}>{t.keys.cost}</th>
+                style={{ color: "var(--text-tertiary)" }}>
+                <button type="button" onClick={() => setMetric("images")} style={{ color: metric === "images" ? "var(--text-primary)" : "inherit" }}>{t.keys.images}</button>
+              </th>
               <th className="px-3 py-2.5 text-right text-[10px] font-semibold uppercase tracking-wider"
-                style={{ color: "var(--text-tertiary)" }}>{t.keys.requests}</th>
-              <th className="px-3 py-2.5 w-28"></th>
+                style={{ color: "var(--text-tertiary)" }}>
+                <button type="button" onClick={() => setMetric("videoSeconds")} style={{ color: metric === "videoSeconds" ? "var(--text-primary)" : "inherit" }}>{t.keys.videoSeconds}</button>
+              </th>
+              <th className="px-3 py-2.5 text-right text-[10px] font-semibold uppercase tracking-wider"
+                style={{ color: "var(--text-tertiary)" }}>
+                <button type="button" onClick={() => setMetric("cost")} style={{ color: metric === "cost" ? "var(--text-primary)" : "inherit" }}>{t.keys.cost}</button>
+              </th>
+              <th className="px-3 py-2.5 text-right text-[10px] font-semibold uppercase tracking-wider"
+                style={{ color: "var(--text-tertiary)" }}>
+                <button type="button" onClick={() => setMetric("requests")} style={{ color: metric === "requests" ? "var(--text-primary)" : "inherit" }}>{t.keys.requests}</button>
+              </th>
+              <th className="px-3 py-2.5 w-28 text-right text-[10px] font-semibold uppercase tracking-wider"
+                style={{ color: "var(--text-tertiary)" }}>{t.projects.progressBy.replace("{metric}", activeMetricLabel)}</th>
             </tr>
           </thead>
           <tbody>
@@ -202,24 +238,32 @@ export default function ProjectView() {
                 </td>
                 <td className="px-3 py-3 text-right"
                   style={{ color: p.isUncategorized ? "var(--text-tertiary)" : "var(--text-secondary)" }}>
-                  {formatTokensFull(p.totalTokens)}
+                  {formatMetricValue("tokens", p.totalTokens, locale, "full")}
+                </td>
+                <td className="px-3 py-3 text-right"
+                  style={{ color: p.isUncategorized ? "var(--text-tertiary)" : "var(--text-secondary)" }}>
+                  {formatMetricValue("images", p.imageCount, locale, "full")}
+                </td>
+                <td className="px-3 py-3 text-right"
+                  style={{ color: p.isUncategorized ? "var(--text-tertiary)" : "var(--text-secondary)" }}>
+                  {formatMetricValue("videoSeconds", p.videoSeconds, locale, "full")}
                 </td>
                 <td className="px-3 py-3 text-right font-semibold"
                   style={{ color: p.isUncategorized ? "var(--text-tertiary)" : "var(--text-primary)" }}>
                   <CopyButton value={p.totalCost} name={p.name}
                     className="cursor-pointer transition-opacity duration-150 hover:opacity-70">
-                    {formatCostFull(p.totalCost)}
+                    {formatMetricValue("cost", p.totalCost, locale, "full")}
                   </CopyButton>
                 </td>
                 <td className="px-3 py-3 text-right"
                   style={{ color: p.isUncategorized ? "var(--text-tertiary)" : "var(--text-secondary)" }}>
-                  {p.requestCount.toLocaleString()}
+                  {formatMetricValue("requests", p.requestCount, locale, "full")}
                 </td>
                 <td className="px-3 py-3">
                   <div className="w-24 h-1 rounded-full overflow-hidden"
                     style={{ background: "var(--border)" }}>
                     <div className="h-full rounded-full transition-all" style={{
-                      width: `${(p.totalTokens / maxMetricValue) * 100}%`,
+                      width: `${(getMetricValue(p, metric) / maxMetricValue) * 100}%`,
                       background: isDark ? "var(--text-primary)" : "var(--accent)",
                       opacity: p.isUncategorized ? 0.3 : 0.6,
                     }} />

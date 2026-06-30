@@ -14,7 +14,7 @@ const SITE_URL =
 export function generateMetadata(): Metadata {
   const title = "Agnes AI Usage Analytics — User Guide";
   const description =
-    "Complete user guide for the Agnes AI Usage Analytics Dashboard. Learn how to export the usage CSV, upload files, and navigate all dashboard views with step-by-step instructions and screenshots.";
+    "Complete user guide for Agnes AI multimodal usage analytics. Learn how to export one Agnes usage CSV, understand the text-token/image/video three-metric layout, and navigate the four dashboard tabs with screenshots.";
 
   return {
     title,
@@ -52,7 +52,9 @@ export function generateMetadata(): Metadata {
       "Agnes AI usage guide",
       "Agnes AI dashboard tutorial",
       "Agnes AI CSV export",
+      "Agnes AI multimodal analytics guide",
       "API cost analysis guide",
+      "Agnes AI 多模态使用指南",
       "Agnes AI 使用指南",
     ],
     authors: [{ name: "Gavin & Mindrose Team" }],

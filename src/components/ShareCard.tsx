@@ -1,11 +1,12 @@
 "use client";
 
 /**
- * 社交媒体分享卡片组件
+ * 社交媒体分享卡片组件。
  *
- * 为 4 个仪表盘 tab 分别设计 1200×630 的信息图卡片，用于社交媒体分享。
- * 布局：左上三行信息 + 右侧 Tab 标签 → 左侧 Hero/KPI + 右侧 ECharts 图表 → 底部日期/Logo/QR/水印。
- * 通过 onChartsReady 回调通知父组件所有图表已渲染完毕。
+ * 使用与主页面一致的多模态展示口径：
+ * - 左侧固定展示文本 Token、图片数量、视频时长三维 Hero
+ * - 右侧图表使用统一的辅助指标选择结果
+ * - 底部保留时间范围、品牌与二维码信息
  */
 
 import { useMemo, useCallback, useRef } from "react";
@@ -13,6 +14,7 @@ import ReactECharts from "echarts-for-react";
 import type { ParseResult, DailyUsage } from "@/lib/types";
 import type { Locale } from "@/i18n";
 import type { ShareCardData, ShareMetricKey } from "@/lib/shareCardData";
+import { formatMetricValue, getMetricValue } from "@/lib/dashboardMetrics";
 
 // ============================================================================
 // 常量
@@ -28,22 +30,22 @@ export const CARD_H = 630;
 export interface ShareCardStrings {
   tabLabel: string;
   appName: string;
-  kpiTotalCost: string;
-  kpiTotalTokens: string;
-  kpiTotalRequests: string;
-  kpiActiveKeys: string;
-  kpiModels: string;
+  fromLabel: string;
+  textTokensLabel: string;
+  imagesLabel: string;
+  videoSecondsLabel: string;
+  requestsLabel: string;
+  costLabel: string;
+  activeKeysLabel: string;
+  modelsLabel: string;
   projectsLabel: string;
   keysLabel: string;
-  requestsLabel: string;
-  uncategorizedLabel: string;
+  chartMetricLabel: string;
   peakLabel: string;
   lowestLabel: string;
   dailyAverageLabel: string;
   generatedBy: string;
   scanToVisit: string;
-  costHeader: string;
-  tokensHeader: string;
 }
 
 export interface ShareCardProps {
@@ -130,56 +132,15 @@ function fmtCost(yuan: number, locale: Locale): string {
   return `¥${yuan.toFixed(2)}`;
 }
 
-function fmtTokens(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K`;
-  return String(Math.round(n));
-}
-
 function fmtRange(start: string, end: string): string {
   return `${start}  —  ${end}`;
 }
 
 /**
- * 按分享指标格式化数值。
+ * 格式化整数统计值。
  */
-function fmtMetricValue(metric: ShareMetricKey, value: number, locale: Locale): string {
-  switch (metric) {
-    case "cost":
-      return fmtCost(value, locale);
-    case "tokens":
-      return fmtTokens(value);
-    case "requests":
-      return Math.round(value).toLocaleString(locale);
-  }
-}
-
-/**
- * 构建与当前主指标互补的 KPI 列表，避免在零费用回退后重复展示同一指标。
- */
-function buildSupplementaryMetricItems(
-  metric: ShareMetricKey,
-  totals: { totalCost: number; totalTokens: number; totalRequests: number },
-  locale: Locale,
-  s: ShareCardStrings
-): { value: string; label: string }[] {
-  const orderedMetrics: ShareMetricKey[] = ["tokens", "requests", "cost"];
-
-  return orderedMetrics
-    .filter((candidate) => candidate !== metric)
-    .map((candidate) => ({
-      value: fmtMetricValue(
-        candidate,
-        getAggregateMetricValue(
-          totals.totalCost,
-          totals.totalTokens,
-          totals.totalRequests,
-          candidate
-        ),
-        locale
-      ),
-      label: getMetricLabel(candidate, s),
-    }));
+function fmtCount(value: number, locale: Locale): string {
+  return Math.round(value).toLocaleString(locale);
 }
 
 /**
@@ -187,12 +148,16 @@ function buildSupplementaryMetricItems(
  */
 function getMetricLabel(metric: ShareMetricKey, s: ShareCardStrings): string {
   switch (metric) {
-    case "cost":
-      return s.kpiTotalCost;
     case "tokens":
-      return s.kpiTotalTokens;
+      return s.textTokensLabel;
+    case "images":
+      return s.imagesLabel;
+    case "videoSeconds":
+      return s.videoSecondsLabel;
     case "requests":
-      return s.kpiTotalRequests;
+      return s.requestsLabel;
+    case "cost":
+      return s.costLabel;
   }
 }
 
@@ -200,43 +165,17 @@ function getMetricLabel(metric: ShareMetricKey, s: ShareCardStrings): string {
  * 读取排行项中对应指标的值。
  */
 function getRankMetricValue(
-  item: { totalCost: number; totalTokens: number; requestCount: number },
+  item: { totalCost: number; totalTokens: number; imageCount: number; videoSeconds: number; requestCount: number },
   metric: ShareMetricKey
 ): number {
-  switch (metric) {
-    case "cost":
-      return item.totalCost;
-    case "tokens":
-      return item.totalTokens;
-    case "requests":
-      return item.requestCount;
-  }
-}
-
-/**
- * 读取汇总数据中当前分享指标对应的值。
- */
-function getAggregateMetricValue(
-  totalCost: number,
-  totalTokens: number,
-  totalRequests: number,
-  metric: ShareMetricKey
-): number {
-  switch (metric) {
-    case "cost":
-      return totalCost;
-    case "tokens":
-      return totalTokens;
-    case "requests":
-      return totalRequests;
-  }
+  return getMetricValue(item, metric);
 }
 
 /**
  * 将排行数据转换为图表可直接消费的结构。
  */
 function buildRankChartItems(
-  items: { name: string; totalCost: number; totalTokens: number; requestCount: number }[],
+  items: { name: string; totalCost: number; totalTokens: number; imageCount: number; videoSeconds: number; requestCount: number }[],
   metric: ShareMetricKey
 ): { name: string; value: number }[] {
   return items
@@ -248,14 +187,7 @@ function buildRankChartItems(
  * 生成横轴标签的格式化函数。
  */
 function getChartAxisFormatter(metric: ShareMetricKey, locale: Locale) {
-  switch (metric) {
-    case "cost":
-      return (v: number) => `¥${v >= 1000 ? `${(v / 1000).toFixed(1)}K` : v.toFixed(0)}`;
-    case "tokens":
-      return (v: number) => fmtTokens(v);
-    case "requests":
-      return (v: number) => Math.round(v).toLocaleString(locale);
-  }
+  return (v: number) => formatMetricValue(metric, v, locale);
 }
 
 // ============================================================================
@@ -273,7 +205,7 @@ function buildDailyMetricChart(
   const dates = [...new Set(daily.map((d) => d.date))].sort();
   const byDate = new Map<string, number>();
   for (const d of daily) {
-    byDate.set(d.date, (byDate.get(d.date) ?? 0) + getRankMetricValue(d, metric));
+    byDate.set(d.date, (byDate.get(d.date) ?? 0) + getMetricValue(d, metric));
   }
 
   return {
@@ -343,6 +275,7 @@ export default function ShareCard({
 }: ShareCardProps) {
   const isDark = theme === "dark";
   const c = themeColors(isDark);
+  const chartMetric = data.tab === "trends" ? data.metric : data.chartMetric;
 
   // 图表就绪计数
   const readyCountRef = useRef(0);
@@ -365,7 +298,7 @@ export default function ShareCard({
   const chartOption = useMemo(() => {
     switch (data.tab) {
       case "overview":
-        return buildDailyMetricChart(result.daily, "bar", c, data.primaryMetric, locale);
+        return buildDailyMetricChart(result.daily, "bar", c, data.chartMetric, locale);
       case "trends":
         return buildDailyMetricChart(result.daily, "line", c, data.metric, locale);
       case "projects":
@@ -383,141 +316,112 @@ export default function ShareCard({
     }
   }, [data, result.daily, c, locale]);
 
-  // 构建 KPI 网格项（统一格式）
+  /**
+   * 构建左侧三维 Hero 的展示项。
+   */
+  const primaryMetricItems = useMemo(() => {
+    return data.heroMetrics.map((item) => ({
+      key: item.key,
+      label: getMetricLabel(item.key, s),
+      value: item.value,
+      formattedValue: formatMetricValue(item.key, item.value, locale),
+    }));
+  }, [data.heroMetrics, locale, s]);
+
+  /**
+   * 构建辅助 KPI 网格项。
+   */
   const kpiItems: { value: string; label: string }[] = (() => {
     switch (data.tab) {
       case "overview":
-        if (data.primaryMetric === "cost") {
-          return [
-            { value: fmtTokens(data.totalTokens), label: s.kpiTotalTokens },
-            { value: String(data.totalRequests), label: s.kpiTotalRequests },
-            { value: String(data.activeKeys), label: s.kpiActiveKeys },
-            { value: String(data.modelCount), label: s.kpiModels },
-          ];
-        }
-        if (data.primaryMetric === "tokens") {
-          return [
-            { value: fmtCost(data.totalCost, locale), label: s.kpiTotalCost },
-            { value: String(data.totalRequests), label: s.kpiTotalRequests },
-            { value: String(data.activeKeys), label: s.kpiActiveKeys },
-            { value: String(data.modelCount), label: s.kpiModels },
-          ];
-        }
         return [
-          { value: fmtCost(data.totalCost, locale), label: s.kpiTotalCost },
-          { value: fmtTokens(data.totalTokens), label: s.kpiTotalTokens },
-          { value: String(data.activeKeys), label: s.kpiActiveKeys },
-          { value: String(data.modelCount), label: s.kpiModels },
+          { value: fmtCount(data.totalRequests, locale), label: s.requestsLabel },
+          { value: fmtCost(data.totalCost, locale), label: s.costLabel },
+          { value: fmtCount(data.activeKeys, locale), label: s.activeKeysLabel },
+          { value: fmtCount(data.modelCount, locale), label: s.modelsLabel },
         ];
-      case "projects": {
-        const leadingMetricLabel = getMetricLabel(data.chartMetric, s);
-        const leadingMetricValue = fmtMetricValue(data.chartMetric, getAggregateMetricValue(
-          data.totalCost,
-          data.totalTokens,
-          data.totalRequests,
-          data.chartMetric
-        ), locale);
-        const supplementaryItems = buildSupplementaryMetricItems(
-          data.chartMetric,
-          {
-            totalCost: data.totalCost,
-            totalTokens: data.totalTokens,
-            totalRequests: data.totalRequests,
-          },
-          locale,
-          s
-        );
+      case "projects":
         return [
-          { value: leadingMetricValue, label: leadingMetricLabel },
-          ...supplementaryItems.slice(0, 2),
-          { value: `${data.keyCount} Keys`, label: s.kpiActiveKeys },
+          { value: fmtCount(data.projectCount, locale), label: s.projectsLabel },
+          { value: fmtCount(data.keyCount, locale), label: s.keysLabel },
+          { value: fmtCount(data.totalRequests, locale), label: s.requestsLabel },
+          { value: fmtCost(data.totalCost, locale), label: s.costLabel },
         ];
-      }
-      case "keys": {
-        const leadingMetricLabel = getMetricLabel(data.chartMetric, s);
-        const leadingMetricValue = fmtMetricValue(data.chartMetric, getAggregateMetricValue(
-          data.totalCost,
-          data.totalTokens,
-          data.totalRequests,
-          data.chartMetric
-        ), locale);
-        const supplementaryItems = buildSupplementaryMetricItems(
-          data.chartMetric,
-          {
-            totalCost: data.totalCost,
-            totalTokens: data.totalTokens,
-            totalRequests: data.totalRequests,
-          },
-          locale,
-          s
-        );
+      case "keys":
         return [
-          { value: leadingMetricValue, label: leadingMetricLabel },
-          ...supplementaryItems.slice(0, 2),
-          { value: String(data.modelCount), label: s.kpiModels },
+          { value: fmtCount(data.keyCount, locale), label: s.keysLabel },
+          { value: fmtCount(data.modelCount, locale), label: s.modelsLabel },
+          { value: fmtCount(data.totalRequests, locale), label: s.requestsLabel },
+          { value: fmtCost(data.totalCost, locale), label: s.costLabel },
         ];
-      }
       case "trends":
         return [
-          { value: fmtMetricValue(data.metric, data.peakValue, locale), label: s.peakLabel },
-          { value: fmtMetricValue(data.metric, data.lowestValue, locale), label: s.lowestLabel },
-          { value: fmtMetricValue(data.metric, data.dailyAverage, locale), label: s.dailyAverageLabel },
+          { value: formatMetricValue(data.metric, data.totalValue, locale), label: getMetricLabel(data.metric, s) },
+          { value: formatMetricValue(data.metric, data.peakValue, locale), label: s.peakLabel },
+          { value: formatMetricValue(data.metric, data.lowestValue, locale), label: s.lowestLabel },
+          { value: formatMetricValue(data.metric, data.dailyAverage, locale), label: s.dailyAverageLabel },
         ];
     }
   })();
 
-  // 渲染 Hero + KPI（左侧列，左对齐）
-  const renderHero = () => {
-    const heroText = (() => {
-      switch (data.tab) {
-        case "overview":
-          return fmtMetricValue(data.primaryMetric, getAggregateMetricValue(
-            data.totalCost,
-            data.totalTokens,
-            data.totalRequests,
-            data.primaryMetric
-          ), locale);
-        case "projects": return String(data.projectCount);
-        case "keys": return String(data.keyCount);
-        case "trends": return fmtMetricValue(data.metric, data.totalValue, locale);
-      }
-    })();
-    const heroLabel = (() => {
-      switch (data.tab) {
-        case "overview": return getMetricLabel(data.primaryMetric, s);
-        case "projects": return s.projectsLabel;
-        case "keys": return s.keysLabel;
-        case "trends": return getMetricLabel(data.metric, s);
-      }
-    })();
-    const heroColor = c.textPrimary;
-
-    return (
-      <div>
-        {/* Hero 大数字 */}
-        <div style={{ fontSize: 56, fontWeight: 700, lineHeight: 1, letterSpacing: "-0.04em", color: heroColor }}>
-          {heroText}
-        </div>
-        <div style={{ fontSize: 13, fontWeight: 500, color: c.textSecondary, marginTop: 4 }}>
-          {heroLabel}
-        </div>
-
-        {/* KPI 两列网格 */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px 20px", marginTop: 20 }}>
-          {kpiItems.map((item, i) => (
-            <div key={i} style={{ minWidth: 0 }}>
-              <div style={{ fontSize: 20, fontWeight: 700, color: c.textPrimary, letterSpacing: "-0.02em", lineHeight: 1.2 }}>
-                {item.value}
-              </div>
-              <div style={{ fontSize: 10, fontWeight: 500, color: c.textTertiary, marginTop: 2, letterSpacing: "0.03em", textTransform: "uppercase" }}>
-                {item.label}
-              </div>
+  /**
+   * 渲染左侧主展示与辅助 KPI。
+   */
+  const renderHero = () => (
+    <div>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr",
+          gap: 14,
+          paddingBottom: 20,
+          borderBottom: `1px solid ${c.border}`,
+        }}
+      >
+        {primaryMetricItems.map((item) => (
+          <div
+            key={item.key}
+            style={{
+              paddingBottom: 6,
+              borderBottom: `1px solid ${c.border}`,
+            }}
+          >
+            <div
+              style={{
+                fontSize: 36,
+                fontWeight: 700,
+                lineHeight: 1,
+                letterSpacing: "-0.04em",
+                color: item.value === 0 ? c.textSecondary : c.textPrimary,
+              }}
+            >
+              {item.formattedValue}
             </div>
-          ))}
-        </div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: c.textSecondary, marginTop: 6, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+              {item.label}
+            </div>
+          </div>
+        ))}
       </div>
-    );
-  };
+
+      <div style={{ marginTop: 18, fontSize: 10, fontWeight: 600, color: c.textTertiary, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+        {s.chartMetricLabel}: {getMetricLabel(chartMetric, s)}
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px 20px", marginTop: 14 }}>
+        {kpiItems.map((item, i) => (
+          <div key={i} style={{ minWidth: 0 }}>
+            <div style={{ fontSize: 20, fontWeight: 700, color: c.textPrimary, letterSpacing: "-0.02em", lineHeight: 1.2 }}>
+              {item.value}
+            </div>
+            <div style={{ fontSize: 10, fontWeight: 500, color: c.textTertiary, marginTop: 2, letterSpacing: "0.03em", textTransform: "uppercase" }}>
+              {item.label}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 
   return (
     <div
@@ -560,7 +464,7 @@ export default function ShareCard({
 
         {/* 第二行：From XXX — 大号字体 */}
         <div style={{ fontSize: 42, fontWeight: 700, color: c.textPrimary, letterSpacing: "-0.03em", lineHeight: 1.1, marginTop: 4 }}>
-          From {fromName}
+          {s.fromLabel} {fromName}
         </div>
       </div>
 
@@ -569,16 +473,19 @@ export default function ShareCard({
       {/* ================================================================ */}
       <div style={{ display: "flex", gap: 40, flex: 1, alignItems: "center", minHeight: 0 }}>
         {/* 左侧：Hero + KPI */}
-        <div style={{ width: 300, flexShrink: 0 }}>
+        <div style={{ width: 336, flexShrink: 0 }}>
           {renderHero()}
         </div>
 
         {/* 右侧：图表 */}
         <div style={{ flex: 1, height: "100%", minWidth: 0 }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: c.textSecondary, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>
+            {s.chartMetricLabel}: {getMetricLabel(chartMetric, s)}
+          </div>
           {chartOption && (
             <ReactECharts
               option={chartOption}
-              style={{ width: "100%", height: "100%" }}
+              style={{ width: "100%", height: "calc(100% - 24px)" }}
               opts={{ renderer: "canvas" }}
               onChartReady={() => {
                 // 延迟一小段时间确保渲染完成
@@ -606,7 +513,7 @@ export default function ShareCard({
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           {/* 水印文字 */}
           <span style={{ fontSize: 9, color: c.textTertiary, opacity: 0.4, textAlign: "right", lineHeight: 1.4 }}>
-            {s.generatedBy}<br />agnes-usage.xyz
+            {s.generatedBy}<br />{s.scanToVisit}
           </span>
 
           {/* 应用 Logo */}
