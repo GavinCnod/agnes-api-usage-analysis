@@ -29,18 +29,18 @@ export function formatCompactNumber(value: number, locale?: Locale): string {
 }
 
 /**
- * Format a cost value in CNY.
- * EN: ¥12,345.67  or ¥12.35K
- * ZH: ¥12,345.67  or ¥1.23万
+ * Format a cost value in USD.
+ * EN: $12,345.67  or $12.35K
+ * ZH: $12,345.67  or $1.23万
  */
-export function formatCost(yuan: number, locale: Locale): string {
-  if (locale === "zh" && yuan >= 10000) {
-    return `¥${(yuan / 10000).toFixed(2)}万`;
+export function formatCost(amount: number, locale: Locale): string {
+  if (locale === "zh" && amount >= 10000) {
+    return `$${(amount / 10000).toFixed(2)}万`;
   }
-  if (locale === "en" && yuan >= 10000) {
-    return `¥${(yuan / 1000).toFixed(2)}K`;
+  if (locale === "en" && amount >= 10000) {
+    return `$${(amount / 1000).toFixed(2)}K`;
   }
-  return `¥${yuan.toFixed(2)}`;
+  return `$${amount.toFixed(2)}`;
 }
 
 /**
@@ -63,8 +63,8 @@ export function formatPercent(n: number): string {
  * Format a cost as a full number with no suffix abbreviation.
  * Always 2 decimals, comma-separated thousands.
  */
-export function formatCostFull(yuan: number): string {
-  return `¥${yuan.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+export function formatCostFull(amount: number): string {
+  return `$${amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
 /**

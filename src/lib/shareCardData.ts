@@ -35,6 +35,17 @@ export interface ShareHeroMetricItem {
 }
 
 /**
+ * 分享图表中单个核心维度的摘要标注。
+ */
+export interface ShareCoreMetricSummary {
+  key: ShareHeroMetricKey;
+  peakValue: number;
+  peakDate: string | null;
+  lowestValue: number;
+  lowestDate: string | null;
+}
+
+/**
  * 分享排行项的通用结构。
  */
 interface ShareRankItem {
@@ -64,11 +75,10 @@ interface ShareAggregateTotals {
 export interface OverviewShareData extends ShareAggregateTotals {
   tab: "overview";
   heroMetrics: ShareHeroMetricItem[];
-  chartMetric: ShareMetricKey;
+  coreMetricSummaries: ShareCoreMetricSummary[];
   activeKeys: number;
   modelCount: number;
   dateRange: { start: string; end: string } | null;
-  dailyAverageValue: number;
 }
 
 export interface ProjectShareData extends ShareAggregateTotals {
@@ -97,11 +107,9 @@ export interface KeyShareData extends ShareAggregateTotals {
 export interface TrendsShareData extends ShareAggregateTotals {
   tab: "trends";
   heroMetrics: ShareHeroMetricItem[];
-  metric: ShareMetricKey;
-  totalValue: number;
-  peakValue: number;
-  lowestValue: number;
-  dailyAverage: number;
+  coreMetricSummaries: ShareCoreMetricSummary[];
+  activeKeys: number;
+  modelCount: number;
   dateRange: { start: string; end: string } | null;
 }
 
@@ -114,16 +122,16 @@ export type ShareCardData =
 /**
  * 从分享卡片数据中读取当前图表或排行实际使用的辅助指标。
  */
-export function getShareMetricKey(data: ShareCardData): ShareMetricKey {
+export function getShareMetricKey(data: ShareCardData): ShareMetricKey | null {
   switch (data.tab) {
     case "overview":
-      return data.chartMetric;
+      return null;
     case "projects":
       return data.chartMetric;
     case "keys":
       return data.chartMetric;
     case "trends":
-      return data.metric;
+      return null;
   }
 }
 
@@ -139,6 +147,60 @@ function buildShareHeroMetrics(summary: ParseResult["summary"]): ShareHeroMetric
     key: metric,
     value: getMetricValue(summary, metric),
   }));
+}
+
+/**
+ * 统计每日三维核心指标的最高值与最低值，供分享卡静态标注使用。
+ */
+function buildCoreMetricSummaries(daily: ParseResult["daily"]): ShareCoreMetricSummary[] {
+  const totalsByDate = new Map<
+    string,
+    {
+      tokens: number;
+      images: number;
+      videoSeconds: number;
+    }
+  >();
+
+  for (const item of daily) {
+    const current = totalsByDate.get(item.date) ?? { tokens: 0, images: 0, videoSeconds: 0 };
+    current.tokens += getMetricValue(item, "tokens");
+    current.images += getMetricValue(item, "images");
+    current.videoSeconds += getMetricValue(item, "videoSeconds");
+    totalsByDate.set(item.date, current);
+  }
+
+  const dates = [...totalsByDate.keys()].sort();
+
+  return (HERO_METRIC_KEYS as ShareHeroMetricKey[]).map((metric) => {
+    const metricPoints = dates.map((date) => ({
+      date,
+      value: totalsByDate.get(date)?.[metric] ?? 0,
+    }));
+
+    if (metricPoints.length === 0) {
+      return {
+        key: metric,
+        peakValue: 0,
+        peakDate: null,
+        lowestValue: 0,
+        lowestDate: null,
+      };
+    }
+
+    const peakPoint = metricPoints.reduce((currentPeak, item) => (item.value > currentPeak.value ? item : currentPeak));
+    const lowestPoint = metricPoints.reduce((currentLowest, item) =>
+      item.value < currentLowest.value ? item : currentLowest
+    );
+
+    return {
+      key: metric,
+      peakValue: peakPoint.value,
+      peakDate: peakPoint.date,
+      lowestValue: lowestPoint.value,
+      lowestDate: lowestPoint.date,
+    };
+  });
 }
 
 /**
@@ -226,20 +288,15 @@ function mapRankItem(item: ShareRankItem): ShareRankItem {
  */
 function extractOverviewData(result: ParseResult): OverviewShareData {
   const { summary, daily } = result;
-  const chartMetric = pickShareMetric(summary);
-  const days = daily.length > 0
-    ? [...new Set(daily.map((d) => d.date))].length
-    : 1;
 
   return {
     tab: "overview",
     heroMetrics: buildShareHeroMetrics(summary),
-    chartMetric,
+    coreMetricSummaries: buildCoreMetricSummaries(daily),
     ...buildAggregateTotals(summary),
     activeKeys: summary.activeKeys,
     modelCount: summary.models.length,
     dateRange: summary.dateRange,
-    dailyAverageValue: getSummaryMetricValue(summary, chartMetric) / days,
   };
 }
 
@@ -348,27 +405,14 @@ function extractKeyData(result: ParseResult): KeyShareData {
  */
 function extractTrendsData(result: ParseResult): TrendsShareData {
   const { daily, summary } = result;
-  const metric = pickShareMetric(summary);
-  const dateMap = new Map<string, number>();
-
-  for (const d of daily) {
-    dateMap.set(d.date, (dateMap.get(d.date) ?? 0) + getMetricValue(d, metric));
-  }
-
-  const dailyValues = [...dateMap.values()];
-  const peakValue = dailyValues.length > 0 ? Math.max(...dailyValues) : 0;
-  const lowestValue = dailyValues.length > 0 ? Math.min(...dailyValues) : 0;
-  const days = dailyValues.length || 1;
 
   return {
     tab: "trends",
     heroMetrics: buildShareHeroMetrics(summary),
+    coreMetricSummaries: buildCoreMetricSummaries(daily),
     ...buildAggregateTotals(summary),
-    metric,
-    totalValue: getSummaryMetricValue(summary, metric),
-    peakValue,
-    lowestValue,
-    dailyAverage: getSummaryMetricValue(summary, metric) / days,
+    activeKeys: summary.activeKeys,
+    modelCount: summary.models.length,
     dateRange: summary.dateRange,
   };
 }

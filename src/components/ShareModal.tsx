@@ -123,9 +123,9 @@ export default function ShareModal({ tab, onClose }: ShareModalProps) {
     } as Record<string, string>)[tab] ?? tab,
     appName: t.app.title,
     fromLabel: t.share.from,
-    textTokensLabel: t.metrics.textTokens,
-    imagesLabel: t.metrics.images,
-    videoSecondsLabel: t.metrics.videoSeconds,
+    textTokensLabel: t.metrics.tabTextTokens,
+    imagesLabel: t.metrics.tabImages,
+    videoSecondsLabel: t.metrics.tabVideoSeconds,
     requestsLabel: t.metrics.requests,
     costLabel: t.metrics.cost,
     activeKeysLabel: t.kpi.activeKeys,
@@ -133,6 +133,9 @@ export default function ShareModal({ tab, onClose }: ShareModalProps) {
     projectsLabel: t.tabs.projects,
     keysLabel: t.tabs.keys,
     chartMetricLabel: t.overview.chartMetricLabel,
+    relativeComparisonLabel: t.share.relativeComparison,
+    dailyCoreMetricsLabel: t.overview.dailyCoreMetrics,
+    coreMetricsTrendLabel: t.trends.coreMetricsTrend,
     peakLabel: t.share.peak,
     lowestLabel: t.share.lowest,
     dailyAverageLabel: t.share.dailyAverage,
@@ -329,6 +332,11 @@ export default function ShareModal({ tab, onClose }: ShareModalProps) {
               {shareMetric && (
                 <p className="mt-3 text-[11px]" style={{ color: "var(--text-tertiary)" }}>
                   {cardStrings.chartMetricLabel}: {shareMetricLabel}
+                </p>
+              )}
+              {!shareMetric && (tab === "overview" || tab === "trends") && (
+                <p className="mt-3 text-[11px]" style={{ color: "var(--text-tertiary)" }}>
+                  {tab === "overview" ? cardStrings.dailyCoreMetricsLabel : cardStrings.coreMetricsTrendLabel}
                 </p>
               )}
             </div>

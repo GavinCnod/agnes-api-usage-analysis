@@ -18,7 +18,6 @@ import {
   buildComparisonMetricItems,
   buildHeroMetricItems,
   formatMetricValue,
-  getMetricLabel,
   getMetricValue,
   sortByMetric,
 } from "@/lib/dashboardMetrics";
@@ -50,7 +49,7 @@ export default function KeyView() {
   const modelCount = useMemo(() => getModelCount(daily), [daily]);
   const sortedKeys = useMemo(() => sortByMetric(keys, metric), [keys, metric]);
   const metricOptions = useMemo(() => buildComparisonMetricItems(t), [t]);
-  const activeMetricLabel = getMetricLabel(metric, t);
+  const activeMetricLabel = metricOptions.find((item) => item.key === metric)?.label ?? "";
   const heroItems = useMemo(
     () => (summary ? buildHeroMetricItems(summary, locale, t) : []),
     [locale, summary, t]

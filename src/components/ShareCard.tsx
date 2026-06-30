@@ -13,7 +13,7 @@ import { useMemo, useCallback, useRef } from "react";
 import ReactECharts from "echarts-for-react";
 import type { ParseResult, DailyUsage } from "@/lib/types";
 import type { Locale } from "@/i18n";
-import type { ShareCardData, ShareMetricKey } from "@/lib/shareCardData";
+import type { ShareCardData, ShareCoreMetricSummary, ShareHeroMetricKey, ShareMetricKey } from "@/lib/shareCardData";
 import { formatMetricValue, getMetricValue } from "@/lib/dashboardMetrics";
 
 // ============================================================================
@@ -41,6 +41,9 @@ export interface ShareCardStrings {
   projectsLabel: string;
   keysLabel: string;
   chartMetricLabel: string;
+  relativeComparisonLabel: string;
+  dailyCoreMetricsLabel: string;
+  coreMetricsTrendLabel: string;
   peakLabel: string;
   lowestLabel: string;
   dailyAverageLabel: string;
@@ -87,6 +90,9 @@ function themeColors(isDark: boolean) {
     chartLine: isDark ? "#F5F5F7" : "#1D1D1F",
     chartArea: isDark ? "rgba(245,245,247,0.06)" : "rgba(29,29,31,0.03)",
     barColor: isDark ? "#F5F5F7" : "#1D1D1F",
+    metricTokens: isDark ? "#F5F5F7" : "#1D1D1F",
+    metricImages: isDark ? "#C7C7CC" : "#636366",
+    metricVideo: isDark ? "#8E8E93" : "#8E8E93",
   };
 }
 
@@ -126,10 +132,10 @@ function truncateText(text: string, maxWidth: number, fontSize: number, maxLines
   return result + currentLine;
 }
 
-function fmtCost(yuan: number, locale: Locale): string {
-  if (locale === "zh" && yuan >= 10000) return `¥${(yuan / 10000).toFixed(2)}万`;
-  if (locale === "en" && yuan >= 10000) return `¥${(yuan / 1000).toFixed(2)}K`;
-  return `¥${yuan.toFixed(2)}`;
+function fmtCost(amount: number, locale: Locale): string {
+  if (locale === "zh" && amount >= 10000) return `$${(amount / 10000).toFixed(2)}万`;
+  if (locale === "en" && amount >= 10000) return `$${(amount / 1000).toFixed(2)}K`;
+  return `$${amount.toFixed(2)}`;
 }
 
 function fmtRange(start: string, end: string): string {
@@ -141,6 +147,18 @@ function fmtRange(start: string, end: string): string {
  */
 function fmtCount(value: number, locale: Locale): string {
   return Math.round(value).toLocaleString(locale);
+}
+
+/**
+ * 将单一指标序列映射到 0-100，便于在静态图中比较相对强弱。
+ */
+function normalizeValues(values: number[]): number[] {
+  const maxValue = Math.max(...values, 0);
+  if (maxValue <= 0) {
+    return values.map(() => 0);
+  }
+
+  return values.map((value) => Number(((value / maxValue) * 100).toFixed(2)));
 }
 
 /**
@@ -158,6 +176,20 @@ function getMetricLabel(metric: ShareMetricKey, s: ShareCardStrings): string {
       return s.requestsLabel;
     case "cost":
       return s.costLabel;
+  }
+}
+
+/**
+ * 返回核心三维指标在分享卡中的固定配色。
+ */
+function getCoreMetricColor(metric: ShareHeroMetricKey, c: ReturnType<typeof themeColors>): string {
+  switch (metric) {
+    case "tokens":
+      return c.metricTokens;
+    case "images":
+      return c.metricImages;
+    case "videoSeconds":
+      return c.metricVideo;
   }
 }
 
@@ -194,22 +226,40 @@ function getChartAxisFormatter(metric: ShareMetricKey, locale: Locale) {
 // ECharts 配置生成器
 // ============================================================================
 
-/** Overview / Trends 每日指标柱状图或折线图 */
-function buildDailyMetricChart(
+/** Overview 分享卡的三维相对对比柱状图。 */
+function buildOverviewCoreComparisonChart(
   daily: DailyUsage[],
-  type: "bar" | "line",
   c: ReturnType<typeof themeColors>,
-  metric: ShareMetricKey,
   locale: Locale,
+  s: ShareCardStrings,
 ) {
   const dates = [...new Set(daily.map((d) => d.date))].sort();
-  const byDate = new Map<string, number>();
-  for (const d of daily) {
-    byDate.set(d.date, (byDate.get(d.date) ?? 0) + getMetricValue(d, metric));
+  const totalsByDate = new Map<
+    string,
+    {
+      tokens: number;
+      images: number;
+      videoSeconds: number;
+    }
+  >();
+
+  for (const item of daily) {
+    const current = totalsByDate.get(item.date) ?? { tokens: 0, images: 0, videoSeconds: 0 };
+    current.tokens += getMetricValue(item, "tokens");
+    current.images += getMetricValue(item, "images");
+    current.videoSeconds += getMetricValue(item, "videoSeconds");
+    totalsByDate.set(item.date, current);
   }
 
+  const metricKeys: ShareHeroMetricKey[] = ["tokens", "images", "videoSeconds"];
+
   return {
-    grid: { top: 10, right: 12, bottom: 28, left: 44 },
+    animation: false,
+    legend: {
+      top: 0,
+      textStyle: { fontSize: 10, color: c.chartText },
+    },
+    grid: { top: 26, right: 12, bottom: 28, left: 44 },
     xAxis: {
       type: "category" as const,
       data: dates,
@@ -218,21 +268,95 @@ function buildDailyMetricChart(
     },
     yAxis: {
       type: "value" as const,
-      axisLabel: { fontSize: 9, color: c.chartText, formatter: getChartAxisFormatter(metric, locale) },
+      max: 100,
+      axisLabel: { fontSize: 9, color: c.chartText, formatter: (value: number) => `${value}%` },
       splitLine: { lineStyle: { color: c.chartGrid } },
     },
-    series: [{
-      type,
-      data: dates.map((d) => +(byDate.get(d) ?? 0).toFixed(4)),
-      ...(type === "bar"
-        ? { itemStyle: { color: c.barColor, borderRadius: [3, 3, 0, 0] } }
-        : {
-            smooth: true,
-            lineStyle: { color: c.chartLine, width: 2 },
-            itemStyle: { color: c.chartLine },
-            areaStyle: { color: c.chartArea },
-          }),
-    }],
+    series: metricKeys.map((metric) => {
+      const rawValues = dates.map((date) => totalsByDate.get(date)?.[metric] ?? 0);
+      const normalizedValues = normalizeValues(rawValues);
+      return {
+        name: getMetricLabel(metric, s),
+        type: "bar" as const,
+        barMaxWidth: 14,
+        itemStyle: {
+          color: getCoreMetricColor(metric, c),
+          borderRadius: [3, 3, 0, 0] as [number, number, number, number],
+        },
+        data: normalizedValues,
+      };
+    }),
+  };
+}
+
+/** Trends 分享卡的三维相对对比趋势图。 */
+function buildTrendsCoreComparisonChart(
+  daily: DailyUsage[],
+  c: ReturnType<typeof themeColors>,
+  locale: Locale,
+  s: ShareCardStrings,
+) {
+  const dates = [...new Set(daily.map((d) => d.date))].sort();
+  const totalsByDate = new Map<
+    string,
+    {
+      tokens: number;
+      images: number;
+      videoSeconds: number;
+    }
+  >();
+
+  for (const item of daily) {
+    const current = totalsByDate.get(item.date) ?? { tokens: 0, images: 0, videoSeconds: 0 };
+    current.tokens += getMetricValue(item, "tokens");
+    current.images += getMetricValue(item, "images");
+    current.videoSeconds += getMetricValue(item, "videoSeconds");
+    totalsByDate.set(item.date, current);
+  }
+
+  const metricKeys: ShareHeroMetricKey[] = ["tokens", "images", "videoSeconds"];
+
+  return {
+    animation: false,
+    legend: {
+      top: 0,
+      textStyle: { fontSize: 10, color: c.chartText },
+    },
+    grid: { top: 26, right: 12, bottom: 28, left: 44 },
+    xAxis: {
+      type: "category" as const,
+      data: dates,
+      axisLabel: { fontSize: 9, color: c.chartText, rotate: dates.length > 20 ? 45 : 0 },
+      axisLine: { lineStyle: { color: c.chartGrid } },
+    },
+    yAxis: {
+      type: "value" as const,
+      max: 100,
+      axisLabel: { fontSize: 9, color: c.chartText, formatter: (value: number) => `${value}%` },
+      splitLine: { lineStyle: { color: c.chartGrid } },
+    },
+    series: metricKeys.map((metric) => {
+      const rawValues = dates.map((date) => totalsByDate.get(date)?.[metric] ?? 0);
+      const normalizedValues = normalizeValues(rawValues);
+      return {
+        name: getMetricLabel(metric, s),
+        type: "line" as const,
+        data: normalizedValues,
+        smooth: true,
+        showSymbol: dates.length <= 32,
+        symbolSize: 5,
+        lineStyle: { color: getCoreMetricColor(metric, c), width: 2 },
+        itemStyle: { color: getCoreMetricColor(metric, c) },
+        areaStyle: {
+          color:
+            metric === "tokens"
+              ? "rgba(245,245,247,0.08)"
+              : metric === "images"
+                ? "rgba(199,199,204,0.08)"
+                : "rgba(142,142,147,0.08)",
+        },
+      };
+    }),
   };
 }
 
@@ -275,7 +399,12 @@ export default function ShareCard({
 }: ShareCardProps) {
   const isDark = theme === "dark";
   const c = themeColors(isDark);
-  const chartMetric = data.tab === "trends" ? data.metric : data.chartMetric;
+  const isCoreComparisonCard = data.tab === "overview" || data.tab === "trends";
+  const chartTitle = data.tab === "overview"
+    ? s.dailyCoreMetricsLabel
+    : data.tab === "trends"
+      ? s.coreMetricsTrendLabel
+      : `${s.chartMetricLabel}: ${getMetricLabel(data.chartMetric, s)}`;
 
   // 图表就绪计数
   const readyCountRef = useRef(0);
@@ -298,9 +427,9 @@ export default function ShareCard({
   const chartOption = useMemo(() => {
     switch (data.tab) {
       case "overview":
-        return buildDailyMetricChart(result.daily, "bar", c, data.chartMetric, locale);
+        return buildOverviewCoreComparisonChart(result.daily, c, locale, s);
       case "trends":
-        return buildDailyMetricChart(result.daily, "line", c, data.metric, locale);
+        return buildTrendsCoreComparisonChart(result.daily, c, locale, s);
       case "projects":
         return buildHorizontalBarChart(
           buildRankChartItems(data.topProjects, data.chartMetric),
@@ -327,6 +456,24 @@ export default function ShareCard({
       formattedValue: formatMetricValue(item.key, item.value, locale),
     }));
   }, [data.heroMetrics, locale, s]);
+
+  /**
+   * 构建三维相对对比图的静态标注，替代分享图片中无法使用的 hover 信息。
+   */
+  const coreMetricAnnotations = useMemo(() => {
+    if (!isCoreComparisonCard) return [];
+
+    return data.coreMetricSummaries.map((item) => ({
+      key: item.key,
+      label: getMetricLabel(item.key, s),
+      peakText: item.peakDate
+        ? `${item.peakDate} · ${formatMetricValue(item.key, item.peakValue, locale)}`
+        : "-",
+      lowestText: item.lowestDate
+        ? `${item.lowestDate} · ${formatMetricValue(item.key, item.lowestValue, locale)}`
+        : "-",
+    }));
+  }, [data, isCoreComparisonCard, locale, s]);
 
   /**
    * 构建辅助 KPI 网格项。
@@ -356,10 +503,10 @@ export default function ShareCard({
         ];
       case "trends":
         return [
-          { value: formatMetricValue(data.metric, data.totalValue, locale), label: getMetricLabel(data.metric, s) },
-          { value: formatMetricValue(data.metric, data.peakValue, locale), label: s.peakLabel },
-          { value: formatMetricValue(data.metric, data.lowestValue, locale), label: s.lowestLabel },
-          { value: formatMetricValue(data.metric, data.dailyAverage, locale), label: s.dailyAverageLabel },
+          { value: fmtCount(data.totalRequests, locale), label: s.requestsLabel },
+          { value: fmtCost(data.totalCost, locale), label: s.costLabel },
+          { value: fmtCount(data.activeKeys, locale), label: s.activeKeysLabel },
+          { value: fmtCount(data.modelCount, locale), label: s.modelsLabel },
         ];
     }
   })();
@@ -405,7 +552,7 @@ export default function ShareCard({
       </div>
 
       <div style={{ marginTop: 18, fontSize: 10, fontWeight: 600, color: c.textTertiary, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-        {s.chartMetricLabel}: {getMetricLabel(chartMetric, s)}
+        {isCoreComparisonCard ? s.relativeComparisonLabel : chartTitle}
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px 20px", marginTop: 14 }}>
@@ -480,18 +627,69 @@ export default function ShareCard({
         {/* 右侧：图表 */}
         <div style={{ flex: 1, height: "100%", minWidth: 0 }}>
           <div style={{ fontSize: 11, fontWeight: 600, color: c.textSecondary, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>
-            {s.chartMetricLabel}: {getMetricLabel(chartMetric, s)}
+            {chartTitle}
           </div>
           {chartOption && (
-            <ReactECharts
-              option={chartOption}
-              style={{ width: "100%", height: "calc(100% - 24px)" }}
-              opts={{ renderer: "canvas" }}
-              onChartReady={() => {
-                // 延迟一小段时间确保渲染完成
-                setTimeout(() => handleChartReady(), 200);
-              }}
-            />
+            <div style={{ display: "flex", flexDirection: "column", height: "calc(100% - 24px)" }}>
+              <ReactECharts
+                option={chartOption}
+                style={{ width: "100%", height: isCoreComparisonCard ? "calc(100% - 124px)" : "100%" }}
+                opts={{ renderer: "canvas" }}
+                onChartReady={() => {
+                  // 延迟一小段时间确保渲染完成
+                  setTimeout(() => handleChartReady(), 200);
+                }}
+              />
+              {isCoreComparisonCard && (
+                <div
+                  style={{
+                    marginTop: 10,
+                    display: "grid",
+                    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                    gap: 12,
+                    paddingTop: 10,
+                    borderTop: `1px solid ${c.border}`,
+                  }}
+                >
+                  {coreMetricAnnotations.map((item) => (
+                    <div key={item.key} style={{ minWidth: 0 }}>
+                      <div
+                        style={{
+                          fontSize: 10,
+                          fontWeight: 600,
+                          color: c.textSecondary,
+                          letterSpacing: "0.05em",
+                          textTransform: "uppercase",
+                          marginBottom: 6,
+                        }}
+                      >
+                        {item.label}
+                      </div>
+                      <div style={{ fontSize: 9, color: c.textTertiary, textTransform: "uppercase", letterSpacing: "0.04em" }}>
+                        {s.peakLabel}
+                      </div>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: c.textPrimary, lineHeight: 1.35 }}>
+                        {item.peakText}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: 9,
+                          color: c.textTertiary,
+                          textTransform: "uppercase",
+                          letterSpacing: "0.04em",
+                          marginTop: 6,
+                        }}
+                      >
+                        {s.lowestLabel}
+                      </div>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: c.textPrimary, lineHeight: 1.35 }}>
+                        {item.lowestText}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>

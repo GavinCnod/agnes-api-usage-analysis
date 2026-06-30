@@ -2,34 +2,72 @@
 
 /**
  * 文件说明：
- * 总览视图模块，负责以三维 Hero + 可切换多指标图表的方式展示 Agnes 多模态用量概览。
+ * 总览视图模块，负责以三维 Hero + 三维归一化合并图表的方式展示 Agnes 多模态用量概览。
  */
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import ReactECharts from "echarts-for-react";
 import { useData } from "@/lib/DataContext";
 import { useTranslation } from "@/i18n";
 import { useTheme } from "@/lib/ThemeContext";
 import MetricHero from "@/components/MetricHero";
 import {
-  type DashboardMetricKey,
-  buildComparisonMetricItems,
+  buildCoreComparisonMetricItems,
   buildHeroMetricItems,
   formatMetricValue,
   getMetricValue,
 } from "@/lib/dashboardMetrics";
 
+/** 图表单点数据。 */
+interface ChartDatum {
+  value: number;
+  rawValue: number;
+  formattedValue: string;
+}
+
+/** ECharts tooltip 参数的最小结构。 */
+interface TooltipParam {
+  axisValue?: string;
+  axisValueLabel?: string;
+  seriesName: string;
+  marker?: string;
+  data?: ChartDatum;
+}
+
+/**
+ * 将同一指标序列归一化到 0-100，便于跨量纲并排比较。
+ */
+function normalizeValues(values: number[]): number[] {
+  const maxValue = Math.max(...values, 0);
+  if (maxValue <= 0) {
+    return values.map(() => 0);
+  }
+
+  return values.map((value) => Number(((value / maxValue) * 100).toFixed(2)));
+}
+
+/**
+ * 构造轴触发 tooltip，展示真实数值而不是归一化百分比。
+ */
+function formatAxisTooltip(params: unknown): string {
+  const items = (Array.isArray(params) ? params : [params]) as TooltipParam[];
+  if (items.length === 0) return "";
+
+  const title = items[0]?.axisValueLabel ?? items[0]?.axisValue ?? "";
+  const lines = items.map((item) => `${item.marker ?? ""}${item.seriesName}: ${item.data?.formattedValue ?? "-"}`);
+  return [title, ...lines].join("<br/>");
+}
+
 /**
  * 生成总览视图。
  *
  * 顶部固定展示文本 Token、图片数量、视频时长三个主指标，
- * 下方图表共享同一指标切换状态，避免再次退回到“只看 Token”的语义。
+ * 下方图表改为三维归一化合并视图，减少切换操作并通过悬浮提供真实数值。
  */
 export default function OverviewView() {
   const { filteredResult: result } = useData();
   const { locale, t } = useTranslation();
   const { theme } = useTheme();
-  const [metric, setMetric] = useState<DashboardMetricKey>("tokens");
   const daily = result?.daily ?? [];
   const keys = result?.keys ?? [];
   const summary = result?.summary;
@@ -38,32 +76,58 @@ export default function OverviewView() {
   const textColor = isDark ? "#98989D" : "#86868B";
   const gridColor = isDark ? "#2C2C2E" : "#E5E5EA";
   const palette = isDark
-    ? ["#F5F5F7", "#D2D2D7", "#98989D", "#636366", "#48484A", "#38383A"]
-    : ["#1D1D1F", "#636366", "#86868B", "#98989D", "#D2D2D7", "#E5E5EA"];
-  const metricOptions = useMemo(() => buildComparisonMetricItems(t), [t]);
-  const activeMetricLabel = metricOptions.find((item) => item.key === metric)?.label ?? "";
+    ? {
+        tokens: "#F5F5F7",
+        images: "#C7C7CC",
+        videoSeconds: "#8E8E93",
+      }
+    : {
+        tokens: "#1D1D1F",
+        images: "#636366",
+        videoSeconds: "#8E8E93",
+      };
+  const coreMetricItems = useMemo(() => buildCoreComparisonMetricItems(t), [t]);
   const heroItems = useMemo(
     () => (summary ? buildHeroMetricItems(summary, locale, t) : []),
     [locale, summary, t]
   );
 
-  const dailyTitle = locale === "zh" ? `每日${activeMetricLabel}` : `Daily ${activeMetricLabel}`;
-  const distributionTitle = locale === "zh" ? `${activeMetricLabel} 按 Key 分布` : `${activeMetricLabel} by API Key`;
-
   const dailyOption = useMemo(() => {
     const dates = [...new Set(daily.map((item) => item.date))].sort();
-    const byDate = new Map<string, number>();
+    const totalsByDate = new Map<
+      string,
+      {
+        tokens: number;
+        images: number;
+        videoSeconds: number;
+      }
+    >();
 
     for (const item of daily) {
-      byDate.set(item.date, (byDate.get(item.date) ?? 0) + getMetricValue(item, metric));
+      const current = totalsByDate.get(item.date) ?? { tokens: 0, images: 0, videoSeconds: 0 };
+      current.tokens += getMetricValue(item, "tokens");
+      current.images += getMetricValue(item, "images");
+      current.videoSeconds += getMetricValue(item, "videoSeconds");
+      totalsByDate.set(item.date, current);
     }
+
+    const rawValuesByMetric = {
+      tokens: dates.map((date) => totalsByDate.get(date)?.tokens ?? 0),
+      images: dates.map((date) => totalsByDate.get(date)?.images ?? 0),
+      videoSeconds: dates.map((date) => totalsByDate.get(date)?.videoSeconds ?? 0),
+    };
 
     return {
       tooltip: {
         trigger: "axis" as const,
-        valueFormatter: (value: unknown) => formatMetricValue(metric, value as number, locale),
+        axisPointer: { type: "shadow" as const },
+        formatter: formatAxisTooltip,
       },
-      grid: { top: 8, right: 16, bottom: 24, left: 52 },
+      legend: {
+        top: 0,
+        textStyle: { fontSize: 11, color: textColor },
+      },
+      grid: { top: 36, right: 16, bottom: 28, left: 52 },
       xAxis: {
         type: "category" as const,
         data: dates,
@@ -72,57 +136,120 @@ export default function OverviewView() {
       },
       yAxis: {
         type: "value" as const,
+        max: 100,
         axisLabel: {
           fontSize: 10,
           color: textColor,
-          formatter: (value: number) => formatMetricValue(metric, value, locale),
+          formatter: (value: number) => `${value}%`,
         },
         splitLine: { lineStyle: { color: gridColor } },
       },
-      series: [
-        {
-          type: "bar",
-          data: dates.map((date) => byDate.get(date) ?? 0),
-          itemStyle: { color: isDark ? "#F5F5F7" : "#1D1D1F", borderRadius: [4, 4, 0, 0] },
-        },
-      ],
-    };
-  }, [daily, gridColor, isDark, locale, metric, textColor]);
+      dataZoom: dates.length > 30 ? [{ type: "inside" as const }] : undefined,
+      series: coreMetricItems.map((metricItem) => {
+        const rawValues = rawValuesByMetric[metricItem.key as "tokens" | "images" | "videoSeconds"];
+        const normalizedValues = normalizeValues(rawValues);
 
-  const donutOption = useMemo(() => {
-    const data = keys
+        return {
+          name: metricItem.label,
+          type: "bar" as const,
+          barMaxWidth: 18,
+          itemStyle: {
+            color: palette[metricItem.key as "tokens" | "images" | "videoSeconds"],
+            borderRadius: [4, 4, 0, 0] as [number, number, number, number],
+          },
+          data: normalizedValues.map((value, index) => ({
+            value,
+            rawValue: rawValues[index],
+            formattedValue: formatMetricValue(metricItem.key, rawValues[index], locale),
+          })),
+        };
+      }),
+    };
+  }, [coreMetricItems, daily, gridColor, locale, palette, textColor]);
+
+  const distributionOption = useMemo(() => {
+    const rankedRows = keys
       .map((item) => ({
         name: item.apiKeyName,
-        value: getMetricValue(item, metric),
+        tokens: getMetricValue(item, "tokens"),
+        images: getMetricValue(item, "images"),
+        videoSeconds: getMetricValue(item, "videoSeconds"),
       }))
-      .filter((item) => item.value > 0);
+      .filter((item) => item.tokens > 0 || item.images > 0 || item.videoSeconds > 0);
+
+    const maxValues = {
+      tokens: Math.max(...rankedRows.map((item) => item.tokens), 0),
+      images: Math.max(...rankedRows.map((item) => item.images), 0),
+      videoSeconds: Math.max(...rankedRows.map((item) => item.videoSeconds), 0),
+    };
+
+    const topRows = rankedRows
+      .map((item) => {
+        const normalized = {
+          tokens: maxValues.tokens > 0 ? Number(((item.tokens / maxValues.tokens) * 100).toFixed(2)) : 0,
+          images: maxValues.images > 0 ? Number(((item.images / maxValues.images) * 100).toFixed(2)) : 0,
+          videoSeconds:
+            maxValues.videoSeconds > 0 ? Number(((item.videoSeconds / maxValues.videoSeconds) * 100).toFixed(2)) : 0,
+        };
+
+        return {
+          ...item,
+          normalized,
+          score: normalized.tokens + normalized.images + normalized.videoSeconds,
+        };
+      })
+      .sort((left, right) => right.score - left.score)
+      .slice(0, 8);
 
     return {
       tooltip: {
-        trigger: "item" as const,
-        valueFormatter: (value: unknown) => formatMetricValue(metric, value as number, locale),
+        trigger: "axis" as const,
+        axisPointer: { type: "shadow" as const },
+        formatter: formatAxisTooltip,
       },
       legend: {
-        orient: "vertical" as const,
-        right: 0,
-        top: "center",
+        top: 0,
         textStyle: { fontSize: 11, color: textColor },
       },
-      color: palette,
-      series: [
-        {
-          type: "pie",
-          radius: ["42%", "68%"],
-          center: ["35%", "50%"],
-          data,
-          label: { show: false },
-          emphasis: {
-            label: { show: true, fontSize: 12, fontWeight: "bold" as const },
-          },
+      grid: { top: 36, right: 20, bottom: 8, left: 120 },
+      xAxis: {
+        type: "value" as const,
+        max: 100,
+        axisLabel: {
+          fontSize: 10,
+          color: textColor,
+          formatter: (value: number) => `${value}%`,
         },
-      ],
+        splitLine: { lineStyle: { color: gridColor } },
+      },
+      yAxis: {
+        type: "category" as const,
+        inverse: true,
+        data: topRows.map((item) => item.name),
+        axisLabel: { fontSize: 10, color: textColor },
+        axisLine: { show: false },
+        axisTick: { show: false },
+      },
+      series: coreMetricItems.map((metricItem) => ({
+        name: metricItem.label,
+        type: "bar" as const,
+        barMaxWidth: 12,
+        itemStyle: {
+          color: palette[metricItem.key as "tokens" | "images" | "videoSeconds"],
+          borderRadius: [0, 4, 4, 0] as [number, number, number, number],
+        },
+        data: topRows.map((item) => ({
+          value: item.normalized[metricItem.key as "tokens" | "images" | "videoSeconds"],
+          rawValue: item[metricItem.key as "tokens" | "images" | "videoSeconds"],
+          formattedValue: formatMetricValue(
+            metricItem.key,
+            item[metricItem.key as "tokens" | "images" | "videoSeconds"],
+            locale
+          ),
+        })),
+      })),
     };
-  }, [keys, locale, metric, palette, textColor]);
+  }, [coreMetricItems, gridColor, keys, locale, palette, textColor]);
 
   if (!result) return null;
 
@@ -151,44 +278,25 @@ export default function OverviewView() {
         sideNote={`${summary.totalRequests.toLocaleString(locale)} ${t.metrics.requests} · ${summary.activeKeys.toLocaleString(locale)} ${t.kpi.activeKeys}`}
       />
 
-      <div className="mb-6 flex flex-wrap items-center gap-3">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.24em]" style={{ color: "var(--text-secondary)" }}>
-          {t.overview.chartMetricLabel}
-        </span>
-        <div className="flex flex-wrap gap-2">
-          {metricOptions.map((item) => (
-            <button
-              key={item.key}
-              type="button"
-              onClick={() => setMetric(item.key)}
-              className="rounded-full border px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.18em] transition-colors duration-200"
-              style={{
-                borderColor: metric === item.key ? "var(--text-primary)" : "var(--border)",
-                color: metric === item.key ? "var(--accent-inverse)" : "var(--text-secondary)",
-                background: metric === item.key ? "var(--text-primary)" : "transparent",
-              }}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
+      <div className="mb-6 text-[11px] font-semibold uppercase tracking-[0.24em]" style={{ color: "var(--text-secondary)" }}>
+        {t.overview.normalizedHint}
       </div>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         <div>
           <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.24em]" style={{ color: "var(--text-secondary)" }}>
-            {dailyTitle}
+            {t.overview.dailyCoreMetrics}
           </h3>
-          <div aria-label={dailyTitle} role="img">
-            <ReactECharts option={dailyOption} style={{ height: 300 }} />
+          <div aria-label={t.overview.dailyCoreMetrics} role="img">
+            <ReactECharts option={dailyOption} style={{ height: 320 }} />
           </div>
         </div>
         <div>
           <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.24em]" style={{ color: "var(--text-secondary)" }}>
-            {distributionTitle}
+            {t.overview.coreMetricsByKey}
           </h3>
-          <div aria-label={distributionTitle} role="img">
-            <ReactECharts option={donutOption} style={{ height: 300 }} />
+          <div aria-label={t.overview.coreMetricsByKey} role="img">
+            <ReactECharts option={distributionOption} style={{ height: 320 }} />
           </div>
         </div>
       </div>

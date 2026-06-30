@@ -28,7 +28,6 @@ import {
   buildComparisonMetricItems,
   buildHeroMetricItems,
   formatMetricValue,
-  getMetricLabel,
   getMetricValue,
   sortByMetric,
 } from "@/lib/dashboardMetrics";
@@ -134,7 +133,7 @@ export default function ProjectView() {
 
   const sortedProjects = useMemo(() => sortByMetric(projects, metric), [metric, projects]);
   const metricOptions = useMemo(() => buildComparisonMetricItems(t), [t]);
-  const activeMetricLabel = getMetricLabel(metric, t);
+  const activeMetricLabel = metricOptions.find((item) => item.key === metric)?.label ?? "";
   const heroItems = useMemo(() => buildHeroMetricItems(summary, locale, t), [locale, summary, t]);
 
   const maxMetricValue = Math.max(...sortedProjects.map((project) => getMetricValue(project, metric)), 1);

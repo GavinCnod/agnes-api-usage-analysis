@@ -79,6 +79,24 @@ export function getMetricLabel(metric: DashboardMetricKey, t: TranslationKeys): 
 }
 
 /**
+ * 返回切换 Tab 与排序切换专用的指标展示名称。
+ */
+export function getComparisonMetricLabel(metric: DashboardMetricKey, t: TranslationKeys): string {
+  switch (metric) {
+    case "tokens":
+      return t.metrics.tabTextTokens;
+    case "images":
+      return t.metrics.tabImages;
+    case "videoSeconds":
+      return t.metrics.tabVideoSeconds;
+    case "requests":
+      return t.metrics.requests;
+    case "cost":
+      return t.metrics.cost;
+  }
+}
+
+/**
  * 统一格式化指标值，保证 Hero、图表和表格口径一致。
  */
 export function formatMetricValue(
@@ -123,7 +141,17 @@ export function buildHeroMetricItems(
 export function buildComparisonMetricItems(t: TranslationKeys): Array<{ key: DashboardMetricKey; label: string }> {
   return COMPARISON_METRIC_KEYS.map((metric) => ({
     key: metric,
-    label: getMetricLabel(metric, t),
+    label: getComparisonMetricLabel(metric, t),
+  }));
+}
+
+/**
+ * 构造仅包含三维核心指标的对比标签列表。
+ */
+export function buildCoreComparisonMetricItems(t: TranslationKeys): Array<{ key: DashboardMetricKey; label: string }> {
+  return HERO_METRIC_KEYS.map((metric) => ({
+    key: metric,
+    label: getComparisonMetricLabel(metric, t),
   }));
 }
 

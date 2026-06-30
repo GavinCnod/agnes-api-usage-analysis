@@ -2,34 +2,72 @@
 
 /**
  * 文件说明：
- * 趋势视图模块，负责在固定三维 Hero 之下展示可切换的多指标趋势图。
+ * 趋势视图模块，负责在固定三维 Hero 之下展示归一化的三维合并趋势图。
  */
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import ReactECharts from "echarts-for-react";
 import { useData } from "@/lib/DataContext";
 import { useTranslation } from "@/i18n";
 import { useTheme } from "@/lib/ThemeContext";
 import MetricHero from "@/components/MetricHero";
 import {
-  type DashboardMetricKey,
-  buildComparisonMetricItems,
+  buildCoreComparisonMetricItems,
   buildHeroMetricItems,
   formatMetricValue,
   getMetricValue,
 } from "@/lib/dashboardMetrics";
 
+/** 图表单点数据。 */
+interface ChartDatum {
+  value: number;
+  rawValue: number;
+  formattedValue: string;
+}
+
+/** ECharts tooltip 参数的最小结构。 */
+interface TooltipParam {
+  axisValue?: string;
+  axisValueLabel?: string;
+  seriesName: string;
+  marker?: string;
+  data?: ChartDatum;
+}
+
+/**
+ * 将同一指标序列归一化到 0-100，便于在一张趋势图内比较变化方向。
+ */
+function normalizeValues(values: number[]): number[] {
+  const maxValue = Math.max(...values, 0);
+  if (maxValue <= 0) {
+    return values.map(() => 0);
+  }
+
+  return values.map((value) => Number(((value / maxValue) * 100).toFixed(2)));
+}
+
+/**
+ * 构造轴触发 tooltip，优先展示悬浮位置的原始真实数值。
+ */
+function formatAxisTooltip(params: unknown): string {
+  const items = (Array.isArray(params) ? params : [params]) as TooltipParam[];
+  if (items.length === 0) return "";
+
+  const title = items[0]?.axisValueLabel ?? items[0]?.axisValue ?? "";
+  const lines = items.map((item) => `${item.marker ?? ""}${item.seriesName}: ${item.data?.formattedValue ?? "-"}`);
+  return [title, ...lines].join("<br/>");
+}
+
 /**
  * 趋势视图组件。
  *
  * Hero 固定展示文本 Token、图片数量、视频时长，
- * 趋势图区域承担请求数、费用等辅助指标切换。
+ * 下方趋势图将三维核心指标归一化叠加，减少交互切换并保留 hover 真实数值。
  */
 export default function TrendsView() {
   const { filteredResult: result } = useData();
   const { locale, t } = useTranslation();
   const { theme } = useTheme();
-  const [metric, setMetric] = useState<DashboardMetricKey>("tokens");
   const daily = result?.daily ?? [];
   const summary = result?.summary;
 
@@ -37,27 +75,51 @@ export default function TrendsView() {
   const isDark = theme === "dark";
   const textColor = isDark ? "#98989D" : "#86868B";
   const gridColor = isDark ? "#2C2C2E" : "#E5E5EA";
-  const lineColor = isDark ? "#F5F5F7" : "#1D1D1F";
-  const metricOptions = useMemo(() => buildComparisonMetricItems(t), [t]);
-  const activeMetricLabel = metricOptions.find((item) => item.key === metric)?.label ?? "";
+  const palette = isDark
+    ? {
+        tokens: "#F5F5F7",
+        images: "#C7C7CC",
+        videoSeconds: "#8E8E93",
+      }
+    : {
+        tokens: "#1D1D1F",
+        images: "#636366",
+        videoSeconds: "#8E8E93",
+      };
+  const coreMetricItems = useMemo(() => buildCoreComparisonMetricItems(t), [t]);
   const heroItems = useMemo(
     () => (summary ? buildHeroMetricItems(summary, locale, t) : []),
     [locale, summary, t]
   );
 
   const option = useMemo(() => {
-    const byDate = new Map<string, number>();
+    const totalsByDate = new Map<
+      string,
+      {
+        tokens: number;
+        images: number;
+        videoSeconds: number;
+      }
+    >();
 
     for (const item of daily) {
-      byDate.set(item.date, (byDate.get(item.date) ?? 0) + getMetricValue(item, metric));
+      const current = totalsByDate.get(item.date) ?? { tokens: 0, images: 0, videoSeconds: 0 };
+      current.tokens += getMetricValue(item, "tokens");
+      current.images += getMetricValue(item, "images");
+      current.videoSeconds += getMetricValue(item, "videoSeconds");
+      totalsByDate.set(item.date, current);
     }
 
     return {
       tooltip: {
         trigger: "axis" as const,
-        valueFormatter: (value: unknown) => formatMetricValue(metric, value as number, locale),
+        formatter: formatAxisTooltip,
       },
-      grid: { top: 8, right: 16, bottom: 24, left: 52 },
+      legend: {
+        top: 0,
+        textStyle: { fontSize: 11, color: textColor },
+      },
+      grid: { top: 36, right: 16, bottom: 28, left: 52 },
       xAxis: {
         type: "category" as const,
         data: dates,
@@ -66,24 +128,34 @@ export default function TrendsView() {
       },
       yAxis: {
         type: "value" as const,
+        max: 100,
         axisLabel: {
           fontSize: 10,
           color: textColor,
-          formatter: (value: number) => formatMetricValue(metric, value, locale),
+          formatter: (value: number) => `${value}%`,
         },
         splitLine: { lineStyle: { color: gridColor } },
       },
       dataZoom: dates.length > 30 ? [{ type: "inside" as const }] : undefined,
-      series: [
-        {
-          type: "line",
-          data: dates.map((date) => {
-            const value = byDate.get(date) ?? 0;
-            return +value.toFixed(4);
-          }),
+      series: coreMetricItems.map((metricItem) => {
+        const rawValues = dates.map(
+          (date) => totalsByDate.get(date)?.[metricItem.key as "tokens" | "images" | "videoSeconds"] ?? 0
+        );
+        const normalizedValues = normalizeValues(rawValues);
+
+        return {
+          name: metricItem.label,
+          type: "line" as const,
+          data: normalizedValues.map((value, index) => ({
+            value,
+            rawValue: rawValues[index],
+            formattedValue: formatMetricValue(metricItem.key, rawValues[index], locale),
+          })),
           smooth: true,
-          lineStyle: { color: lineColor, width: 2 },
-          itemStyle: { color: lineColor },
+          showSymbol: dates.length <= 40,
+          symbolSize: 6,
+          lineStyle: { color: palette[metricItem.key as "tokens" | "images" | "videoSeconds"], width: 2 },
+          itemStyle: { color: palette[metricItem.key as "tokens" | "images" | "videoSeconds"] },
           areaStyle: {
             color: {
               type: "linear" as const,
@@ -92,15 +164,29 @@ export default function TrendsView() {
               x2: 0,
               y2: 1,
               colorStops: [
-                { offset: 0, color: isDark ? "rgba(245,245,247,0.08)" : "rgba(29,29,31,0.04)" },
+                {
+                  offset: 0,
+                  color:
+                    metricItem.key === "tokens"
+                      ? isDark
+                        ? "rgba(245,245,247,0.10)"
+                        : "rgba(29,29,31,0.06)"
+                      : metricItem.key === "images"
+                        ? isDark
+                          ? "rgba(199,199,204,0.10)"
+                          : "rgba(99,99,102,0.06)"
+                        : isDark
+                          ? "rgba(142,142,147,0.10)"
+                          : "rgba(142,142,147,0.06)",
+                },
                 { offset: 1, color: "transparent" },
               ],
             },
           },
-        },
-      ],
+        };
+      }),
     };
-  }, [daily, dates, gridColor, isDark, lineColor, locale, metric, textColor]);
+  }, [coreMetricItems, daily, dates, gridColor, isDark, locale, palette, textColor]);
 
   if (!result) return null;
 
@@ -120,33 +206,13 @@ export default function TrendsView() {
         items={heroItems}
         eyebrow={t.trends.heroEyebrow}
         subtitle={t.trends.heroSubtitle.replace("{days}", String(dates.length))}
-        sideNote={`${t.trends.activeMetric}: ${activeMetricLabel}`}
+        sideNote={t.trends.normalizedHint}
       />
 
-      <div className="mb-6 flex flex-wrap items-center gap-3">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.24em]" style={{ color: "var(--text-secondary)" }}>
-          {t.trends.activeMetric}
-        </span>
-        <div className="flex flex-wrap gap-2">
-          {metricOptions.map((item) => (
-            <button
-              key={item.key}
-              type="button"
-              onClick={() => setMetric(item.key)}
-              className="rounded-full border px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.18em] transition-colors duration-200"
-              style={{
-                borderColor: metric === item.key ? "var(--text-primary)" : "var(--border)",
-                color: metric === item.key ? "var(--accent-inverse)" : "var(--text-secondary)",
-                background: metric === item.key ? "var(--text-primary)" : "transparent",
-              }}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div aria-label={activeMetricLabel} role="img">
+      <div aria-label={t.trends.coreMetricsTrend} role="img">
+        <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.24em]" style={{ color: "var(--text-secondary)" }}>
+          {t.trends.coreMetricsTrend}
+        </h3>
         <ReactECharts option={option} style={{ height: 360 }} />
       </div>
     </div>

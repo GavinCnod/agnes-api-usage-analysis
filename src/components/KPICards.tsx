@@ -2,7 +2,7 @@
 
 import { useData } from"@/lib/DataContext";
 import { useTranslation } from"@/i18n";
-import { formatCost, formatTokens } from"@/lib/format";
+import { formatCost } from"@/lib/format";
 import { buildHeroMetricItems } from "@/lib/dashboardMetrics";
 
 /**
@@ -27,36 +27,32 @@ export default function KPICards() {
  const items = [
   ...heroItems.map((item) => ({
    value: item.formattedValue,
-   label: item.label,
-   sub:
+   label:
     item.key === "tokens"
-     ? summary.dateRange
-       ? `${summary.dateRange.start} — ${summary.dateRange.end}`
-       :""
+     ? t.kpi.totalTextTokens
      : item.key === "images"
-      ? `${summary.imageRequestCount.toLocaleString(locale)} ${t.metrics.requests.toLowerCase()}`
-      : `${summary.videoRequestCount.toLocaleString(locale)} ${t.metrics.requests.toLowerCase()}`,
+      ? t.kpi.generatedImages
+      : item.key === "videoSeconds"
+       ? t.kpi.generatedVideoSeconds
+       : item.label,
   })),
   {
-  value: summary.totalRequests.toLocaleString(),
+  value: summary.totalRequests.toLocaleString(locale),
   label: t.kpi.totalRequests,
-  sub: t.kpi.requestsPerKey.replace("{count}", String(summary.activeKeys || 0)),
   },
   {
   value: formatCost(summary.totalCost, locale),
   label: t.kpi.totalCost,
-  sub: t.kpi.models.replace("{count}", String(summary.models.length)),
   },
   {
   value: String(summary.activeKeys),
   label: t.kpi.activeKeys,
-  sub:"",
   },
  ];
 
  return (
  <div className="mb-12 mt-4">
-  <div className="grid grid-cols-2 lg:grid-cols-6">
+  <div className="grid grid-cols-2 gap-x-4 lg:grid-cols-6 lg:gap-x-6">
   {items.map((item) => (
    <div key={item.label} className="px-0 py-5">
    <div
@@ -65,14 +61,9 @@ export default function KPICards() {
    >
     {item.value}
    </div>
-   <div className="text-xs font-medium mt-2 uppercase tracking-wider" style={{ color: "var(--text-secondary)" }}>
+   <div className="mt-2 text-xs font-medium uppercase leading-snug tracking-wider" style={{ color: "var(--text-secondary)" }}>
     {item.label}
    </div>
-   {item.sub && (
-    <div className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>
-    {item.sub}
-    </div>
-   )}
    </div>
   ))}
   </div>
