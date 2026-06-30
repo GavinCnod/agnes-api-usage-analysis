@@ -15,7 +15,7 @@ const SITE_URL =
 export function generateMetadata(): Metadata {
   const title = "Changelog — Agnes AI Usage Analytics Dashboard";
   const description =
-    "Complete changelog for the Agnes AI Usage Analytics Dashboard. Track all new features, improvements, bug fixes, and dependency changes across every release since v0.1.0. Built by Gavin & MindRose Team.";
+    "Complete changelog for the Agnes AI Usage Analytics Dashboard. Track all new features, improvements, bug fixes, and dependency changes from v0.1.0 through v0.1.1. Built by Gavin & MindRose Team.";
 
   return {
     title,
@@ -62,7 +62,7 @@ export function generateMetadata(): Metadata {
  * 更新日志页路由
  *
  * 静态导出兼容的独立更新日志页面，包含：
- * - 自 v0.1.0 至 当前版本 的完整版本变更记录
+ * - 自 v0.1.0 至 v0.1.1 的完整版本变更记录
  * - 按类别（新增/改进/修复/依赖）分组展示
  * - Apple 极简风格，与主应用一致
  * - 返回首页 + FooterBar

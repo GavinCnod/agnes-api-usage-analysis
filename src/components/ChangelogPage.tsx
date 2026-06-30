@@ -4,7 +4,7 @@
  * ChangelogPage —— Agnes 更新日志页面
  *
  * 当前页面作为 Agnes AI Usage Analysis 的版本历史入口：
- * 1. 展示 Agnes 迁移后的首个版本记录；
+ * 1. 展示 Agnes 迁移后的版本记录与后续迭代；
  * 2. 保留现有法律页风格与中英双语能力；
  * 3. 通过 JSON-LD 输出基础 WebPage 结构化数据。
  */
@@ -39,6 +39,40 @@ interface VersionEntry {
  * Agnes 当前版本历史。
  */
 const CHANGELOG_DATA: VersionEntry[] = [
+  {
+    version: "v0.1.1",
+    date: "2026-06-30",
+    added: [
+      {
+        zh: "Overview 与 Trends 改为三维核心指标的相对对比图，减少原有单指标切换操作，同时保留真实数值悬浮查看。",
+        en: "Replaced the single-metric chart switchers in Overview and Trends with relative-comparison charts for the three core metrics while preserving raw-value hover details.",
+      },
+      {
+        zh: "Overview 与 Trends 的分享卡同步切换为三维相对对比图，并为文本 Token、图片数量、视频时长补充静态最高/最低标注。",
+        en: "Aligned Overview and Trends share cards with the new three-metric relative-comparison charts and added static peak/lowest annotations for text tokens, images, and video duration.",
+      },
+    ],
+    improved: [
+      {
+        zh: "统一 KPI、Tab 与分享卡中的核心指标命名，将文本、图片、视频描述改为更精确的产品文案。",
+        en: "Unified KPI, tab, and share-card naming for the three core metrics with more precise product-facing labels.",
+      },
+      {
+        zh: "简化 MetricHero 结构，移除 eyebrow，将 subtitle 与 sideNote 收敛为更克制的单行次级说明排版。",
+        en: "Simplified the MetricHero layout by removing the eyebrow and collapsing subtitle plus sideNote into a more restrained single-line secondary note.",
+      },
+      {
+        zh: "将应用显示层中的金额符号统一调整为美元，并同步更新相关文案与示例文本。",
+        en: "Standardized the displayed currency symbol to USD across the app and updated related copy and examples accordingly.",
+      },
+    ],
+    fixed: [
+      {
+        zh: "同步更新版本号、更新日志、README、用户手册与公开 LLM 文本，确保 0.1.1 版本信息一致。",
+        en: "Synchronized the version number across the changelog, README files, user guide, and public LLM text so all release-facing references now point to 0.1.1.",
+      },
+    ],
+  },
   {
     version: "v0.1.0",
     date: "2026-06-28",
@@ -89,12 +123,12 @@ export function ChangelogPage() {
   const isZh = locale === "zh";
 
   const intro = isZh
-    ? "这里记录 Agnes AI Usage Analysis 的版本演进。当前版本从旧项目迁移而来，但从产品语义、输入格式和仪表盘行为上已经收敛为 Agnes 单 CSV 分析工具。"
-    : "This page tracks the evolution of Agnes AI Usage Analysis. The current version is migrated from an earlier project, but its product wording, input format, and dashboard behavior are now fully centered on Agnes single-CSV analytics.";
+    ? "这里记录 Agnes AI Usage Analysis 的版本演进。v0.1.0 完成 Agnes 单 CSV 迁移，v0.1.1 继续围绕三维核心指标的表达、分享卡一致性与界面克制感进行收敛。"
+    : "This page tracks the evolution of Agnes AI Usage Analysis. Version 0.1.0 completed the Agnes single-CSV migration, and v0.1.1 continues refining the three-core-metric experience, share-card consistency, and restrained interface design.";
 
   const lastUpdated = isZh
-    ? "最后更新：2026-06-28"
-    : "Last Updated: 2026-06-28";
+    ? "最后更新：2026-06-30"
+    : "Last Updated: 2026-06-30";
 
   const changelogJsonLd = useMemo(() => {
     return {
@@ -104,8 +138,8 @@ export function ChangelogPage() {
         ? "更新日志 — Agnes AI Usage Analysis"
         : "Changelog — Agnes AI Usage Analysis",
       description: isZh
-        ? "Agnes AI Usage Analysis 的更新日志，记录 Agnes 单 CSV 分析器的功能演进与迁移说明。"
-        : "Changelog for Agnes AI Usage Analysis, tracking the evolution of the Agnes single-CSV analytics experience.",
+        ? "Agnes AI Usage Analysis 的更新日志，记录 Agnes 单 CSV 分析器从 v0.1.0 到 v0.1.1 的功能演进与界面改进。"
+        : "Changelog for Agnes AI Usage Analysis, tracking product and UI evolution from v0.1.0 to v0.1.1 for the Agnes single-CSV analytics experience.",
       about: {
         "@type": "Thing",
         name: isZh ? "更新日志" : "Changelog",

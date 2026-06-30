@@ -353,7 +353,7 @@ function createZhGuide(): GuideDocument {
 
   return {
     title: "Agnes AI Usage Analysis — 用户操作手册",
-    subtitle: "版本：v0.1.0 | 适用语言：中文 / English | 最后更新：2026-06-30",
+    subtitle: "版本：v0.1.1 | 适用语言：中文 / English | 最后更新：2026-06-30",
     sections,
     jsonLd: {
       name: "Agnes AI Usage Analysis — 用户操作手册",
@@ -650,7 +650,7 @@ function createEnGuide(): GuideDocument {
 
   return {
     title: "Agnes AI Usage Analysis — User Guide",
-    subtitle: "Version: v0.1.0 | Language: English / 中文 | Last Updated: 2026-06-30",
+    subtitle: "Version: v0.1.1 | Language: English / 中文 | Last Updated: 2026-06-30",
     sections,
     jsonLd: {
       name: "Agnes AI Usage Analysis — User Guide",

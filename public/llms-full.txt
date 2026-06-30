@@ -1,6 +1,6 @@
 # Agnes AI Usage Analytics Dashboard — Full Content
 
-> A browser-side analytics dashboard for Agnes AI usage. Upload a single usage CSV and get cost, token, request, per-key, and trend analytics without sending any data to a server. Built by Gavin Chen & the Mindrose team. Version `0.1.0`.
+> A browser-side analytics dashboard for Agnes AI usage. Upload a single usage CSV and get cost, token, request, per-key, and trend analytics without sending any data to a server. Built by Gavin Chen & the Mindrose team. Version `0.1.1`.
 
 ---
 
@@ -123,6 +123,6 @@ This is an independent open-source project by Gavin Chen and the Mindrose team. 
 
 ## Migration Notes
 
-- Current migration version: `0.1.0`
+- Current migration version: `0.1.1`
 - Default public domain fallback remains `https://agnes-usage.xyz`
 - Existing external links are intentionally preserved for now

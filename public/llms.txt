@@ -28,6 +28,6 @@
 
 ## Notes
 
-- Current app version: `0.1.0`
+- Current app version: `0.1.1`
 - Default public domain fallback is still `https://agnes-usage.xyz`
 - External links are intentionally preserved during this migration pass

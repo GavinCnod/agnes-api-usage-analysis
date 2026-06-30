@@ -46,7 +46,7 @@ The current parser expects the Agnes usage export columns below:
 ## Key Behaviors
 
 - `Consumption Quantity` is parsed into input/output tokens.
-- `Consumption Amount(cents)` is aggregated as cost in yuan by dividing by `100`.
+- `Consumption Amount(cents)` is aggregated into displayed cost by dividing by `100`.
 - Rows with non-`success` status are ignored and surfaced as warnings.
 - Empty files, missing columns, malformed amounts, and invalid timestamps raise parse errors.
 
@@ -71,9 +71,14 @@ npm run build
 - qrcode
 - Vitest + Testing Library
 
+## Release Notes
+
+- `v0.1.1` — Refined the three-core-metric experience with relative-comparison charts in `Overview` / `Trends`, aligned share cards with static peak/lowest annotations, updated KPI wording, simplified the Hero layout, and synchronized release-facing docs to `0.1.1`.
+- `v0.1.0` — Migrated the product from the earlier DeepSeek usage-analysis project to the Agnes single-CSV workflow, removed cache-era semantics, and rewrote the UI, SEO, and docs around Agnes analytics.
+
 ## Project Notes
 
-- App version is `0.1.0`.
+- App version is `0.1.1`.
 - Default site URL fallback changed to `https://agnes-usage.xyz`.
 - The public GitHub link changed to `https://github.com/GavinCnod/agnes-api-usage-analysis`.
 - These external addresses are intentionally kept for now and are not part of this migration pass.

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useTranslation } from "@/i18n";
 
 /** 应用版本号，与当前 Agnes 迁移版本保持同步 */
-const APP_VERSION = "0.1.0";
+const APP_VERSION = "0.1.1";
 
 /** GitHub 仓库地址 */
 const GITHUB_URL = "https://github.com/GavinCnod/agnes-api-usage-analysis";

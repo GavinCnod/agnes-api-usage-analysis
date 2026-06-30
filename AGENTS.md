@@ -10,7 +10,7 @@ A browser-side dashboard for Agnes AI usage analytics. Users upload a single Agn
 
 Strictly follows an Apple-minimalist design language: cold gray paper-texture backgrounds, ample whitespace, full-width modules, thin horizontal dividers, subtle rounded corners, and diffuse shadows. Full light/dark theme support is driven by CSS custom properties.
 
-**Version**: `0.1.0`
+**Version**: `0.1.1`
 
 ## Locked Product Decisions
 

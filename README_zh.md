@@ -46,7 +46,7 @@
 ## 关键行为
 
 - `Consumption Quantity` 会被拆分为 input/output token。
-- `Consumption Amount(cents)` 会通过除以 `100` 聚合为元。
+- `Consumption Amount(cents)` 会通过除以 `100` 聚合为当前展示使用的费用数值。
 - 非 `success` 状态的记录会被忽略，并以 warning 形式提示。
 - 空文件、缺列、金额格式错误、时间字段非法等情况会直接报解析错误。
 
@@ -71,9 +71,14 @@ npm run build
 - qrcode
 - Vitest + Testing Library
 
+## 版本说明
+
+- `v0.1.1`：围绕三维核心指标继续打磨，`Overview` / `Trends` 改为相对对比图，分享卡补充静态最高/最低标注，统一 KPI 文案，简化 Hero 布局，并同步将所有面向发布的版本说明更新到 `0.1.1`。
+- `v0.1.0`：将产品从早期 DeepSeek 用量分析项目迁移为 Agnes 单 CSV 工作流，移除 Cache 时代语义，并按 Agnes 分析体验重写界面、SEO 与文档。
+
 ## 项目说明
 
-- 当前应用版本为 `0.1.0`。
+- 当前应用版本为 `0.1.1`。
 - 站点默认 URL fallback 已经改为 `https://agnes-usage.xyz`。
 - 对外 GitHub 链接已经改为 `https://github.com/GavinCnod/agnes-api-usage-analysis`。 
 - 这些外部地址是当前阶段刻意保留的边界，不在本轮 Agnes 迁移里替换。
